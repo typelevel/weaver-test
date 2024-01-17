@@ -6,6 +6,8 @@ import cats.{ Applicative, Defer, Show }
 
 import org.scalacheck.rng.Seed
 import org.scalacheck.{ Arbitrary, Gen }
+import cats.Monad
+import cats.StackSafeMonad
 
 trait Checkers {
   self: EffectSuiteAux =>
@@ -22,18 +24,23 @@ trait Checkers {
   // Configuration for property-based tests
   def checkConfig: CheckConfig = CheckConfig.default
 
+  private implicit val genMonad: Monad[Gen] = new StackSafeMonad[Gen] {
+    override def flatMap[A, B](fa: Gen[A])(f: A => Gen[B]): Gen[B] =
+      fa.flatMap(f)
+
+    def pure[A](x: A): Gen[A] = Gen.const(x)
+  }
+
   class PartiallyAppliedForall(config: CheckConfig) {
 
     def apply[A1: Arbitrary: Show, B: PropF](f: A1 => B)(
         implicit loc: SourceLocation): F[Expectations] =
       forall(implicitly[Arbitrary[A1]].arbitrary)(liftProp[A1, B](f))
 
-    def apply[A1: Arbitrary: Show, A2: Arbitrary: Show, B: PropF](f: (
-        A1,
-        A2) => B)(
+    def apply[A1: Arbitrary: Show, A2: Arbitrary: Show, B: PropF](
+        f: (A1, A2) => B)(
         implicit loc: SourceLocation): F[Expectations] =
-      forall(implicitly[Arbitrary[(A1, A2)]].arbitrary)(liftProp(
-        f.tupled))
+      forall(implicitly[Arbitrary[(A1, A2)]].arbitrary)(liftProp(f.tupled))
 
     def apply[
         A1: Arbitrary: Show,
@@ -41,13 +48,8 @@ trait Checkers {
         A3: Arbitrary: Show,
         B: PropF](
         f: (A1, A2, A3) => B)(
-        implicit loc: SourceLocation): F[Expectations] = {
-      implicit val tuple3Show: Show[(A1, A2, A3)] = {
-        case (a1, a2, a3) => s"(${a1.show},${a2.show},${a3.show})"
-      }
-      forall(implicitly[Arbitrary[(A1, A2, A3)]].arbitrary)(liftProp(
-        f.tupled))
-    }
+        implicit loc: SourceLocation): F[Expectations] =
+      forall(implicitly[Arbitrary[(A1, A2, A3)]].arbitrary)(liftProp(f.tupled))
 
     def apply[
         A1: Arbitrary: Show,
@@ -56,14 +58,9 @@ trait Checkers {
         A4: Arbitrary: Show,
         B: PropF
     ](f: (A1, A2, A3, A4) => B)(
-        implicit loc: SourceLocation): F[Expectations] = {
-      implicit val tuple3Show: Show[(A1, A2, A3, A4)] = {
-        case (a1, a2, a3, a4) =>
-          s"(${a1.show},${a2.show},${a3.show},${a4.show})"
-      }
+        implicit loc: SourceLocation): F[Expectations] =
       forall(implicitly[Arbitrary[(A1, A2, A3, A4)]].arbitrary)(
         liftProp(f.tupled))
-    }
 
     def apply[
         A1: Arbitrary: Show,
@@ -73,14 +70,9 @@ trait Checkers {
         A5: Arbitrary: Show,
         B: PropF
     ](f: (A1, A2, A3, A4, A5) => B)(
-        implicit loc: SourceLocation): F[Expectations] = {
-      implicit val tuple3Show: Show[(A1, A2, A3, A4, A5)] = {
-        case (a1, a2, a3, a4, a5) =>
-          s"(${a1.show},${a2.show},${a3.show},${a4.show},${a5.show})"
-      }
+        implicit loc: SourceLocation): F[Expectations] =
       forall(implicitly[Arbitrary[(A1, A2, A3, A4, A5)]].arbitrary)(
         liftProp(f.tupled))
-    }
 
     def apply[
         A1: Arbitrary: Show,
@@ -91,18 +83,71 @@ trait Checkers {
         A6: Arbitrary: Show,
         B: PropF
     ](f: (A1, A2, A3, A4, A5, A6) => B)(
-        implicit loc: SourceLocation): F[Expectations] = {
-      implicit val tuple3Show: Show[(A1, A2, A3, A4, A5, A6)] = {
-        case (a1, a2, a3, a4, a5, a6) =>
-          s"(${a1.show},${a2.show},${a3.show},${a4.show},${a5.show},${a6.show})"
-      }
+        implicit loc: SourceLocation): F[Expectations] =
       forall(implicitly[Arbitrary[(A1, A2, A3, A4, A5, A6)]].arbitrary)(
         liftProp(f.tupled))
-    }
 
     def apply[A: Show, B: PropF](gen: Gen[A])(f: A => B)(
         implicit loc: SourceLocation): F[Expectations] =
       forall_(gen, liftProp(f))
+
+    def apply[A1: Show, A2: Show, C: PropF](genA1: Gen[A1], genA2: Gen[A2])(
+        f: (A1, A2) => C)(
+        implicit loc: SourceLocation): F[Expectations] =
+      forall_(
+        (genA1, genA2).tupled,
+        liftProp(f.tupled))
+
+    def apply[A1: Show, A2: Show, A3: Show, C: PropF](
+        genA1: Gen[A1],
+        genA2: Gen[A2],
+        genA3: Gen[A3])(f: (A1, A2, A3) => C)(
+        implicit loc: SourceLocation): F[Expectations] =
+      forall_(
+        (genA1, genA2, genA3).tupled,
+        liftProp(f.tupled))
+
+    def apply[A1: Show, A2: Show, A3: Show, A4: Show, C: PropF](
+        genA1: Gen[A1],
+        genA2: Gen[A2],
+        genA3: Gen[A3],
+        genA4: Gen[A4])(f: (A1, A2, A3, A4) => C)(
+        implicit loc: SourceLocation): F[Expectations] =
+      forall_(
+        (genA1, genA2, genA3, genA4).tupled,
+        liftProp(f.tupled))
+
+    def apply[A1: Show, A2: Show, A3: Show, A4: Show, A5: Show, C: PropF](
+        genA1: Gen[A1],
+        genA2: Gen[A2],
+        genA3: Gen[A3],
+        genA4: Gen[A4],
+        genA5: Gen[A5])(f: (A1, A2, A3, A4, A5) => C)(
+        implicit loc: SourceLocation): F[Expectations] =
+      forall_(
+        (genA1, genA2, genA3, genA4, genA5).tupled,
+        liftProp(f.tupled)
+      )
+
+    def apply[
+        A1: Show,
+        A2: Show,
+        A3: Show,
+        A4: Show,
+        A5: Show,
+        A6: Show,
+        C: PropF](
+        genA1: Gen[A1],
+        genA2: Gen[A2],
+        genA3: Gen[A3],
+        genA4: Gen[A4],
+        genA5: Gen[A5],
+        genA6: Gen[A6])(f: (A1, A2, A3, A4, A5, A6) => C)(
+        implicit loc: SourceLocation): F[Expectations] =
+      forall_(
+        (genA1, genA2, genA3, genA4, genA5, genA6).tupled,
+        liftProp(f.tupled)
+      )
 
     private def forall_[A: Show](gen: Gen[A], f: A => F[Expectations])(
         implicit loc: SourceLocation): F[Expectations] = {
