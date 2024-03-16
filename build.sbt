@@ -204,20 +204,7 @@ lazy val docs = project
       "org.http4s"    %% "http4s-blaze-client" % Version.http4sBlaze,
       "org.typelevel" %% "cats-laws"           % Version.catsLaws
     ),
-    tlSiteHelium ~= (_.site.inlineCSS(
-      """div.terminal {
-        |  color: white;
-        |  background-color: black;
-        |}
-        |
-        |div.terminal pre {
-        |  background-color: black;
-        |  color: white;
-        |  padding: 20px;
-        |  overflow: auto
-        |}
-        |""".stripMargin
-    )
+    tlSiteHelium ~= (_.site.internalCSS(Root / "assets")
       .site.landingPage(
         logo = Some(Image.internal(Root / "assets/logo.png")),
         title = Some("Weaver"),
