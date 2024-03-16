@@ -19,8 +19,8 @@ object Output {
 
   def runSuites(s: Suite[IO]*): String = {
     import cats.effect.unsafe.implicits.global
-    val header = "<div class='terminal'><pre><code class = 'nohighlight'>"
-    val footer = "</code></pre></div>"
+    val header = "<div class='terminal'><pre>"
+    val footer = "</pre></div>"
 
     val program = for {
       buf <- Ref.of[IO, NonEmptyChain[String]](NonEmptyChain(header))

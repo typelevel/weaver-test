@@ -1,3 +1,5 @@
+import laika.config.LinkValidation
+import org.typelevel.sbt.site.TypelevelSiteSettings
 import sbt.librarymanagement.Configurations.ScalaDocTool
 
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
@@ -16,12 +18,15 @@ ThisBuild / tlCiHeaderCheck := false
 // publish to s01.oss.sonatype.org (set to true to publish to oss.sonatype.org instead)
 ThisBuild / tlSonatypeUseLegacyHost := false
 
+// enable the sbt-typelevel-site laika documentation
+ThisBuild / tlSitePublishBranch := Some("main")
+
 // use JDK 11
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
 
-val scala212 = "2.12.17"
-val scala213 = "2.13.10"
-ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.1")
+val scala212 = "2.12.18"
+val scala213 = "2.13.13"
+ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.3")
 ThisBuild / scalaVersion       := scala213 // the default Scala
 
 val Version = new {
@@ -38,6 +43,8 @@ val Version = new {
   val scalajsStubs           = "1.1.0"
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
+  val http4s                 = "0.23.26"
+  val http4sBlaze            = "0.23.16"
 }
 
 lazy val root = tlCrossRootProject.aggregate(core,
@@ -150,4 +157,59 @@ lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       "org.typelevel" %%% "discipline-core" % Version.discipline,
       "org.typelevel" %%% "cats-laws"       % Version.catsLaws % Test
     )
+  )
+
+lazy val docsOutput = crossProject(JVMPlatform)
+  .in(file("modules/docs"))
+  .dependsOn(core, framework, coreCats, cats, scalacheck, discipline)
+  .settings(
+    moduleName := "docs",
+    name       := "output for documentation",
+    watchSources += (ThisBuild / baseDirectory).value / "docs",
+    libraryDependencies ++= Seq(
+      "org.http4s"    %% "http4s-dsl"          % Version.http4s,
+      "org.http4s"    %% "http4s-blaze-server" % Version.http4sBlaze,
+      "org.http4s"    %% "http4s-blaze-client" % Version.http4sBlaze,
+      "com.lihaoyi"   %% "fansi"               % "0.2.7",
+      "org.typelevel" %% "cats-kernel-laws"    % Version.catsLaws
+    )
+  )
+
+lazy val docs = project
+  .in(file("site"))
+  .enablePlugins(TypelevelSitePlugin)
+  .dependsOn(
+    core.jvm,
+    framework.jvm,
+    coreCats.jvm,
+    cats.jvm,
+    scalacheck.jvm,
+    discipline.jvm,
+    docsOutput.jvm)
+  .settings(
+    moduleName := "weaver-docs",
+    name       := "Weaver documentation",
+    watchSources += (ThisBuild / baseDirectory).value / "docs",
+    libraryDependencies ++= Seq(
+      "org.http4s"    %% "http4s-dsl"          % Version.http4s,
+      "org.http4s"    %% "http4s-blaze-server" % Version.http4sBlaze,
+      "org.http4s"    %% "http4s-blaze-client" % Version.http4sBlaze,
+      "org.typelevel" %% "cats-laws"           % Version.catsLaws
+    ),
+    tlSiteHelium ~= (_.site.inlineCSS(
+      """div.terminal {
+        |  color: white;
+        |  background-color: black;
+        |}
+        |
+        |div.terminal pre {
+        |  background-color: black;
+        |  color: white;
+        |  padding: 20px;
+        |  overflow: auto
+        |}
+        |""".stripMargin
+    )),
+    laikaConfig ~= (_.withConfigValue(LinkValidation.Global(excluded =
+      Seq(laika.ast.Path.Root / "docs/assets/runs"))).withRawContent)
   )
