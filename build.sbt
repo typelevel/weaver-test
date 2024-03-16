@@ -1,3 +1,11 @@
+import laika.helium.config.TextLink
+import laika.helium.config.ReleaseInfo
+import laika.helium.config.HeliumIcon
+import laika.helium.config.IconLink
+import laika.helium.config.LinkGroup
+import laika.helium.config.VersionMenu
+import laika.ast.Path.Root
+import laika.ast.Image
 import laika.config.LinkValidation
 import org.typelevel.sbt.site.TypelevelSiteSettings
 import sbt.librarymanagement.Configurations.ScalaDocTool
@@ -209,7 +217,29 @@ lazy val docs = project
         |  overflow: auto
         |}
         |""".stripMargin
-    )),
+    )
+      .site.landingPage(
+        logo = Some(Image.internal(Root / "assets/logo.png")),
+        title = Some("Weaver"),
+        subtitle = Some("A test framework that runs everything in parallel."),
+        latestReleases = Seq(
+          ReleaseInfo("Upcoming Stable Release", "1.0.0")
+        ),
+        license = Some("Apache2"),
+        titleLinks = Seq(
+          VersionMenu.create(unversionedLabel = "Getting Started"),
+          LinkGroup.create(
+            IconLink.external("https://github.com/typelevel/weaver-test",
+                              HeliumIcon.github),
+            IconLink.external("https://discord.gg/XF3CXcMzqD", HeliumIcon.chat)
+          )
+        ),
+        documentationLinks = Seq(
+          TextLink.internal(Root / "overview/installation.md", "Installation"),
+          TextLink.internal(Root / "features/expectations.md",
+                            "Expectations (Assertions)")
+        )
+      )),
     laikaConfig ~= (_.withConfigValue(LinkValidation.Global(excluded =
-      Seq(laika.ast.Path.Root / "docs/assets/runs"))).withRawContent)
+      Seq(Root / "assets"))).withRawContent)
   )
