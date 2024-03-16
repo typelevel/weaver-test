@@ -80,11 +80,11 @@ jobs:
 
       - name: Make target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
-        run: mkdir -p modules/scalacheck/native/target modules/framework-cats/native/target modules/framework/jvm/target modules/core/native/target modules/framework/native/target modules/core/js/target modules/framework/js/target modules/core/jvm/target modules/core-cats/native/target modules/discipline/native/target modules/core-cats/js/target modules/framework-cats/js/target modules/framework-cats/jvm/target modules/discipline/js/target modules/scalacheck/jvm/target modules/discipline/jvm/target modules/core-cats/jvm/target modules/scalacheck/js/target project/target
+        run: mkdir -p modules/scalacheck/native/target modules/framework-cats/native/target modules/framework/jvm/target modules/docs/jvm/target modules/core/native/target modules/framework/native/target modules/core/js/target modules/framework/js/target modules/core/jvm/target modules/core-cats/native/target modules/discipline/native/target modules/core-cats/js/target modules/framework-cats/js/target modules/framework-cats/jvm/target modules/discipline/js/target modules/scalacheck/jvm/target modules/discipline/jvm/target modules/core-cats/jvm/target modules/scalacheck/js/target project/target
 
       - name: Compress target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
-        run: tar cf targets.tar modules/scalacheck/native/target modules/framework-cats/native/target modules/framework/jvm/target modules/core/native/target modules/framework/native/target modules/core/js/target modules/framework/js/target modules/core/jvm/target modules/core-cats/native/target modules/discipline/native/target modules/core-cats/js/target modules/framework-cats/js/target modules/framework-cats/jvm/target modules/discipline/js/target modules/scalacheck/jvm/target modules/discipline/jvm/target modules/core-cats/jvm/target modules/scalacheck/js/target project/target
+        run: tar cf targets.tar modules/scalacheck/native/target modules/framework-cats/native/target modules/framework/jvm/target modules/docs/jvm/target modules/core/native/target modules/framework/native/target modules/core/js/target modules/framework/js/target modules/core/jvm/target modules/core-cats/native/target modules/discipline/native/target modules/core-cats/js/target modules/framework-cats/js/target modules/framework-cats/jvm/target modules/discipline/js/target modules/scalacheck/jvm/target modules/discipline/jvm/target modules/core-cats/jvm/target modules/scalacheck/js/target project/target
 
       - name: Upload target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
@@ -265,5 +265,42 @@ jobs:
       - name: Submit Dependencies
         uses: scalacenter/sbt-dependency-submission@v2
         with:
-          modules-ignore: rootjs_2.12 rootjs_2.13 rootjs_3 rootjvm_2.12 rootjvm_2.13 rootjvm_3 rootnative_2.12 rootnative_2.13 rootnative_3
+          modules-ignore: rootjs_2.12 rootjs_2.13 rootjs_3 weaver-docs_2.12 weaver-docs_2.13 weaver-docs_3 rootjvm_2.12 rootjvm_2.13 rootjvm_3 rootnative_2.12 rootnative_2.13 rootnative_3
           configs-ignore: test scala-tool scala-doc-tool test-internal
+
+  site:
+    name: Generate Site
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        java: [temurin@11]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout current branch (full)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java (temurin@11)
+        id: setup-java-temurin-11
+        if: matrix.java == 'temurin@11'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
+          cache: sbt
+
+      - name: sbt update
+        if: matrix.java == 'temurin@11' && steps.setup-java-temurin-11.outputs.cache-hit == 'false'
+        run: sbt +update
+
+      - name: Generate site
+        run: sbt docs/tlSite
+
+      - name: Publish site
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3.9.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site/target/docs/site
+          keep_files: true
