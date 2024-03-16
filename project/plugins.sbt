@@ -1,7 +1,7 @@
 // format: off
-addSbtPlugin("ch.epfl.scala"        % "sbt-scalafix"                  % "0.11.1")
+addSbtPlugin("ch.epfl.scala"        % "sbt-scalafix"                  % "0.12.0")
 
-addSbtPlugin("org.scala-js"         % "sbt-scalajs"                   % "1.14.0")
+addSbtPlugin("org.scala-js"         % "sbt-scalajs"                   % "1.15.0")
 
 addSbtPlugin("org.scala-native"     % "sbt-scala-native"              % "0.4.16")
 
@@ -11,4 +11,4 @@ addSbtPlugin("org.typelevel"        % "sbt-typelevel-site"            % "0.6.7")
 
 addSbtPlugin("org.scalameta"        % "sbt-scalafmt"                  % "2.5.2")
 
-addSbtPlugin("org.scalameta"        % "sbt-mdoc"                      % "2.3.8")
+addSbtPlugin("org.scalameta"        % "sbt-mdoc"                      % "2.5.2")
