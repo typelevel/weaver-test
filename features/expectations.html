@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Expectations (assertions)</title>
+  
+  <meta name="author" content="Olivier Mélois"/>
+  
+  <meta name="author" content="Anton Sviridov"/>
+  
+  <meta name="author" content="Andrew Valencik"/>
+  
+  
+  <meta name="description" content="Weaver documentation"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="https://typelevel.org/img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../assets/custom.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="https://typelevel.org"><img src="https://typelevel.org/img/logo.svg"></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/weaver-test"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/typelevel/weaver-test"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-header">Overview</li>
+    <li class="level2 nav-leaf"><a href="../overview/installation.html">Installation</a></li>
+    <li class="level2 nav-leaf"><a href="../overview/motivation.html">Motivation</a></li>
+    <li class="level1 nav-header">Features</li>
+    <li class="level2 active nav-leaf"><a href="#">Expectations (assertions)</a></li>
+    <li class="level2 nav-leaf"><a href="tracing_failures.html">Tracing Failures</a></li>
+    <li class="level2 nav-leaf"><a href="resources.html">Sharing resources</a></li>
+    <li class="level2 nav-leaf"><a href="global_resources.html">Sharing resources across suites</a></li>
+    <li class="level2 nav-leaf"><a href="logging.html">Logging information</a></li>
+    <li class="level2 nav-leaf"><a href="tagging.html">Tagging</a></li>
+    <li class="level2 nav-leaf"><a href="scalacheck.html">ScalaCheck integration</a></li>
+    <li class="level2 nav-leaf"><a href="discipline.html">Discipline integration</a></li>
+    <li class="level2 nav-leaf"><a href="parallelism.html">Configuring parallelism</a></li>
+    <li class="level2 nav-leaf"><a href="funsuite.html">Pure tests</a></li>
+    <li class="level2 nav-leaf"><a href="filtering.html">Filtering tests</a></li>
+    <li class="level2 nav-leaf"><a href="specs2.html">specs2 (discontinued)</a></li>
+    <li class="level1 nav-header">Sample reports</li>
+    <li class="level2 nav-leaf"><a href="../samples/multiple_suites_success.html">Successes</a></li>
+    <li class="level2 nav-leaf"><a href="../samples/multiple_suites_failures.html">Failures</a></li>
+    <li class="level2 nav-leaf"><a href="../samples/multiple_suites_logging.html">Logging</a></li>
+    <li class="level1 nav-header">Frequently Asked Questions</li>
+    <li class="level2 nav-leaf"><a href="../faqs/ide_faqs.html">IDE Support?</a></li>
+    <li class="level2 nav-leaf"><a href="../faqs/other_effects.html">What happened to ZIO / Monix / MonixBIO ?</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Expectations (assertions)</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#tl-dr">TL;DR</a></li>
+    <li class="level1 nav-leaf"><a href="#example-suite">Example suite</a></li>
+    <li class="level1 nav-leaf"><a href="#example-suite-report">Example suite report</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="expectations-assertions" class="title">Expectations (assertions)</h1>
+        <p>Expectations are pure, composable values. This forces developers to separate the test&#39;s checks from the scenario, which is generally cleaner/clearer.</p>
+        <p>The easiest way to construct expectactions is to call the <code>expect</code> macro, which is built using the <a href="https://github.com/eed3si9n/expecty/">expecty</a> library.</p>
+        
+        <h2 id="tl-dr" class="section"><a class="anchor-link left" href="#tl-dr"><i class="icofont-laika link">&#xef71;</i></a>TL;DR</h2>
+        <ul>
+          <li>
+            <p>Assert on boolean values using <code>expect</code>: </p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">expect</span><span>(</span><span class="identifier">myVar</span><span> == </span><span class="number-literal">25</span><span> &amp;&amp; </span><span class="identifier">list</span><span>.</span><span class="identifier">size</span><span> == </span><span class="number-literal">4</span><span>)</span></code></pre>
+          </li>
+          <li>
+            <p>Compose expectations using <code>and</code>/<code>or</code></p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span>(</span><span class="identifier">expect</span><span>(</span><span class="number-literal">1</span><span> == </span><span class="number-literal">1</span><span>) </span><span class="identifier">and</span><span> </span><span class="identifier">expect</span><span>(</span><span class="number-literal">2</span><span> &gt; </span><span class="number-literal">1</span><span>)) </span><span class="identifier">or</span><span> </span><span class="identifier">expect</span><span>(</span><span class="number-literal">5</span><span> == </span><span class="number-literal">5</span><span>)</span></code></pre>
+          </li>
+          <li>
+            <p>... or their symbolic aliases <code>&amp;&amp;</code>/<code>||</code></p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span>(</span><span class="identifier">expect</span><span>(</span><span class="number-literal">1</span><span> == </span><span class="number-literal">1</span><span>) &amp;&amp; </span><span class="identifier">expect</span><span>(</span><span class="number-literal">2</span><span> &gt; </span><span class="number-literal">1</span><span>)) || </span><span class="identifier">expect</span><span>(</span><span class="number-literal">5</span><span> == </span><span class="number-literal">5</span><span>)</span></code></pre>
+          </li>
+          <li>
+            <p>Compose expectations using <code>xor</code></p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">expect</span><span>(</span><span class="number-literal">1</span><span> == </span><span class="number-literal">1</span><span>) </span><span class="identifier">xor</span><span> </span><span class="identifier">expect</span><span>(</span><span class="number-literal">2</span><span> == </span><span class="number-literal">2</span><span>)</span></code></pre>
+          </li>
+          <li>
+            <p>Use varargs short form for asserting on all boolean values</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">expect</span><span>.</span><span class="identifier">all</span><span>(</span><span class="number-literal">1</span><span> == </span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span> == </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span> &gt; </span><span class="number-literal">2</span><span>)</span></code></pre>
+          </li>
+          <li>
+            <p>Use <code>forEach</code> to test every element of a collection (or anything that
+            implements <code>Foldable</code>)</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">forEach</span><span>(</span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>))(</span><span class="identifier">i</span><span> =&gt; </span><span class="identifier">expect</span><span>(</span><span class="identifier">i</span><span> &lt; </span><span class="number-literal">5</span><span>))</span></code></pre>
+          </li>
+          <li>
+            <p>Use <code>exists</code> to assert that at least one element of collection matches
+            expectations:</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">exists</span><span>(</span><span class="type-name">Option</span><span>(</span><span class="number-literal">5</span><span>))(</span><span class="identifier">n</span><span> =&gt; </span><span class="identifier">expect</span><span>(</span><span class="identifier">n</span><span> &gt; </span><span class="number-literal">3</span><span>))</span></code></pre>
+          </li>
+          <li>
+            <p>Use <code>matches</code> to assert that an expression matches a given pattern</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">matches</span><span>(</span><span class="type-name">Option</span><span>(</span><span class="number-literal">4</span><span>)) { </span><span class="keyword">case</span><span> </span><span class="type-name">Some</span><span>(</span><span class="identifier">x</span><span>) =&gt;
+</span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="number-literal">4</span><span>, </span><span class="identifier">x</span><span>)
+}</span></code></pre>
+          </li>
+          <li>
+            <p>Use <code>whenSuccess</code> to assert that a structure with an error channel (like <code>Either</code>) is successful</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">res</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">Int</span><span>] =
+</span><span class="type-name">Right</span><span>(</span><span class="number-literal">4</span><span>)
+
+</span><span class="identifier">whenSuccess</span><span>(</span><span class="identifier">res</span><span>) { </span><span class="identifier">n</span><span> =&gt;
+</span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="number-literal">4</span><span>, </span><span class="identifier">n</span><span>)
+}</span></code></pre>
+          </li>
+          <li>
+            <p>Use <code>expect.eql</code> for strict equality comparison (types that implement <code>Eq</code>
+            typeclass) and string representation diffing (using <code>Show</code> typeclass, fall
+            back to <code>toString</code> if no instance found) in
+            case of failure</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>), (</span><span class="number-literal">1</span><span> </span><span class="identifier">to</span><span> </span><span class="number-literal">3</span><span>).</span><span class="identifier">toList</span><span>)</span></code></pre>
+            <p>See below how the output looks in case of failure</p>
+          </li>
+          <li>
+            <p>Use <code>expect.same</code> for relaxed equality comparison (if no <code>Eq</code> instance is
+            found, fall back to universal equality) and relaxed string diffing (fall
+            back to <code>toString</code> implementation)</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">expect</span><span>.</span><span class="identifier">same</span><span>(</span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>), (</span><span class="number-literal">1</span><span> </span><span class="identifier">to</span><span> </span><span class="number-literal">3</span><span>).</span><span class="identifier">toList</span><span>)</span></code></pre>
+          </li>
+          <li>
+            <p>Use <code>success</code> or <code>failure</code> to create succeeding/failing expectations without
+            conditions</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">result</span><span> = </span><span class="keyword">if</span><span>(</span><span class="number-literal">5</span><span> == </span><span class="number-literal">5</span><span>) </span><span class="identifier">success</span><span> </span><span class="keyword">else</span><span> </span><span class="identifier">failure</span><span>(</span><span class="string-literal">&quot;oh no&quot;</span><span>)</span></code></pre>
+          </li>
+          <li>
+            <p>Use <code>.failFast</code> to evaluate the expectation eagerly and raise the assertion error in your effect type</p>
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span> {
+</span><span class="identifier">x</span><span> &lt;- </span><span class="type-name">IO</span><span>(</span><span class="string-literal">&quot;hello&quot;</span><span>)
+</span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">expect</span><span>(</span><span class="identifier">x</span><span>.</span><span class="identifier">length</span><span> == </span><span class="number-literal">4</span><span>).</span><span class="identifier">failFast</span><span>
+</span><span class="identifier">y</span><span> = </span><span class="identifier">x</span><span> + </span><span class="string-literal">&quot;bla&quot;</span><span>
+</span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">expect</span><span>(</span><span class="identifier">y</span><span>.</span><span class="identifier">size</span><span> &gt; </span><span class="identifier">x</span><span>.</span><span class="identifier">size</span><span>).</span><span class="identifier">failFast</span><span>
+} </span><span class="keyword">yield</span><span> </span><span class="identifier">expect</span><span>(</span><span class="identifier">y</span><span>.</span><span class="identifier">contains</span><span>(</span><span class="identifier">x</span><span>))</span></code></pre>
+          </li>
+        </ul>
+        
+        <h2 id="example-suite" class="section"><a class="anchor-link left" href="#example-suite"><i class="icofont-laika link">&#xef71;</i></a>Example suite</h2>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">weaver</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">ExpectationsSuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">SimpleIOSuite</span><span> {
+
+  </span><span class="keyword">object</span><span> </span><span class="type-name">A</span><span> {
+    </span><span class="keyword">object</span><span> </span><span class="type-name">B</span><span> {
+      </span><span class="keyword">object</span><span> </span><span class="type-name">C</span><span> {
+        </span><span class="keyword">def</span><span> </span><span class="declaration-name">test</span><span>(</span><span class="identifier">a</span><span>: </span><span class="type-name">Int</span><span>) = </span><span class="identifier">a</span><span> + </span><span class="number-literal">5</span><span>
+      }
+    }
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Simple expectations (success)&quot;</span><span>) {
+    </span><span class="keyword">val</span><span> </span><span class="identifier">z</span><span> = </span><span class="number-literal">15</span><span>
+    
+    </span><span class="identifier">expect</span><span>(</span><span class="type-name">A</span><span>.</span><span class="type-name">B</span><span>.</span><span class="type-name">C</span><span>.</span><span class="identifier">test</span><span>(</span><span class="identifier">z</span><span>) == </span><span class="identifier">z</span><span> + </span><span class="number-literal">5</span><span>)
+  }
+  
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Simple expectations (failure)&quot;</span><span>) {
+    </span><span class="keyword">val</span><span> </span><span class="identifier">z</span><span> = </span><span class="number-literal">15</span><span>
+    
+    </span><span class="identifier">expect</span><span>(</span><span class="type-name">A</span><span>.</span><span class="type-name">B</span><span>.</span><span class="type-name">C</span><span>.</span><span class="identifier">test</span><span>(</span><span class="identifier">z</span><span>) % </span><span class="number-literal">7</span><span> == </span><span class="number-literal">0</span><span>)
+  }
+
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;And/Or composition (success)&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>(</span><span class="number-literal">1</span><span> != </span><span class="number-literal">2</span><span>) </span><span class="identifier">and</span><span> </span><span class="identifier">expect</span><span>(</span><span class="number-literal">2</span><span> != </span><span class="number-literal">1</span><span>) </span><span class="identifier">or</span><span> </span><span class="identifier">expect</span><span>(</span><span class="number-literal">2</span><span> != </span><span class="number-literal">3</span><span>)
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;And/Or composition (failure)&quot;</span><span>) {
+    (</span><span class="identifier">expect</span><span>(</span><span class="number-literal">1</span><span> != </span><span class="number-literal">2</span><span>) </span><span class="identifier">and</span><span> </span><span class="identifier">expect</span><span>(</span><span class="number-literal">2</span><span> == </span><span class="number-literal">1</span><span>)) </span><span class="identifier">or</span><span> </span><span class="identifier">expect</span><span>(</span><span class="number-literal">2</span><span> == </span><span class="number-literal">3</span><span>)
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Varargs composition (success)&quot;</span><span>) {
+    </span><span class="comment">// expect(1 + 1 == 2) &amp;&amp; expect (2 + 2 == 4) &amp;&amp; expect(4 * 2 == 8)
+</span><span>    </span><span class="identifier">expect</span><span>.</span><span class="identifier">all</span><span>(</span><span class="number-literal">1</span><span> + </span><span class="number-literal">1</span><span> == </span><span class="number-literal">2</span><span>, </span><span class="number-literal">2</span><span> + </span><span class="number-literal">2</span><span> == </span><span class="number-literal">4</span><span>, </span><span class="number-literal">4</span><span> * </span><span class="number-literal">2</span><span> == </span><span class="number-literal">8</span><span>)
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Varargs composition (failure)&quot;</span><span>) {
+    </span><span class="comment">// expect(1 + 1 == 2) &amp;&amp; expect (2 + 2 == 4) &amp;&amp; expect(4 * 2 == 8)
+</span><span>    </span><span class="identifier">expect</span><span>.</span><span class="identifier">all</span><span>(</span><span class="number-literal">1</span><span> + </span><span class="number-literal">1</span><span> == </span><span class="number-literal">2</span><span>, </span><span class="number-literal">2</span><span> + </span><span class="number-literal">2</span><span> == </span><span class="number-literal">5</span><span>, </span><span class="number-literal">4</span><span> * </span><span class="number-literal">2</span><span> == </span><span class="number-literal">8</span><span>)
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Working with collections (success)&quot;</span><span>) {
+    </span><span class="identifier">forEach</span><span>(</span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>))(</span><span class="identifier">i</span><span> =&gt; </span><span class="identifier">expect</span><span>(</span><span class="identifier">i</span><span> &lt; </span><span class="number-literal">5</span><span>)) </span><span class="identifier">and</span><span>
+      </span><span class="identifier">forEach</span><span>(</span><span class="type-name">Option</span><span>(</span><span class="string-literal">&quot;hello&quot;</span><span>))(</span><span class="identifier">msg</span><span> =&gt; </span><span class="identifier">expect</span><span>.</span><span class="identifier">same</span><span>(</span><span class="identifier">msg</span><span>, </span><span class="string-literal">&quot;hello&quot;</span><span>)) </span><span class="identifier">and</span><span>
+      </span><span class="identifier">exists</span><span>(</span><span class="type-name">List</span><span>(</span><span class="string-literal">&quot;a&quot;</span><span>, </span><span class="string-literal">&quot;b&quot;</span><span>, </span><span class="string-literal">&quot;c&quot;</span><span>))(</span><span class="identifier">i</span><span> =&gt; </span><span class="identifier">expect</span><span>(</span><span class="identifier">i</span><span> == </span><span class="string-literal">&quot;c&quot;</span><span>)) </span><span class="identifier">and</span><span>
+      </span><span class="identifier">exists</span><span>(</span><span class="type-name">Vector</span><span>(</span><span class="boolean-literal">true</span><span>, </span><span class="boolean-literal">true</span><span>, </span><span class="boolean-literal">false</span><span>))(</span><span class="identifier">i</span><span> =&gt; </span><span class="identifier">expect</span><span>(</span><span class="identifier">i</span><span> == </span><span class="boolean-literal">false</span><span>))
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Working with collections (failure 1)&quot;</span><span>) {
+    </span><span class="identifier">forEach</span><span>(</span><span class="type-name">Vector</span><span>(</span><span class="string-literal">&quot;hello&quot;</span><span>, </span><span class="string-literal">&quot;world&quot;</span><span>))(</span><span class="identifier">msg</span><span> =&gt; </span><span class="identifier">expect</span><span>.</span><span class="identifier">same</span><span>(</span><span class="identifier">msg</span><span>, </span><span class="string-literal">&quot;hello&quot;</span><span>))
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Working with collections (failure 2)&quot;</span><span>) {
+    </span><span class="identifier">exists</span><span>(</span><span class="type-name">Option</span><span>(</span><span class="number-literal">39</span><span>))(</span><span class="identifier">i</span><span> =&gt; </span><span class="identifier">expect</span><span>(</span><span class="identifier">i</span><span> &gt; </span><span class="number-literal">50</span><span>))
+  }
+
+  </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">Eq</span><span>
+  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Test</span><span>(</span><span class="identifier">d</span><span>: </span><span class="type-name">Double</span><span>)
+
+  </span><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">eqTest</span><span>: </span><span class="type-name">Eq</span><span>[</span><span class="type-name">Test</span><span>] = </span><span class="type-name">Eq</span><span>.</span><span class="identifier">by</span><span>[</span><span class="type-name">Test</span><span>, </span><span class="type-name">Double</span><span>](</span><span class="identifier">_</span><span>.</span><span class="identifier">d</span><span>)
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Strict equality (success)&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="string-literal">&quot;hello&quot;</span><span>, </span><span class="string-literal">&quot;hello&quot;</span><span>) </span><span class="identifier">and</span><span>
+      </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>), </span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>)) </span><span class="identifier">and</span><span>
+      </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="type-name">Test</span><span>(</span><span class="number-literal">25.0</span><span>), </span><span class="type-name">Test</span><span>(</span><span class="number-literal">25.0</span><span>))  
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Strict equality (failure 1)&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="string-literal">&quot;hello&quot;</span><span>, </span><span class="string-literal">&quot;world&quot;</span><span>)
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Strict equality (failure 2)&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>), </span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">19</span><span>, </span><span class="number-literal">3</span><span>))
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Strict equality (failure 3)&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="type-name">Test</span><span>(</span><span class="number-literal">25.0</span><span>), </span><span class="type-name">Test</span><span>(</span><span class="number-literal">50.0</span><span>))
+  }
+
+  </span><span class="comment">// Note that we don&#39;t have an instance of Eq[Hello]
+</span><span>  </span><span class="comment">// anywhere in scope
+</span><span>  </span><span class="keyword">class</span><span> </span><span class="type-name">Hello</span><span>(</span><span class="keyword">val</span><span> </span><span class="identifier">d</span><span>: </span><span class="type-name">Double</span><span>) {
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">toString</span><span> = </span><span class="string-literal">s&quot;Hello to </span><span class="substitution">$d</span><span class="string-literal">&quot;</span><span>
+
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">equals</span><span>(</span><span class="identifier">other</span><span>: </span><span class="type-name">Any</span><span>) = 
+      </span><span class="keyword">if</span><span>(</span><span class="identifier">other</span><span> != </span><span class="literal-value">null</span><span> &amp;&amp; </span><span class="identifier">other</span><span>.</span><span class="identifier">isInstanceOf</span><span>[</span><span class="type-name">Hello</span><span>])
+        </span><span class="identifier">other</span><span>.</span><span class="identifier">asInstanceOf</span><span>[</span><span class="type-name">Hello</span><span>].</span><span class="identifier">d</span><span> == </span><span class="keyword">this</span><span>.</span><span class="identifier">d</span><span>
+      </span><span class="keyword">else</span><span> 
+        </span><span class="boolean-literal">false</span><span>
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Relaxed equality comparison (success)&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">same</span><span>(</span><span class="keyword">new</span><span> </span><span class="type-name">Hello</span><span>(</span><span class="number-literal">25.0</span><span>), </span><span class="keyword">new</span><span> </span><span class="type-name">Hello</span><span>(</span><span class="number-literal">25.0</span><span>))
+  }
+  
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Relaxed equality comparison (failure)&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">same</span><span>(</span><span class="keyword">new</span><span> </span><span class="type-name">Hello</span><span>(</span><span class="number-literal">25.0</span><span>), </span><span class="keyword">new</span><span> </span><span class="type-name">Hello</span><span>(</span><span class="number-literal">50.0</span><span>))
+  }
+
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Non macro-based expectations&quot;</span><span>) {
+    </span><span class="keyword">val</span><span> </span><span class="identifier">condition</span><span> : </span><span class="type-name">Boolean</span><span> = </span><span class="boolean-literal">false</span><span>
+    </span><span class="keyword">if</span><span> (</span><span class="identifier">condition</span><span>) </span><span class="identifier">success</span><span> </span><span class="keyword">else</span><span> </span><span class="identifier">failure</span><span>(</span><span class="string-literal">&quot;Condition failed&quot;</span><span>)
+  }
+
+  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;Failing fast expectations&quot;</span><span>) {
+    </span><span class="keyword">for</span><span> {
+      </span><span class="identifier">h</span><span> &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="string-literal">&quot;hello&quot;</span><span>)
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">expect</span><span>(</span><span class="identifier">h</span><span>.</span><span class="identifier">isEmpty</span><span>).</span><span class="identifier">failFast</span><span>
+    } </span><span class="keyword">yield</span><span> </span><span class="identifier">success</span><span>
+  }
+}</span></code></pre>
+        
+        <h2 id="example-suite-report" class="section"><a class="anchor-link left" href="#example-suite-report"><i class="icofont-laika link">&#xef71;</i></a>Example suite report</h2>
+        <div class='terminal'><pre>
+<span style='color: cyan'>repl.MdocSessionMdocAppExpectationsSuite</span>
+<span style='color: green'>+&nbsp;</span>Simple&nbsp;expectations&nbsp;(success)&nbsp;<span style='color: lightgray'><b>26ms</b></span>
+<span style='color: green'>+&nbsp;</span>And/Or&nbsp;composition&nbsp;(success)&nbsp;<span style='color: lightgray'><b>37ms</b></span>
+<span style='color: green'>+&nbsp;</span>Varargs&nbsp;composition&nbsp;(success)&nbsp;<span style='color: lightgray'><b>0ms</b></span>
+<span style='color: green'>+&nbsp;</span>Working&nbsp;with&nbsp;collections&nbsp;(success)&nbsp;<span style='color: lightgray'><b>22ms</b></span>
+<span style='color: green'>+&nbsp;</span>Strict&nbsp;equality&nbsp;(success)&nbsp;<span style='color: lightgray'><b>4ms</b></span>
+<span style='color: green'>+&nbsp;</span>Relaxed&nbsp;equality&nbsp;comparison&nbsp;(success)&nbsp;<span style='color: lightgray'><b>1ms</b></span>
+<span style='color: red'>-&nbsp;</span>Simple&nbsp;expectations&nbsp;(failure)&nbsp;<span style='color: lightgray'><b>47ms</b></span>
+<span style='color: red'>-&nbsp;</span>And/Or&nbsp;composition&nbsp;(failure)&nbsp;<span style='color: lightgray'><b>49ms</b></span>
+<span style='color: red'>-&nbsp;</span>Varargs&nbsp;composition&nbsp;(failure)&nbsp;<span style='color: lightgray'><b>18ms</b></span>
+<span style='color: red'>-&nbsp;</span>Working&nbsp;with&nbsp;collections&nbsp;(failure&nbsp;1)&nbsp;<span style='color: lightgray'><b>20ms</b></span>
+<span style='color: red'>-&nbsp;</span>Working&nbsp;with&nbsp;collections&nbsp;(failure&nbsp;2)&nbsp;<span style='color: lightgray'><b>3ms</b></span>
+<span style='color: red'>-&nbsp;</span>Strict&nbsp;equality&nbsp;(failure&nbsp;1)&nbsp;<span style='color: lightgray'><b>6ms</b></span>
+<span style='color: red'>-&nbsp;</span>Strict&nbsp;equality&nbsp;(failure&nbsp;2)&nbsp;<span style='color: lightgray'><b>12ms</b></span>
+<span style='color: red'>-&nbsp;</span>Strict&nbsp;equality&nbsp;(failure&nbsp;3)&nbsp;<span style='color: lightgray'><b>2ms</b></span>
+<span style='color: red'>-&nbsp;</span>Relaxed&nbsp;equality&nbsp;comparison&nbsp;(failure)&nbsp;<span style='color: lightgray'><b>1ms</b></span>
+<span style='color: red'>-&nbsp;</span>Non&nbsp;macro-based&nbsp;expectations&nbsp;<span style='color: lightgray'><b>0ms</b></span>
+<span style='color: red'>-&nbsp;</span>Failing&nbsp;fast&nbsp;expectations&nbsp;<span style='color: lightgray'><b>11ms</b></span>
+
+<span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
+<span style='color: cyan'>repl.MdocSessionMdocAppExpectationsSuite</span>
+<span style='color: red'>-&nbsp;</span>Simple&nbsp;expectations&nbsp;(failure)&nbsp;<span style='color: lightgray'><b>47ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(expectations.md:33)<br/><br/>&nbsp;&nbsp;expect(A.B.C.test(z)&nbsp;%&nbsp;7&nbsp;==&nbsp;0)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20&nbsp;&nbsp;&nbsp;15&nbsp;6&nbsp;&nbsp;&nbsp;false</span>
+<span style='color: red'>-&nbsp;</span>And/Or&nbsp;composition&nbsp;(failure)&nbsp;<span style='color: lightgray'><b>49ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;assertion&nbsp;failed&nbsp;(expectations.md:42)<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;(expect(1&nbsp;!=&nbsp;2)&nbsp;and&nbsp;expect(2&nbsp;==&nbsp;1))&nbsp;or&nbsp;expect(2&nbsp;==&nbsp;3)</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(expectations.md:42)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;(expect(1&nbsp;!=&nbsp;2)&nbsp;and&nbsp;expect(2&nbsp;==&nbsp;1))&nbsp;or&nbsp;expect(2&nbsp;==&nbsp;3)</span>
+<span style='color: red'>-&nbsp;</span>Varargs&nbsp;composition&nbsp;(failure)&nbsp;<span style='color: lightgray'><b>18ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(expectations.md:52)<br/><br/>&nbsp;&nbsp;expect.all(1&nbsp;+&nbsp;1&nbsp;==&nbsp;2,&nbsp;2&nbsp;+&nbsp;2&nbsp;==&nbsp;5,&nbsp;4&nbsp;*&nbsp;2&nbsp;==&nbsp;8)</span>
+<span style='color: red'>-&nbsp;</span>Working&nbsp;with&nbsp;collections&nbsp;(failure&nbsp;1)&nbsp;<span style='color: lightgray'><b>20ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(expectations.md:63)<br/><br/>&nbsp;&nbsp;</span><span style='color: green'>[world]</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span style='color: red'>[hello]</span>
+<span style='color: red'>-&nbsp;</span>Working&nbsp;with&nbsp;collections&nbsp;(failure&nbsp;2)&nbsp;<span style='color: lightgray'><b>3ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(expectations.md:67)<br/><br/>&nbsp;&nbsp;exists(Option(39))(i&nbsp;=&gt;&nbsp;expect(i&nbsp;&gt;&nbsp;50))<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;|<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;false<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;39</span>
+<span style='color: red'>-&nbsp;</span>Strict&nbsp;equality&nbsp;(failure&nbsp;1)&nbsp;<span style='color: lightgray'><b>6ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(expectations.md:82)<br/><br/>&nbsp;&nbsp;</span><span style='color: green'>[hello]</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span style='color: red'>[world]</span>
+<span style='color: red'>-&nbsp;</span>Strict&nbsp;equality&nbsp;(failure&nbsp;2)&nbsp;<span style='color: lightgray'><b>12ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(expectations.md:86)<br/><br/>&nbsp;&nbsp;</span>List(1,&nbsp;<span style='color: green'>[2]</span>,&nbsp;3)&nbsp;&nbsp;|&nbsp;&nbsp;List(1,&nbsp;<span style='color: red'>[19]</span>,&nbsp;3)
+<span style='color: red'>-&nbsp;</span>Strict&nbsp;equality&nbsp;(failure&nbsp;3)&nbsp;<span style='color: lightgray'><b>2ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(expectations.md:90)<br/><br/>&nbsp;&nbsp;</span>Test(<span style='color: green'>[25]</span>.0)&nbsp;&nbsp;|&nbsp;&nbsp;Test(<span style='color: red'>[50]</span>.0)
+<span style='color: red'>-&nbsp;</span>Relaxed&nbsp;equality&nbsp;comparison&nbsp;(failure)&nbsp;<span style='color: lightgray'><b>1ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(expectations.md:110)<br/><br/>&nbsp;&nbsp;</span>Hello&nbsp;to&nbsp;<span style='color: green'>[25]</span>.0&nbsp;&nbsp;|&nbsp;&nbsp;Hello&nbsp;to&nbsp;<span style='color: red'>[50]</span>.0
+<span style='color: red'>-&nbsp;</span>Non&nbsp;macro-based&nbsp;expectations&nbsp;<span style='color: lightgray'><b>0ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Condition&nbsp;failed&nbsp;(expectations.md:115)</span>
+<span style='color: red'>-&nbsp;</span>Failing&nbsp;fast&nbsp;expectations&nbsp;<span style='color: lightgray'><b>11ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(expectations.md:121)<br/><br/>&nbsp;&nbsp;_&nbsp;&lt;-&nbsp;expect(h.isEmpty).failFast<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;|<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;false<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hello</span>
+
+Total&nbsp;17,&nbsp;Failed&nbsp;11,&nbsp;Passed&nbsp;6,&nbsp;Ignored&nbsp;0,&nbsp;Cancelled&nbsp;0
+</pre></div>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  weaver-test is a <a href="https://typelevel.org/">Typelevel</a> project distributed under the <a href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache-2.0</a> license.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>
