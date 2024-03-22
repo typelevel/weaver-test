@@ -227,6 +227,5 @@ lazy val docs = project
                             "Expectations (Assertions)")
         )
       )),
-    laikaConfig ~= (_.withConfigValue(LinkValidation.Global(excluded =
-      Seq(Root / "assets"))).withRawContent)
+    laikaConfig ~= (_.withRawContent)
   )

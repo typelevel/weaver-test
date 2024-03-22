@@ -44,14 +44,20 @@ object Ansi2Html extends Function1[String, String] {
     (from, to) match {
       case (Underlined.Off, Underlined.On) => "<u>"
       case (Underlined.On, Underlined.Off) => "</u>"
-      case (Bold.Off, Bold.On)             => "<b>"
-      case (Bold.On, Bold.Off)             => "</b>"
       case (col1, col2) if color.isDefinedAt(col2) =>
         val closing   = if (color.isDefinedAt(col1)) "</span>" else ""
         val nextColor = color(col2)
-        s"$closing<span style='color: $nextColor'>"
+        if (nextColor != "lightgray" ) {
+          s"$closing<span style='color: $nextColor'>"
+        } else {
+          s"$closing<span style='color: $nextColor'><b>"
+        }
       case (col1, fansi.Color.Reset) if color.isDefinedAt(col1) =>
-        "</span>"
+        if (color(col1) != "lightgray") {
+          "</span>"
+        } else {
+          "</b></span>"
+        }
       case _ => ""
     }
   }

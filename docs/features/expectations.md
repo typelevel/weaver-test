@@ -140,7 +140,7 @@ object ExpectationsSuite extends SimpleIOSuite {
     expect(1 != 2) and expect(2 != 1) or expect(2 != 3)
   }
 
-  pureTest("And/Or composition (failure") {
+  pureTest("And/Or composition (failure)") {
     (expect(1 != 2) and expect(2 == 1)) or expect(2 == 3)
   }
 
@@ -226,4 +226,8 @@ object ExpectationsSuite extends SimpleIOSuite {
 }
 ```
 
-## [Example suite report](../assets/sample_expectation_suite_output.html)
+## Example suite report
+
+```scala mdoc:passthrough
+println(weaver.docs.Output.runSuites(ExpectationsSuite))
+```
