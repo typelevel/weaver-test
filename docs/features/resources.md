@@ -11,7 +11,7 @@ import weaver._
 import cats.effect._
 
 // Using http4s
-import org.http4s.blaze.client._
+import org.http4s.ember.client._
 import org.http4s.client._
 
 object HttpSuite extends IOSuite {
@@ -19,7 +19,7 @@ object HttpSuite extends IOSuite {
   // Sharing a single http client across all tests
   override type Res = Client[IO]
   override def sharedResource : Resource[IO, Res] =
-    BlazeClientBuilder[IO].resource
+    EmberClientBuilder.default[IO].build
 
   // The test receives the shared client as an argument
   test("Good requests lead to good results") { httpClient =>

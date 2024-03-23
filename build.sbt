@@ -52,7 +52,6 @@ val Version = new {
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
-  val http4sBlaze            = "0.23.16"
 }
 
 lazy val root = tlCrossRootProject.aggregate(core,
@@ -169,17 +168,14 @@ lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 
 lazy val docsOutput = crossProject(JVMPlatform)
   .in(file("modules/docs"))
+  .enablePlugins(NoPublishPlugin)
   .dependsOn(core, framework, coreCats, cats, scalacheck, discipline)
   .settings(
-    moduleName := "docs",
+    moduleName := "docs-output",
     name       := "output for documentation",
     watchSources += (ThisBuild / baseDirectory).value / "docs",
     libraryDependencies ++= Seq(
-      "org.http4s"    %% "http4s-dsl"          % Version.http4s,
-      "org.http4s"    %% "http4s-blaze-server" % Version.http4sBlaze,
-      "org.http4s"    %% "http4s-blaze-client" % Version.http4sBlaze,
-      "com.lihaoyi"   %% "fansi"               % "0.2.7",
-      "org.typelevel" %% "cats-kernel-laws"    % Version.catsLaws
+      "com.lihaoyi" %% "fansi" % "0.4.0"
     )
   )
 
@@ -199,9 +195,7 @@ lazy val docs = project
     name       := "Weaver documentation",
     watchSources += (ThisBuild / baseDirectory).value / "docs",
     libraryDependencies ++= Seq(
-      "org.http4s"    %% "http4s-dsl"          % Version.http4s,
-      "org.http4s"    %% "http4s-blaze-server" % Version.http4sBlaze,
-      "org.http4s"    %% "http4s-blaze-client" % Version.http4sBlaze,
+      "org.http4s"    %% "http4s-ember-client" % Version.http4s,
       "org.typelevel" %% "cats-laws"           % Version.catsLaws
     ),
     tlSiteHelium ~= (_.site.internalCSS(Root / "assets")
