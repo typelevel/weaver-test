@@ -140,7 +140,7 @@
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="identifier">_</span><span>
 
 </span><span class="comment">// Using http4s
-</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">http4s</span><span>.</span><span class="identifier">blaze</span><span>.</span><span class="identifier">client</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">http4s</span><span>.</span><span class="identifier">ember</span><span>.</span><span class="identifier">client</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">http4s</span><span>.</span><span class="identifier">client</span><span>.</span><span class="identifier">_</span><span>
 
 </span><span class="keyword">object</span><span> </span><span class="type-name">HttpSuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOSuite</span><span> {
@@ -148,7 +148,7 @@
   </span><span class="comment">// Sharing a single http client across all tests
 </span><span>  </span><span class="keyword">override</span><span> </span><span class="keyword">type</span><span> </span><span class="type-name">Res</span><span> = </span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]
   </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">sharedResource</span><span> : </span><span class="type-name">Resource</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Res</span><span>] =
-    </span><span class="type-name">BlazeClientBuilder</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">resource</span><span>
+    </span><span class="type-name">EmberClientBuilder</span><span>.</span><span class="keyword">default</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">build</span><span>
 
   </span><span class="comment">// The test receives the shared client as an argument
 </span><span>  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;Good requests lead to good results&quot;</span><span>) { </span><span class="identifier">httpClient</span><span> =&gt;
