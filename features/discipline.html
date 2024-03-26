@@ -143,12 +143,12 @@
         <p>You&#39;ll need to install an additional dependency in order to use Discipline with Weaver.</p>
         
         <h3 id="sbt" class="section"><a class="anchor-link left" href="#sbt"><i class="icofont-laika link">&#xef71;</i></a>SBT</h3>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;com.disneystreaming&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-discipline&quot;</span><span> % </span><span class="string-literal">&quot;0.0-b1988f8-SNAPSHOT&quot;</span><span> % </span><span class="type-name">Test</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;com.disneystreaming&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-discipline&quot;</span><span> % </span><span class="string-literal">&quot;0.0-196c6ce-SNAPSHOT&quot;</span><span> % </span><span class="type-name">Test</span></code></pre>
         
         <h3 id="mill" class="section"><a class="anchor-link left" href="#mill"><i class="icofont-laika link">&#xef71;</i></a>Mill</h3>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="identifier">test</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">Tests</span><span> {
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(
-    </span><span class="string-literal">ivy&quot;com.disneystreaming::weaver-discipline:0.0-b1988f8-SNAPSHOT&quot;</span><span>
+    </span><span class="string-literal">ivy&quot;com.disneystreaming::weaver-discipline:0.0-196c6ce-SNAPSHOT&quot;</span><span>
   )
 }</span></code></pre>
         
@@ -164,11 +164,11 @@
 }</span></code></pre>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppDisciplineTests</span>
-<span style='color: green'>+&nbsp;</span>Int:&nbsp;eq.antisymmetry&nbsp;eq&nbsp;<span style='color: lightgray'><b>31ms</b></span>
-<span style='color: green'>+&nbsp;</span>Int:&nbsp;eq.reflexivity&nbsp;eq&nbsp;<span style='color: lightgray'><b>5ms</b></span>
-<span style='color: green'>+&nbsp;</span>Int:&nbsp;eq.symmetry&nbsp;eq&nbsp;<span style='color: lightgray'><b>8ms</b></span>
-<span style='color: green'>+&nbsp;</span>Int:&nbsp;eq.transitivity&nbsp;eq&nbsp;<span style='color: lightgray'><b>8ms</b></span>
-<span style='color: green'>+&nbsp;</span>Boolean:&nbsp;eq.antisymmetry&nbsp;eq&nbsp;<span style='color: lightgray'><b>6ms</b></span>
+<span style='color: green'>+&nbsp;</span>Int:&nbsp;eq.antisymmetry&nbsp;eq&nbsp;<span style='color: lightgray'><b>29ms</b></span>
+<span style='color: green'>+&nbsp;</span>Int:&nbsp;eq.reflexivity&nbsp;eq&nbsp;<span style='color: lightgray'><b>7ms</b></span>
+<span style='color: green'>+&nbsp;</span>Int:&nbsp;eq.symmetry&nbsp;eq&nbsp;<span style='color: lightgray'><b>10ms</b></span>
+<span style='color: green'>+&nbsp;</span>Int:&nbsp;eq.transitivity&nbsp;eq&nbsp;<span style='color: lightgray'><b>11ms</b></span>
+<span style='color: green'>+&nbsp;</span>Boolean:&nbsp;eq.antisymmetry&nbsp;eq&nbsp;<span style='color: lightgray'><b>7ms</b></span>
 <span style='color: green'>+&nbsp;</span>Boolean:&nbsp;eq.reflexivity&nbsp;eq&nbsp;<span style='color: lightgray'><b>2ms</b></span>
 <span style='color: green'>+&nbsp;</span>Boolean:&nbsp;eq.symmetry&nbsp;eq&nbsp;<span style='color: lightgray'><b>2ms</b></span>
 <span style='color: green'>+&nbsp;</span>Boolean:&nbsp;eq.transitivity&nbsp;eq&nbsp;<span style='color: lightgray'><b>3ms</b></span>
