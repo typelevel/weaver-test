@@ -10,26 +10,6 @@ private[weaver] trait ExpectSame {
   def eql[A](
       expected: A,
       found: A)(
-      implicit eqA: Eq[A],
-      showA: Show[A] = Show.fromToString[A],
-      loc: SourceLocation): Expectations = {
-    val comparison = Comparison.fromEqAndShow(eqA, showA)
-    diff(expected, found)(comparison, loc)
-  }
-
-  /**
-   * Same as eql but defaults to universal equality.
-   */
-  def same[A](
-      expected: A,
-      found: A)(
-      implicit eqA: Eq[A] = Eq.fromUniversalEquals[A],
-      showA: Show[A] = Show.fromToString[A],
-      loc: SourceLocation): Expectations = eql(expected, found)(eqA, showA, loc)
-
-  def diff[A](
-      expected: A,
-      found: A)(
       implicit comparisonA: Comparison[A],
       loc: SourceLocation): Expectations = {
     comparisonA.diff(expected, found) match {
@@ -42,4 +22,14 @@ private[weaver] trait ExpectSame {
             new AssertionException(header + "\n\n" + diff, sourceLocs)))
     }
   }
+
+  /**
+   * Same as eql but defaults to universal equality.
+   */
+  def same[A](
+      expected: A,
+      found: A)(
+      implicit loc: SourceLocation): Expectations = eql(expected, found)(
+    Comparison.fromEqAndShow(Eq.fromUniversalEquals, Show.fromToString),
+    loc)
 }

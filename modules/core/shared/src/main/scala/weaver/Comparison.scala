@@ -9,8 +9,8 @@ trait Comparison[A] {
 }
 
 object Comparison {
-  def fromEqAndShow[A](
-      implicit eqv: Eq[A] = Eq.fromUniversalEquals[A],
+  implicit def fromEqAndShow[A](
+      implicit eqv: Eq[A],
       showA: Show[A] = Show.fromToString[A]
   ): Comparison[A] = {
     new Comparison[A] {
