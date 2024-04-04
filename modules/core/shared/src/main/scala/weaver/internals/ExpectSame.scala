@@ -14,12 +14,12 @@ private[weaver] trait ExpectSame {
       loc: SourceLocation): Expectations = {
     comparisonA.diff(expected, found) match {
       case Comparison.Result.Success => Expectations(Validated.validNel(()))
-      case Comparison.Result.Failure(diff) =>
+      case Comparison.Result.Failure(report) =>
         val header     = "Values not equal:"
         val sourceLocs = NonEmptyList.of(loc)
         Expectations(
           Validated.invalidNel[AssertionException, Unit](
-            new AssertionException(header + "\n\n" + diff, sourceLocs)))
+            new AssertionException(header + "\n\n" + report, sourceLocs)))
     }
   }
 

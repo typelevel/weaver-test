@@ -13,8 +13,8 @@ trait Comparison[A] {
 object Comparison {
   sealed trait Result
   object Result {
-    case object Success              extends Result
-    case class Failure(diff: String) extends Result
+    case object Success                extends Result
+    case class Failure(report: String) extends Result
   }
 
   /**
@@ -32,13 +32,13 @@ object Comparison {
         } else {
           val expectedLines = showA.show(expected).linesIterator.toSeq
           val foundLines    = showA.show(found).linesIterator.toSeq
-          val diff = DiffUtil
+          val report = DiffUtil
             .mkColoredLineDiff(expectedLines, foundLines)
             .linesIterator
             .toSeq
             .map(str => Console.RESET.toString + str)
             .mkString("\n")
-          Result.Failure(diff)
+          Result.Failure(report)
         }
       }
     }
@@ -50,8 +50,8 @@ object Comparison {
   def instance[A](f: (A, A) => Option[String]): Comparison[A] =
     new Comparison[A] {
       def diff(expected: A, found: A): Result = f(expected, found) match {
-        case None       => Result.Success
-        case Some(diff) => Result.Failure(diff)
+        case None         => Result.Success
+        case Some(report) => Result.Failure(report)
       }
     }
 
