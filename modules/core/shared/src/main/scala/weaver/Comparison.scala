@@ -30,6 +30,7 @@ object Comparison {
 
   /**
    * Create a [[Comparison]] instance from an [[cats.kernel.Eq]] implementation.
+   *
    * Uses the [[cats.data.Show]] instance or [[cats.data.Show.fromToString]] to
    * construct a string diff of the `expected` and `found` values on failure.
    */
