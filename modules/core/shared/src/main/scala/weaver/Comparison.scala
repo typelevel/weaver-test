@@ -3,7 +3,9 @@ package weaver
 import cats.Eq
 import cats.Show
 import com.eed3si9n.expecty._
+import scala.annotation.implicitNotFound
 
+@implicitNotFound("Could not find an implicit Comparison[${A}]. Does ${A} have an associated cats.Eq[${A}] instance?")
 trait Comparison[A] {
   def diff(expected: A, found: A): Option[String]
 }
