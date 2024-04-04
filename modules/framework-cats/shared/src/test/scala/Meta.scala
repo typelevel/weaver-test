@@ -39,6 +39,26 @@ object Meta {
     test("lots\nof\nmultiline\n(cancelled)") {
       cancel("I was cancelled :(")
     }
+
+    pureTest("(Comparison)") {
+      import cats.Show
+      case class Foo(s: String, i: Int)
+      object Foo {
+        val show: Show[Foo] = Show.show[Foo] {
+          case Foo(s, i) =>
+            s"""
+          |Foo {
+          |  s: ${Show[String].show(s)}
+          |  i: ${Show[Int].show(i)}
+          |}
+          """.stripMargin.trim()
+        }
+        implicit val cmp: Comparison[Foo] =
+          Comparison.fromEqAndShow[Foo](cats.Eq.fromUniversalEquals, show)
+      }
+
+      expect.eql(Foo("foo", 1), Foo("foo", 2))
+    }
   }
 
   object FailingTestStatusReporting extends SimpleIOSuite {

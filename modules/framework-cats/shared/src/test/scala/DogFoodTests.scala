@@ -254,6 +254,29 @@ object DogFoodTests extends IOSuite {
     }
   }
 
+  test(
+    "expect.eql delegates to Comparison show when an instance is found") {
+    _.runSuite(Meta.Rendering).map {
+      case (logs, _) =>
+        val actual =
+          extractLogEventAfterFailures(logs) {
+            case LoggedEvent.Error(msg) if msg.contains("(Comparison)") => msg
+          }.get
+
+        val expected = """
+        |- (Comparison) 0ms
+        |  Values not equal: (src/main/DogFoodTests.scala:5)
+        |
+        |  Foo {     |  Foo {
+        |    s: foo  |    s: foo
+        |    i: [1]  |    i: [2]
+        |  }         |  }
+        """.stripMargin.trim
+
+        expect.same(actual, expected)
+    }
+  }
+
   private def outputBeforeFailures(logs: Chain[LoggedEvent]): Chain[String] = {
     logs
       .takeWhile {
