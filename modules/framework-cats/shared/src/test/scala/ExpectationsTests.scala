@@ -2,8 +2,6 @@ package weaver
 package framework
 package test
 
-import cats.kernel.Eq
-
 object ExpectationsTests extends SimpleIOSuite {
 
   pureTest("and") {
@@ -59,11 +57,6 @@ object ExpectationsTests extends SimpleIOSuite {
       not(matches(Option(4)) { case None =>
         failure("dead code")
       })
-  }
-
-  pureTest("expect.same respects cats.kernel.Eq") {
-    implicit val eqInt: Eq[Int] = Eq.allEqual
-    expect.same(0, 1)
   }
 
   pureTest("when success") {

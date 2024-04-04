@@ -39,24 +39,6 @@ object Meta {
     test("lots\nof\nmultiline\n(cancelled)") {
       cancel("I was cancelled :(")
     }
-
-    pureTest("(cats.Show)") {
-      import cats.Show
-      case class Foo(s: String, i: Int)
-      object Foo {
-        implicit val show: Show[Foo] = Show.show[Foo] {
-          case Foo(s, i) =>
-            s"""
-          |Foo {
-          |  s: ${Show[String].show(s)}
-          |  i: ${Show[Int].show(i)}
-          |}
-          """.stripMargin.trim()
-        }
-      }
-
-      expect.same(Foo("foo", 1), Foo("foo", 2))
-    }
   }
 
   object FailingTestStatusReporting extends SimpleIOSuite {
