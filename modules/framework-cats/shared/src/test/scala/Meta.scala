@@ -53,8 +53,8 @@ object Meta {
           |}
           """.stripMargin.trim()
         }
-        implicit val cmp: Comparison[Foo] =
-          Comparison.fromEqAndShow[Foo](cats.Eq.fromUniversalEquals, show)
+        implicit val comparison: Comparison[Foo] =
+          Comparison.fromEq[Foo](cats.Eq.fromUniversalEquals, show)
       }
 
       expect.eql(Foo("foo", 1), Foo("foo", 2))

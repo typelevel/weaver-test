@@ -13,8 +13,8 @@ private[weaver] trait ExpectSame {
       implicit comparisonA: Comparison[A],
       loc: SourceLocation): Expectations = {
     comparisonA.diff(expected, found) match {
-      case None => Expectations(Validated.validNel(()))
-      case Some(diff) =>
+      case Comparison.Result.Success => Expectations(Validated.validNel(()))
+      case Comparison.Result.Failure(diff) =>
         val header     = "Values not equal:"
         val sourceLocs = NonEmptyList.of(loc)
         Expectations(
@@ -30,6 +30,6 @@ private[weaver] trait ExpectSame {
       expected: A,
       found: A)(
       implicit loc: SourceLocation): Expectations = eql(expected, found)(
-    Comparison.fromEqAndShow(Eq.fromUniversalEquals, Show.fromToString),
+    Comparison.fromEq(Eq.fromUniversalEquals, Show.fromToString),
     loc)
 }
