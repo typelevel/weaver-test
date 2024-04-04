@@ -6,6 +6,17 @@ import com.eed3si9n.expecty._
 import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find an implicit Comparison[${A}]. Does ${A} have an associated cats.Eq[${A}] instance?")
+/**
+ * A type class used to compare two instances of the same type and construct an
+ * informative report.
+ *
+ * If the comparison succeeds with [[Result.Success]] then no report is printed.
+ * If the comparison fails with [[Result.Failure]], then the report is printed
+ * with the test failure.
+ *
+ * The report is generally a diff of the `expected` and `found` values. It may
+ * use ANSI escape codes to add color.
+ */
 trait Comparison[A] {
   def diff(expected: A, found: A): Comparison.Result
 }
@@ -18,8 +29,9 @@ object Comparison {
   }
 
   /**
-   * Create a `Comparison` instance from an `Eq` implementation. Uses the
-   * default `Show.fromToString` when no implicit `Show` instance is found.
+   * Create a [[Comparison]] instance from an [[cats.kernel.Eq]] implementation.
+   * Uses the [[cats.data.Show]] instance or [[cats.data.Show.fromToString]] to
+   * construct a string diff of the `expected` and `found` values on failure.
    */
   implicit def fromEq[A](
       implicit eqv: Eq[A],
@@ -45,7 +57,7 @@ object Comparison {
   }
 
   /**
-   * Create a `Comparison` instance from an `diff` implementation.
+   * Create a [[Comparison]] instance from a `diff` implementation.
    */
   def instance[A](f: (A, A) => Option[String]): Comparison[A] =
     new Comparison[A] {
@@ -56,7 +68,7 @@ object Comparison {
     }
 
   /**
-   * Create a `Comparison` instance from an `diff` implementation.
+   * Create a [[Comparison]] instance from a `diff` implementation.
    */
   def instance[A](f: PartialFunction[(A, A), String]): Comparison[A] =
     instance((expected, found) => f.lift((expected, found)))
