@@ -61,9 +61,14 @@ object ExpectationsTests extends SimpleIOSuite {
       })
   }
 
-  pureTest("expect.same respects cats.kernel.Eq") {
+  pureTest("expect.eql respects cats.kernel.Eq") {
     implicit val eqInt: Eq[Int] = Eq.allEqual
-    expect.same(0, 1)
+    expect.eql(0, 1)
+  }
+
+  pureTest("expect.eql respects weaver.Comparison") {
+    implicit val comparison: Comparison[Int] = Comparison.fromEq(Eq.allEqual)
+    expect.eql(0, 1)
   }
 
   pureTest("when success") {

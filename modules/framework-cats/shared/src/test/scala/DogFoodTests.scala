@@ -255,16 +255,41 @@ object DogFoodTests extends IOSuite {
   }
 
   test(
-    "expect.same delegates to show when an instance is found") {
+    "expect.eql delegates to Comparison show when an instance is found") {
     _.runSuite(Meta.Rendering).map {
       case (logs, _) =>
         val actual =
           extractLogEventAfterFailures(logs) {
-            case LoggedEvent.Error(msg) if msg.contains("(cats.Show)") => msg
+            case LoggedEvent.Error(msg) if msg.contains("(eql Comparison)") =>
+              msg
           }.get
 
         val expected = """
-        |- (cats.Show) 0ms
+        |- (eql Comparison) 0ms
+        |  Values not equal: (src/main/DogFoodTests.scala:5)
+        |
+        |  Foo {     |  Foo {
+        |    s: foo  |    s: foo
+        |    i: [1]  |    i: [2]
+        |  }         |  }
+        """.stripMargin.trim
+
+        expect.same(actual, expected)
+    }
+  }
+
+  test(
+    "expect.same delegates to Comparison show when an instance is found") {
+    _.runSuite(Meta.Rendering).map {
+      case (logs, _) =>
+        val actual =
+          extractLogEventAfterFailures(logs) {
+            case LoggedEvent.Error(msg) if msg.contains("(same Comparison)") =>
+              msg
+          }.get
+
+        val expected = """
+        |- (same Comparison) 0ms
         |  Values not equal: (src/main/DogFoodTests.scala:5)
         |
         |  Foo {     |  Foo {
