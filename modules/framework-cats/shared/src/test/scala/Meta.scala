@@ -40,24 +40,27 @@ object Meta {
       cancel("I was cancelled :(")
     }
 
-    pureTest("(Comparison)") {
-      import cats.Show
-      case class Foo(s: String, i: Int)
-      object Foo {
-        val show: Show[Foo] = Show.show[Foo] {
-          case Foo(s, i) =>
-            s"""
+    import cats.Show
+    case class Foo(s: String, i: Int)
+    object Foo {
+      val show: Show[Foo] = Show.show[Foo] {
+        case Foo(s, i) =>
+          s"""
           |Foo {
           |  s: ${Show[String].show(s)}
           |  i: ${Show[Int].show(i)}
           |}
           """.stripMargin.trim()
-        }
-        implicit val comparison: Comparison[Foo] =
-          Comparison.fromEq[Foo](cats.Eq.fromUniversalEquals, show)
       }
+      implicit val comparison: Comparison[Foo] =
+        Comparison.fromEq[Foo](cats.Eq.fromUniversalEquals, show)
+    }
 
+    pureTest("(eql Comparison)") {
       expect.eql(Foo("foo", 1), Foo("foo", 2))
+    }
+    pureTest("(same Comparison)") {
+      expect.same(Foo("foo", 1), Foo("foo", 2))
     }
   }
 

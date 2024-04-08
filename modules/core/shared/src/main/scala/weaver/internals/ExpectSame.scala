@@ -29,7 +29,8 @@ private[weaver] trait ExpectSame {
   def same[A](
       expected: A,
       found: A)(
-      implicit loc: SourceLocation): Expectations = eql(expected, found)(
-    Comparison.fromEq(Eq.fromUniversalEquals, Show.fromToString),
-    loc)
+      implicit comparisonA: Comparison[A] =
+        Comparison.fromEq[A](Eq.fromUniversalEquals, Show.fromToString),
+      loc: SourceLocation): Expectations =
+    eql(expected, found)(comparisonA, loc)
 }
