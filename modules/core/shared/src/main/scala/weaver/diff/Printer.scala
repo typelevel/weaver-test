@@ -8,7 +8,8 @@ trait Printer {
   /**
    * Pretty-print a single value during pretty printing.
    *
-   * Returns true if this value has been printed, false if FunSuite should fallback to the default pretty-printer.
+   * Returns true if this value has been printed, false if FunSuite should
+   * fallback to the default pretty-printer.
    */
   def print(value: Any, out: StringBuilder, indent: Int): Boolean
   def height: Int = Printer.defaultHeight
@@ -18,11 +19,12 @@ trait Printer {
   /**
    * Combine two printers into a single printer.
    *
-   * Order is important : this printer will be tried first, then the other printer.
-   * The new Printer's height will be the max of the two printers' heights.
+   * Order is important : this printer will be tried first, then the other
+   * printer. The new Printer's height will be the max of the two printers'
+   * heights.
    *
-   * Example use case :  define some default printers for some types for all tests,
-   * and override it for some tests only.
+   * Example use case : define some default printers for some types for all
+   * tests, and override it for some tests only.
    *
    * {{{
    *
@@ -45,7 +47,7 @@ trait Printer {
    * }}}
    */
   def orElse(other: Printer): Printer = {
-    val h = this.height
+    val h                                       = this.height
     val p: (Any, StringBuilder, Int) => Boolean = this.print
     new Printer {
       def print(value: Any, out: StringBuilder, indent: Int): Boolean =
@@ -85,8 +87,8 @@ object Printer {
   /**
    * Utiliy constructor defining a printer for some types.
    *
-   * Example use case is overriding the string repr for types which default pretty-printers
-   * do not output helpful diffs.
+   * Example use case is overriding the string repr for types which default
+   * pretty-printers do not output helpful diffs.
    *
    * {{{
    * type ByteArray = Array[Byte]

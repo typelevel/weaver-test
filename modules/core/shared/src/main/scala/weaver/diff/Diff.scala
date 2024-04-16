@@ -3,15 +3,15 @@ package weaver.diff
 import weaver.diff.console.Printers
 import weaver.diff.console.AnsiColors
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class Diff(val obtained: String, val expected: String) extends Serializable {
-  val obtainedClean: String = AnsiColors.filterAnsi(obtained)
-  val expectedClean: String = AnsiColors.filterAnsi(expected)
+  val obtainedClean: String      = AnsiColors.filterAnsi(obtained)
+  val expectedClean: String      = AnsiColors.filterAnsi(expected)
   val obtainedLines: Seq[String] = splitIntoLines(obtainedClean)
   val expectedLines: Seq[String] = splitIntoLines(expectedClean)
   val unifiedDiff: String = createUnifiedDiff(obtainedLines, expectedLines)
-  def isEmpty: Boolean = unifiedDiff.isEmpty()
+  def isEmpty: Boolean    = unifiedDiff.isEmpty()
 
   def createReport(
       title: String,
@@ -43,7 +43,7 @@ class Diff(val obtained: String, val expected: String) extends Serializable {
 
   private def appendDiffOnlyReport(sb: StringBuilder): Unit = {
     header("Diff", sb)
-    val red = AnsiColors.use(AnsiColors.LightRed)
+    val red   = AnsiColors.use(AnsiColors.LightRed)
     val reset = AnsiColors.use(AnsiColors.Reset)
     val green = AnsiColors.use(AnsiColors.LightGreen)
     sb.append(s" (${red}- obtained${reset}, ${green}+ expected${reset})")
@@ -54,9 +54,9 @@ class Diff(val obtained: String, val expected: String) extends Serializable {
   private def asStripMargin(obtained: String): String = {
     if (!obtained.contains("\n")) Printers.print(obtained)
     else {
-      val out = new StringBuilder
+      val out   = new StringBuilder
       val lines = obtained.trim.linesIterator
-      val head = if (lines.hasNext) lines.next() else ""
+      val head  = if (lines.hasNext) lines.next() else ""
       out.append("    \"\"\"|" + head + "\n")
       lines.foreach(line => {
         out.append("       |").append(line).append("\n")

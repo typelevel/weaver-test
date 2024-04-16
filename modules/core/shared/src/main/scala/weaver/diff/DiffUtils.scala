@@ -33,10 +33,8 @@ object DiffUtils {
           // position.
           // And if it is, add it to the current set
           val nextDelta = patchDeltas.get(i)
-          if (
-            (position + delta.getOriginal.size + contextSize) >=
-              (nextDelta.getOriginal.getPosition - contextSize)
-          ) {
+          if ((position + delta.getOriginal.size + contextSize) >=
+              (nextDelta.getOriginal.getPosition - contextSize)) {
             deltas.add(nextDelta)
           } else { // if it isn't, output the current set,
             // then create a new set and add the current Delta to
@@ -67,11 +65,11 @@ object DiffUtils {
       deltas: util.List[Delta[String]],
       contextSize: Int
   ) = {
-    val buffer = new util.ArrayList[String]
+    val buffer    = new util.ArrayList[String]
     var origTotal = 0 // counter for total lines output from Original
-    var revTotal = 0
-    var line = 0
-    var curDelta = deltas.get(0)
+    var revTotal  = 0
+    var line      = 0
+    var curDelta  = deltas.get(0)
     // NOTE: +1 to overcome the 0-offset Position
     var origStart = curDelta.getOriginal.getPosition + 1 - contextSize
     if (origStart < 1) origStart = 1
@@ -149,7 +147,8 @@ object DiffUtils {
   }
 
   private def getDeltaText(delta: Delta[String]) = {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
+
     val buffer = new util.ArrayList[String]
     for (line <- delta.getOriginal.getLines.asScala) {
       buffer.add("-" + line)

@@ -13,7 +13,7 @@ sealed abstract class PathNode(val i: Int, val j: Int, val prev: PathNode) {
   }
 
   override def toString: String = {
-    val buf = new StringBuffer("[")
+    val buf  = new StringBuffer("[")
     var node = this
     while (node != null) {
       buf.append("(")

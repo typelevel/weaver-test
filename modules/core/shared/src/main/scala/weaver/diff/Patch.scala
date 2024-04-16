@@ -1,7 +1,7 @@
 package weaver.diff
 
 import java.util
-import java.util.{Collections, Comparator}
+import java.util.{ Collections, Comparator }
 
 class Patch[T] {
   private val deltas: util.List[Delta[T]] = new util.ArrayList()
@@ -10,7 +10,7 @@ class Patch[T] {
       o1.getOriginal.getPosition.compareTo(o2.getOriginal.getPosition)
   }
   def addDelta(delta: Delta[T]): Unit = {
-    deltas.add(delta)
+    val _ = deltas.add(delta)
   }
   def getDeltas: util.List[Delta[T]] = {
     Collections.sort(deltas, comparator)
