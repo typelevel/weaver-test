@@ -10,7 +10,7 @@ sealed abstract class Delta[T](original: Chunk[T], revised: Chunk[T]) {
   }
   def getType: TYPE
   def getOriginal: Chunk[T] = original
-  def getRevised: Chunk[T] = revised
+  def getRevised: Chunk[T]  = revised
 
   override def toString: String = s"Delta($getType, $getOriginal, $getRevised)"
 }

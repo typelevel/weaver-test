@@ -1,7 +1,7 @@
 // Adaptation of https://github.com/lihaoyi/PPrint/blob/e6a918c259ed7ae1998bbf58c360334a3f0157ca/pprint/src/pprint/Walker.scala
 package weaver.diff.console
 
-import weaver.diff.{EmptyPrinter, Printable, Printer}
+import weaver.diff.{ EmptyPrinter, Printable, Printer }
 
 import scala.annotation.switch
 import weaver.diff.Clues
@@ -9,10 +9,12 @@ import weaver.diff.internal.Compat
 
 object Printers {
 
-  /** Pretty-prints the value in a format that's optimized for producing diffs */
+  /**
+   * Pretty-prints the value in a format that's optimized for producing diffs
+   */
   def print(any: Any, printer: Printer = EmptyPrinter): String = {
-    var height = printer.height
-    val out = new StringBuilder()
+    var height     = printer.height
+    val out        = new StringBuilder()
     val indentStep = 2
     def loop(a: Any, indent: Int): Unit = {
       height -= 1
@@ -21,7 +23,7 @@ object Printers {
         return
       }
       val nextIndent = indent + indentStep
-      val isDone = printer.print(a, out, indent)
+      val isDone     = printer.print(a, out, indent)
       if (!isDone) {
         a match {
           case null         => out.append("null")
@@ -198,7 +200,7 @@ object Printers {
    */
   def escapeNonVisible(string: String): String = {
     val out = new StringBuilder()
-    var i = 0
+    var i   = 0
     while (i < string.length()) {
       val ch = string.charAt(i)
       ch match {

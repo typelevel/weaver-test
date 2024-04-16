@@ -22,14 +22,12 @@ class MyersDiff[T](equalizer: Equalizer[T])
       orig: util.List[T],
       rev: util.List[T]
   ): weaver.diff.Patch[T] = {
-    var path = _path
+    var path  = _path
     val patch = new weaver.diff.Patch[T]
     if (path.isSnake) path = path.prev
-    while (
-      path != null &&
+    while (path != null &&
       path.prev != null &&
-      path.prev.j >= 0
-    ) {
+      path.prev.j >= 0) {
       if (path.isSnake)
         throw new IllegalStateException(
           "bad diffpath: found snake when looking for diff"
@@ -76,9 +74,9 @@ class MyersDiff[T](equalizer: Equalizer[T])
     val N = orig.size()
     val M = rev.size()
 
-    val MAX = N + M + 1
-    val size = 1 + 2 * MAX
-    val middle = size / 2
+    val MAX      = N + M + 1
+    val size     = 1 + 2 * MAX
+    val middle   = size / 2
     val diagonal = new Array[PathNode](size)
 
     diagonal(middle + 1) = new Snake(0, -1, null)
@@ -86,11 +84,11 @@ class MyersDiff[T](equalizer: Equalizer[T])
     while (d < MAX) {
       var k = -d
       while (k <= d) {
-        val kmiddle = middle + k
-        val kplus = kmiddle + 1
-        val kminus = kmiddle - 1
+        val kmiddle        = middle + k
+        val kplus          = kmiddle + 1
+        val kminus         = kmiddle - 1
         var prev: PathNode = null
-        var i = 0
+        var i              = 0
         if ((k == -d) || (k != d && diagonal(kminus).i < diagonal(kplus).i)) {
           i = diagonal(kplus).i
           prev = diagonal(kplus)
@@ -100,16 +98,14 @@ class MyersDiff[T](equalizer: Equalizer[T])
         }
         diagonal(kminus) = null // no longer used
 
-        var j = i - k
+        var j              = i - k
         var node: PathNode = new DiffNode(i, j, prev)
         // orig and rev are zero-based
         // but the algorithm is one-based
         // that's why there's no +1 when indexing the sequences
-        while (
-          i < N &&
+        while (i < N &&
           j < M &&
-          equalizer.equals(orig.get(i), rev.get(j))
-        ) {
+          equalizer.equals(orig.get(i), rev.get(j))) {
           i += 1
           j += 1
         }
