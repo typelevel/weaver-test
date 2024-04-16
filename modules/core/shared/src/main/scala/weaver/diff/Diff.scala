@@ -11,7 +11,6 @@ class Diff(val obtained: String, val expected: String) extends Serializable {
   val obtainedLines: Seq[String] = splitIntoLines(obtainedClean)
   val expectedLines: Seq[String] = splitIntoLines(expectedClean)
   val unifiedDiff: String = createUnifiedDiff(obtainedLines, expectedLines)
-  def isEmpty: Boolean    = unifiedDiff.isEmpty()
 
   def createReport(
       title: String,
@@ -33,12 +32,6 @@ class Diff(val obtained: String, val expected: String) extends Serializable {
     }
     appendDiffOnlyReport(sb)
     sb.toString()
-  }
-
-  def createDiffOnlyReport(): String = {
-    val out = new StringBuilder
-    appendDiffOnlyReport(out)
-    out.toString()
   }
 
   private def appendDiffOnlyReport(sb: StringBuilder): Unit = {
