@@ -2,7 +2,6 @@ package weaver
 
 import cats.Eq
 import cats.Show
-import com.eed3si9n.expecty._
 import scala.annotation.implicitNotFound
 
 /**
@@ -44,14 +43,11 @@ object Comparison {
         if (eqv.eqv(found, expected)) {
           Result.Success
         } else {
-          val expectedLines = showA.show(expected).linesIterator.toSeq
-          val foundLines    = showA.show(found).linesIterator.toSeq
-          val report = DiffUtil
-            .mkColoredLineDiff(expectedLines, foundLines)
-            .linesIterator
-            .toSeq
-            .map(str => Console.RESET.toString + str)
-            .mkString("\n")
+          val diff = new weaver.diff.Diff(
+            obtained = showA.show(found),
+            expected = showA.show(expected)
+          )
+          val report = diff.createReport("", printObtainedAsStripMargin = false)
           Result.Failure(report)
         }
       }
