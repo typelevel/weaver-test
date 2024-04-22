@@ -3,6 +3,7 @@ package weaver
 import cats.Eq
 import cats.Show
 import scala.annotation.implicitNotFound
+import munit.diff.Diffs
 
 /**
  * A type class used to compare two instances of the same type and construct an
@@ -43,11 +44,8 @@ object Comparison {
         if (eqv.eqv(found, expected)) {
           Result.Success
         } else {
-          val diff = new weaver.diff.Diff(
-            obtained = showA.show(found),
-            expected = showA.show(expected)
-          )
-          val report = diff.createReport("", printObtainedAsStripMargin = false)
+          val report =
+            Diffs.createDiffOnlyReport(showA.show(found), showA.show(expected))
           Result.Failure(report)
         }
       }
