@@ -52,6 +52,7 @@ val Version = new {
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
+  val scaladiff              = "1.0.0-M10+62-129a98ce-SNAPSHOT"
 }
 
 lazy val root = tlCrossRootProject.aggregate(core,
@@ -71,9 +72,15 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       "com.eed3si9n.expecty" %%% "expecty"     % Version.expecty,
       // https://github.com/portable-scala/portable-scala-reflect/issues/23
       "org.portable-scala" %%% "portable-scala-reflect" % Version.portableReflect cross CrossVersion.for3Use2_13,
-      "org.typelevel" %% "scalac-compat-annotation" % Version.scalacCompatAnnotation
-    )
-  )
+      "org.typelevel" %% "scalac-compat-annotation" % Version.scalacCompatAnnotation,
+      "org.scalameta" %%% "scala-diff" % Version.scaladiff
+    ),
+    // Shades the scala-diff dependency.
+    shadedDependencies += "org.scalameta" %%% "scala-diff" % "<ignored>",
+    shadingRules += ShadingRule.moveUnder("munit.diff",
+                                          "weaver.internal.shaded"),
+    validNamespaces ++= Set("weaver", "org")
+  ).enablePlugins(ShadingPlugin)
 
 lazy val coreJVM = core.jvm
   .settings(
