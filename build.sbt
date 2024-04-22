@@ -39,7 +39,7 @@ ThisBuild / scalaVersion       := scala213 // the default Scala
 
 val Version = new {
   val catsEffect             = "3.5.2"
-  val catsLaws               = "2.9.0"
+  val catsLaws               = "2.10.0"
   val discipline             = "1.5.1"
   val expecty                = "0.16.0"
   val fs2                    = "3.5.0"
