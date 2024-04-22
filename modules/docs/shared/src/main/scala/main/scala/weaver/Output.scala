@@ -47,7 +47,7 @@ object Ansi2Html extends Function1[String, String] {
       case (col1, col2) if color.isDefinedAt(col2) =>
         val closing   = if (color.isDefinedAt(col1)) "</span>" else ""
         val nextColor = color(col2)
-        if (nextColor != "lightgray" ) {
+        if (nextColor != "lightgray") {
           s"$closing<span style='color: $nextColor'>"
         } else {
           s"$closing<span style='color: $nextColor'><b>"
