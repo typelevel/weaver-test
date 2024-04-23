@@ -268,12 +268,11 @@ object DogFoodTests extends IOSuite {
         |- (eql Comparison) 0ms
         |  Values not equal: (src/main/DogFoodTests.scala:5)
         |
-        |  Foo {     |  Foo {
-        |    s: foo  |    s: foo
-        |    i: [1]  |    i: [2]
-        |  }         |  }
-        """.stripMargin.trim
-
+        |  => Diff (- obtained, + expected)
+        |     s: foo
+        |  -  i: 2
+        |  +  i: 1
+        |   }""".stripMargin.trim
         expect.same(actual, expected)
     }
   }
@@ -292,12 +291,11 @@ object DogFoodTests extends IOSuite {
         |- (same Comparison) 0ms
         |  Values not equal: (src/main/DogFoodTests.scala:5)
         |
-        |  Foo {     |  Foo {
-        |    s: foo  |    s: foo
-        |    i: [1]  |    i: [2]
-        |  }         |  }
-        """.stripMargin.trim
-
+        |  => Diff (- obtained, + expected)
+        |     s: foo
+        |  -  i: 2
+        |  +  i: 1
+        |   }""".stripMargin.trim
         expect.same(actual, expected)
     }
   }
