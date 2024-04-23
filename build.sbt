@@ -32,17 +32,17 @@ ThisBuild / tlSitePublishBranch := Some("main")
 // use JDK 11
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
 
-val scala212 = "2.12.18"
+val scala212 = "2.12.19"
 val scala213 = "2.13.12"
 ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.3")
 ThisBuild / scalaVersion       := scala213 // the default Scala
 
 val Version = new {
-  val catsEffect             = "3.5.2"
+  val catsEffect             = "3.5.4"
   val catsLaws               = "2.10.0"
   val discipline             = "1.5.1"
   val expecty                = "0.16.0"
-  val fs2                    = "3.5.0"
+  val fs2                    = "3.10.2"
   val junit                  = "4.13.2"
   val portableReflect        = "1.1.2"
   val scalaJavaTime          = "2.4.0"
