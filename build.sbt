@@ -38,7 +38,7 @@ ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.3")
 ThisBuild / scalaVersion       := scala213 // the default Scala
 
 val Version = new {
-  val catsEffect             = "3.5.2"
+  val catsEffect             = "3.5.4"
   val catsLaws               = "2.9.0"
   val discipline             = "1.5.1"
   val expecty                = "0.16.0"
