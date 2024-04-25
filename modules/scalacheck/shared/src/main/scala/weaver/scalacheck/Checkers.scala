@@ -106,22 +106,18 @@ trait Checkers {
 
     private def forall_[A: Show](gen: Gen[A], f: A => F[Expectations])(
         implicit loc: SourceLocation): F[Expectations] = {
-      paramStream
-        .parEvalMap(config.perPropertyParallelism) {
-          testOneTupled(gen, f)
-        }
-        .mapAccumulate(Status.start[A]) { case (oldStatus, testResult) =>
-          val newStatus = testResult match {
+      val (params, initialSeed) = startParams
+      seedStream(initialSeed)
+        .parEvalMap(config.perPropertyParallelism)(testOne(gen, f)(params, _))
+        .scan(Status.start[A]) { case (oldStatus, testResult) =>
+          testResult match {
             case TestResult.Success => oldStatus.addSuccess
             case TestResult.Discard => oldStatus.addDiscard
-            case TestResult.Failure(input, seed, exp) =>
-              oldStatus.addFailure(input, seed, exp)
+            case TestResult.Failure(input, exp) =>
+              oldStatus.addFailure(input, initialSeed, exp)
           }
-          (newStatus, newStatus)
         }
-        .map(_._1)
         .takeWhile(_.shouldContinue(config), takeFailure = true)
-        .takeRight(1) // getting the first error (which finishes the stream)
         .compile
         .last
         .map { (x: Option[Status[A]]) =>
@@ -132,27 +128,19 @@ trait Checkers {
         }
     }
 
-    private def paramStream: fs2.Stream[F, (Gen.Parameters, Seed)] = {
-      val initial = startSeed(
+    private def startParams: (Gen.Parameters, Seed) = {
+      startSeed(
         Gen.Parameters.default
           .withSize(config.maximumGeneratorSize)
           .withInitialSeed(config.initialSeed))
-
-      fs2.Stream.iterate(initial) {
-        case (p, s) => (p, s.slide)
-      }
     }
-
+    private def seedStream(initial: Seed): fs2.Stream[F, Seed] =
+      fs2.Stream.iterate[F, Seed](initial)(_.slide)
   }
 
   object forall extends PartiallyAppliedForall(checkConfig) {
     def withConfig(config: CheckConfig) = new PartiallyAppliedForall(config)
   }
-
-  private def testOneTupled[T: Show](
-      gen: Gen[T],
-      f: T => F[Expectations])(ps: (Gen.Parameters, Seed)) =
-    testOne(gen, f)(ps._1, ps._2)
 
   private def testOne[T: Show](
       gen: Gen[T],
@@ -165,7 +153,7 @@ trait Checkers {
         .map { (x: Option[(T, Expectations)]) =>
           x match {
             case Some((_, ex)) if ex.run.isValid => TestResult.Success
-            case Some((t, ex)) => TestResult.Failure(t.show, seed, ex)
+            case Some((t, ex)) => TestResult.Failure(t.show, ex)
             case None          => TestResult.Discard
           }
         }
@@ -242,7 +230,7 @@ object Checkers {
   private object TestResult {
     case object Success extends TestResult
     case object Discard extends TestResult
-    case class Failure(input: String, seed: Seed, exp: Expectations)
+    case class Failure(input: String, exp: Expectations)
         extends TestResult
   }
 }

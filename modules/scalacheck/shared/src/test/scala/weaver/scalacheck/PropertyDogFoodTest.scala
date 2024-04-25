@@ -25,23 +25,19 @@ object PropertyDogFoodTest extends IOSuite {
         case LoggedEvent.Error(msg) => msg
       }
       exists(errorLogs) { log =>
+        val seed = Meta.FailedChecks.initialSeed.toBase64
         // Go into software engineering they say
         // Learn how to make amazing algorithms
         // Build robust and deterministic software
-        val (attempt, value, seed) =
+        val (attempt, value) =
           if (ScalaCompat.isScala3) {
-            ("4",
-             "-2147483648",
-             """Seed.fromBase64("AkTFK0oQzv-BOkf-rqnsdb_Etapzkj9gQD9rHj7UnKM=")""")
+            ("4", "-2147483648")
           } else {
-            ("2",
-             "0",
-             """Seed.fromBase64("Nj62qCHF96VYEMGcD2OBlfmuyihbPQQhQLH9acYL5RA=")""")
+            ("2", "0")
           }
 
         val expectedMessage =
-          s"Property test failed on try $attempt with seed $seed and input $value"
-
+          s"""Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value"""
         expect(log.contains(expectedMessage))
       }
     }
@@ -109,10 +105,11 @@ object Meta {
 
   object FailedChecks extends SimpleIOSuite with Checkers {
 
+    val initialSeed = Seed(5L)
     override def checkConfig: CheckConfig =
       super.checkConfig
         .withPerPropertyParallelism(1)
-        .withInitialSeed(Some(Seed(5L)))
+        .withInitialSeed(Some(initialSeed))
 
     test("foobar") {
       forall { (x: Int) =>
