@@ -119,13 +119,8 @@ trait Checkers {
         }
         .takeWhile(_.shouldContinue(config), takeFailure = true)
         .compile
-        .last
-        .map { (x: Option[Status[A]]) =>
-          x match {
-            case Some(status) => status.endResult(config)
-            case None         => Expectations.Helpers.success
-          }
-        }
+        .lastOrError // This will never fail as there will always be at least one status
+        .map { status => status.endResult(config) }
     }
 
     private def startParams: (Gen.Parameters, Seed) = {
