@@ -106,7 +106,9 @@ trait Checkers {
 
     private def forall_[A: Show](gen: Gen[A], f: A => F[Expectations])(
         implicit loc: SourceLocation): F[Expectations] = {
-      val (params, initialSeed) = startParams
+      val params = Gen.Parameters.default.withNoInitialSeed.withSize(
+        config.maximumGeneratorSize)
+      val initialSeed = config.initialSeed.getOrElse(Seed.random())
       seedStream(initialSeed)
         .parEvalMap(config.perPropertyParallelism)(testOne(gen, f)(params, _))
         .scan(Status.start[A]) { case (oldStatus, testResult) =>
@@ -123,12 +125,6 @@ trait Checkers {
         .map { status => status.endResult(config) }
     }
 
-    private def startParams: (Gen.Parameters, Seed) = {
-      startSeed(
-        Gen.Parameters.default
-          .withSize(config.maximumGeneratorSize)
-          .withInitialSeed(config.initialSeed))
-    }
     private def seedStream(initial: Seed): fs2.Stream[F, Seed] =
       fs2.Stream.iterate[F, Seed](initial)(_.slide)
   }
@@ -154,12 +150,6 @@ trait Checkers {
         }
     }
   }
-
-  def startSeed(params: Gen.Parameters): (Gen.Parameters, Seed) =
-    params.initialSeed match {
-      case Some(seed) => (params.withNoInitialSeed, seed)
-      case None       => (params, Seed.random())
-    }
 
   private[scalacheck] case class Status[T](
       succeeded: Int,
