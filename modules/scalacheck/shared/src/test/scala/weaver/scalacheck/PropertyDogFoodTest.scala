@@ -36,9 +36,18 @@ object PropertyDogFoodTest extends IOSuite {
             ("2", "0")
           }
 
-        val expectedMessage =
-          s"""Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value"""
-        expect(log.contains(expectedMessage))
+        val actualLines = log.split(System.lineSeparator()).toList
+        val expectedLines = s"""foobar
+          |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+          |You can reproduce this by adding the following override to your suite:
+          |
+          |override def checkConfig = super.checkConfig.withInitialSeed(Seed.fromBase64("$seed").toOption)"""
+          .stripMargin
+          .linesIterator.toList
+
+        forEach(actualLines.zip(expectedLines))({ case (actual, expected) =>
+          expect(actual.contains(expected))
+        })
       }
     }
   }
