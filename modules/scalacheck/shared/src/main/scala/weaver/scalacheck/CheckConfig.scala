@@ -2,6 +2,7 @@ package weaver
 package scalacheck
 
 import org.scalacheck.rng.Seed
+import org.typelevel.scalaccompat.annotation.unused
 
 case class CheckConfig private (
     val minimumSuccessful: Int,
@@ -56,4 +57,7 @@ object CheckConfig {
                     maximumGeneratorSize,
                     perPropertyParallelism,
                     initialSeed)
+
+  @unused
+  private def unapply(c: CheckConfig): Some[CheckConfig] = Some(c)
 }
