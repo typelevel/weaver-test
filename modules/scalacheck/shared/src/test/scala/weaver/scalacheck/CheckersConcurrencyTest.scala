@@ -19,9 +19,10 @@ object CheckersConcurrencyTest extends SimpleIOSuite {
     object CheckersConcurrencyTestNested extends SimpleIOSuite with Checkers {
 
       override def checkConfig: CheckConfig =
-        super.checkConfig.copy(perPropertyParallelism = minTests * 5,
-                               minimumSuccessful = minTests,
-                               maximumDiscardRatio = 10)
+        super.checkConfig
+          .withPerPropertyParallelism(minTests * 5)
+          .withMinimumSuccessful(minTests)
+          .withMaximumDiscardRatio(10)
 
       loggedTest("nested") { log =>
         val atomicInt = new AtomicInteger(0)
@@ -57,9 +58,9 @@ object CheckersConcurrencyTest extends SimpleIOSuite {
     object CheckersConcurrencyTestNested extends SimpleIOSuite with Checkers {
 
       override def checkConfig: CheckConfig =
-        super.checkConfig.copy(perPropertyParallelism = 50,
-                               minimumSuccessful = 10,
-                               maximumDiscardRatio = 10)
+        super.checkConfig.withPerPropertyParallelism(50)
+          .withMinimumSuccessful(10)
+          .withMaximumDiscardRatio(10)
 
       test("nested") {
         val atomicInt = new AtomicInteger(0)

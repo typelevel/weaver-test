@@ -106,53 +106,32 @@ trait Checkers {
 
     private def forall_[A: Show](gen: Gen[A], f: A => F[Expectations])(
         implicit loc: SourceLocation): F[Expectations] = {
-      paramStream
-        .parEvalMap(config.perPropertyParallelism) {
-          testOneTupled(gen, f)
-        }
-        .mapAccumulate(Status.start[A]) { case (oldStatus, testResult) =>
-          val newStatus = testResult match {
+      val params = Gen.Parameters.default.withNoInitialSeed.withSize(
+        config.maximumGeneratorSize)
+      val initialSeed = config.initialSeed.getOrElse(Seed.random())
+      seedStream(initialSeed)
+        .parEvalMap(config.perPropertyParallelism)(testOne(gen, f)(params, _))
+        .scan(Status.start[A]) { case (oldStatus, testResult) =>
+          testResult match {
             case TestResult.Success => oldStatus.addSuccess
             case TestResult.Discard => oldStatus.addDiscard
-            case TestResult.Failure(input, seed, exp) =>
-              oldStatus.addFailure(input, seed, exp)
+            case TestResult.Failure(input, exp) =>
+              oldStatus.addFailure(input, initialSeed, exp)
           }
-          (newStatus, newStatus)
         }
-        .map(_._1)
         .takeWhile(_.shouldContinue(config), takeFailure = true)
-        .takeRight(1) // getting the first error (which finishes the stream)
         .compile
-        .last
-        .map { (x: Option[Status[A]]) =>
-          x match {
-            case Some(status) => status.endResult(config)
-            case None         => Expectations.Helpers.success
-          }
-        }
+        .lastOrError // This will never fail as there will always be at least one status
+        .map { status => status.endResult(config) }
     }
 
-    private def paramStream: fs2.Stream[F, (Gen.Parameters, Seed)] = {
-      val initial = startSeed(
-        Gen.Parameters.default
-          .withSize(config.maximumGeneratorSize)
-          .withInitialSeed(config.initialSeed.map(Seed(_))))
-
-      fs2.Stream.iterate(initial) {
-        case (p, s) => (p, s.slide)
-      }
-    }
-
+    private def seedStream(initial: Seed): fs2.Stream[F, Seed] =
+      fs2.Stream.iterate[F, Seed](initial)(_.slide)
   }
 
   object forall extends PartiallyAppliedForall(checkConfig) {
     def withConfig(config: CheckConfig) = new PartiallyAppliedForall(config)
   }
-
-  private def testOneTupled[T: Show](
-      gen: Gen[T],
-      f: T => F[Expectations])(ps: (Gen.Parameters, Seed)) =
-    testOne(gen, f)(ps._1, ps._2)
 
   private def testOne[T: Show](
       gen: Gen[T],
@@ -165,18 +144,12 @@ trait Checkers {
         .map { (x: Option[(T, Expectations)]) =>
           x match {
             case Some((_, ex)) if ex.run.isValid => TestResult.Success
-            case Some((t, ex)) => TestResult.Failure(t.show, seed, ex)
+            case Some((t, ex)) => TestResult.Failure(t.show, ex)
             case None          => TestResult.Discard
           }
         }
     }
   }
-
-  def startSeed(params: Gen.Parameters): (Gen.Parameters, Seed) =
-    params.initialSeed match {
-      case Some(seed) => (params.withNoInitialSeed, seed)
-      case None       => (params, Seed.random())
-    }
 
   private[scalacheck] case class Status[T](
       succeeded: Int,
@@ -192,7 +165,10 @@ trait Checkers {
         val ith = succeeded + discarded + 1
         val failure = Expectations.Helpers
           .failure(
-            s"Property test failed on try $ith with seed ${seed} and input $input")
+            s"""Property test failed on try $ith with seed $seed and input $input.
+                |You can reproduce this by adding the following override to your suite:
+                |
+                |override def checkConfig = super.checkConfig.withInitialSeed($seed.toOption)""".stripMargin)
           .and(exp)
         copy(failure = Some(failure))
       } else this
@@ -242,7 +218,7 @@ object Checkers {
   private object TestResult {
     case object Success extends TestResult
     case object Discard extends TestResult
-    case class Failure(input: String, seed: Seed, exp: Expectations)
+    case class Failure(input: String, exp: Expectations)
         extends TestResult
   }
 }

@@ -8,6 +8,7 @@ import cats.effect.{ IO, Resource }
 import weaver.framework._
 
 import org.scalacheck.Gen
+import org.scalacheck.rng.Seed
 
 object PropertyDogFoodTest extends IOSuite {
 
@@ -24,24 +25,29 @@ object PropertyDogFoodTest extends IOSuite {
         case LoggedEvent.Error(msg) => msg
       }
       exists(errorLogs) { log =>
+        val seed = Meta.FailedChecks.initialSeed.toBase64
         // Go into software engineering they say
         // Learn how to make amazing algorithms
         // Build robust and deterministic software
-        val (attempt, value, seed) =
+        val (attempt, value) =
           if (ScalaCompat.isScala3) {
-            ("4",
-             "-2147483648",
-             """Seed.fromBase64("AkTFK0oQzv-BOkf-rqnsdb_Etapzkj9gQD9rHj7UnKM=")""")
+            ("4", "-2147483648")
           } else {
-            ("2",
-             "0",
-             """Seed.fromBase64("Nj62qCHF96VYEMGcD2OBlfmuyihbPQQhQLH9acYL5RA=")""")
+            ("2", "0")
           }
 
-        val expectedMessage =
-          s"Property test failed on try $attempt with seed $seed and input $value"
+        val actualLines = log.split(System.lineSeparator()).toList
+        val expectedLines = s"""foobar
+          |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+          |You can reproduce this by adding the following override to your suite:
+          |
+          |override def checkConfig = super.checkConfig.withInitialSeed(Seed.fromBase64("$seed").toOption)"""
+          .stripMargin
+          .linesIterator.toList
 
-        expect(log.contains(expectedMessage))
+        forEach(actualLines.zip(expectedLines))({ case (actual, expected) =>
+          expect(actual.contains(expected))
+        })
       }
     }
   }
@@ -102,13 +108,17 @@ object Meta {
 
     override def checkConfig: CheckConfig =
       super.checkConfig
-        .copy(perPropertyParallelism = 100, minimumSuccessful = 100)
+        .withPerPropertyParallelism(100)
+        .withMinimumSuccessful(100)
   }
 
   object FailedChecks extends SimpleIOSuite with Checkers {
 
+    val initialSeed = Seed(5L)
     override def checkConfig: CheckConfig =
-      super.checkConfig.copy(perPropertyParallelism = 1, initialSeed = Some(5L))
+      super.checkConfig
+        .withPerPropertyParallelism(1)
+        .withInitialSeed(Some(initialSeed))
 
     test("foobar") {
       forall { (x: Int) =>
@@ -127,8 +137,9 @@ object Meta {
   object ConfigOverrideChecks extends DiscardedChecks {
 
     val configOverride =
-      super.checkConfig.copy(minimumSuccessful = 200,
-                             perPropertyParallelism = 1)
+      super.checkConfig
+        .withMinimumSuccessful(200)
+        .withPerPropertyParallelism(1)
 
     override def partiallyAppliedForall: PartiallyAppliedForall =
       forall.withConfig(configOverride)
@@ -139,8 +150,10 @@ object Meta {
     override def partiallyAppliedForall: PartiallyAppliedForall = forall
 
     override def checkConfig =
-      super.checkConfig.copy(minimumSuccessful = 100,
-                             // to avoid overcounting of discarded checks
-                             perPropertyParallelism = 1)
+      super.checkConfig
+        .withMinimumSuccessful(100)
+        .withPerPropertyParallelism(
+          1
+        ) // to avoid overcounting of discarded checks
   }
 }
