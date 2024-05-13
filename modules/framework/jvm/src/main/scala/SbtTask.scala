@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.{ AtomicBoolean, AtomicInteger }
 import cats.data.Chain
 
 import sbt.testing.{ Event, EventHandler, Logger, Task, TaskDef }
+import java.util.concurrent.TimeUnit
 
 private[framework] class SbtTask(
     val taskDef: TaskDef,
@@ -13,7 +14,7 @@ private[framework] class SbtTask(
     stillRunning: AtomicInteger,
     waitForResourcesShutdown: java.util.concurrent.Semaphore,
     start: scala.concurrent.Promise[Unit],
-    queue: java.util.concurrent.ConcurrentLinkedQueue[SuiteEvent],
+    queue: java.util.concurrent.LinkedBlockingQueue[SuiteEvent],
     loggerPermit: java.util.concurrent.Semaphore,
     readFailed: () => Chain[(SuiteName, TestOutcome)]
 ) extends Task {
@@ -30,7 +31,7 @@ private[framework] class SbtTask(
     loggerPermit.acquire()
     try {
       while (!finished && !isDone.get()) {
-        val nextEvent = Option(queue.poll())
+        val nextEvent = Option(queue.poll(1, TimeUnit.SECONDS))
 
         nextEvent.foreach {
           case s @ SuiteStarted(_) => log(s)
