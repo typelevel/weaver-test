@@ -3,7 +3,6 @@ package framework
 import org.typelevel.scalaccompat.annotation.unused
 
 import java.io.PrintStream
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.{ AtomicBoolean, AtomicInteger }
 
 import scala.concurrent.duration._
@@ -16,6 +15,7 @@ import cats.effect.{ Ref, Sync, _ }
 import cats.syntax.all._
 
 import sbt.testing.{ Task, TaskDef }
+import java.util.concurrent.LinkedBlockingQueue
 
 trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
 
@@ -73,7 +73,7 @@ trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
       // dispatching logs through a single logger at a time.
       val loggerPermit = new java.util.concurrent.Semaphore(1, true)
 
-      val queue  = new ConcurrentLinkedQueue[SuiteEvent]()
+      val queue  = new LinkedBlockingQueue[SuiteEvent]()
       val broker = new ConcurrentQueueEventBroker(queue)
       val startingBlock = unsafeRun.fromFuture {
         promise.future.map(_ => ())(ExecutionContext.global)
@@ -252,7 +252,7 @@ trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
   }
 
   class ConcurrentQueueEventBroker(
-      concurrentQueue: ConcurrentLinkedQueue[SuiteEvent])
+      concurrentQueue: LinkedBlockingQueue[SuiteEvent])
       extends SuiteEventBroker {
     def send(suiteEvent: SuiteEvent): F[Unit] = {
       Sync[F].delay(concurrentQueue.add(suiteEvent)).void
