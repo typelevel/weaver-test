@@ -142,23 +142,23 @@
         
         <h3 id="sbt-1-9-0" class="section"><a class="anchor-link left" href="#sbt-1-9-0"><i class="icofont-laika link">&#xef71;</i></a>SBT (1.9.0+)</h3>
         <p>Newer versions of SBT have <a href="https://github.com/sbt/sbt/pull/7263"><code>weaver</code> automatically integrated</a>.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;com.disneystreaming&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-cats&quot;</span><span> % </span><span class="string-literal">&quot;0.0-52916a5-SNAPSHOT&quot;</span><span> % </span><span class="type-name">Test</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;com.disneystreaming&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-cats&quot;</span><span> % </span><span class="string-literal">&quot;0.0-0e0ca96-SNAPSHOT&quot;</span><span> % </span><span class="type-name">Test</span></code></pre>
         
         <h3 id="sbt-older-versions" class="section"><a class="anchor-link left" href="#sbt-older-versions"><i class="icofont-laika link">&#xef71;</i></a>SBT (older versions)</h3>
         <p>Internally, SBT has a hardcoded list of test frameworks it integrates with. <code>weaver</code> must be manually added to this list.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;com.disneystreaming&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-cats&quot;</span><span> % </span><span class="string-literal">&quot;0.0-52916a5-SNAPSHOT&quot;</span><span> % </span><span class="type-name">Test</span><span>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;com.disneystreaming&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-cats&quot;</span><span> % </span><span class="string-literal">&quot;0.0-0e0ca96-SNAPSHOT&quot;</span><span> % </span><span class="type-name">Test</span><span>
 </span><span class="identifier">testFrameworks</span><span> += </span><span class="keyword">new</span><span> </span><span class="type-name">TestFramework</span><span>(</span><span class="string-literal">&quot;weaver.framework.CatsEffect&quot;</span><span>)</span></code></pre>
         
         <h3 id="mill" class="section"><a class="anchor-link left" href="#mill"><i class="icofont-laika link">&#xef71;</i></a>Mill</h3>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="identifier">test</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">Tests</span><span> {
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(
-    </span><span class="string-literal">ivy&quot;com.disneystreaming::weaver-cats:0.0-52916a5-SNAPSHOT&quot;</span><span>
+    </span><span class="string-literal">ivy&quot;com.disneystreaming::weaver-cats:0.0-0e0ca96-SNAPSHOT&quot;</span><span>
   )
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">testFramework</span><span> = </span><span class="string-literal">&quot;weaver.framework.CatsEffect&quot;</span><span>
 }</span></code></pre>
         
         <h3 id="scala-cli" class="section"><a class="anchor-link left" href="#scala-cli"><i class="icofont-laika link">&#xef71;</i></a>scala-cli</h3>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//&gt; using lib &quot;com.disneystreaming::weaver-cats:0.0-52916a5-SNAPSHOT&quot;
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//&gt; using lib &quot;com.disneystreaming::weaver-cats:0.0-0e0ca96-SNAPSHOT&quot;
 //&gt; using testFramework &quot;weaver.framework.CatsEffect&quot; // this may neccessary if you have other TestFramework on your dependencies</span></code></pre>
         
         <h2 id="usage" class="section"><a class="anchor-link left" href="#usage"><i class="icofont-laika link">&#xef71;</i></a>Usage</h2>
