@@ -3,9 +3,9 @@ package framework
 package test
 
 import org.typelevel.scalaccompat.annotation._
+import cats.Show
 
 import cats.effect._
-
 // The build tool will only detect and run top-level test suites. We can however nest objects
 // that contain failing tests, to allow for testing the framework without failing the build
 // because the framework will have ran the tests on its own.
@@ -29,7 +29,9 @@ object Meta {
     }
 
     pureTest("lots\nof\nmultiline\n(failure)") {
-      expect(1 == 2)
+      val x = 1
+      val y = 2
+      expect(clue(x) == y)
     }
 
     test("lots\nof\nmultiline\n(ignored)") {
@@ -62,6 +64,63 @@ object Meta {
     pureTest("(same Comparison)") {
       expect.same(Foo("foo", 1), Foo("foo", 2))
     }
+  }
+
+  object Clue extends SimpleIOSuite {
+    override implicit protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
+    implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
+
+    pureTest("(success)") {
+      val x = 1
+      val y = 1
+      expect(clue(x) == clue(y))
+    }
+
+    pureTest("(failure)") {
+      val x = 1
+      val y = 2
+      expect(clue(x) == clue(y))
+    }
+
+    pureTest("(nested)") {
+      val x = 1
+      val y = 2
+      expect(clue(List(clue(x), clue(y))) == List(x, x))
+    }
+
+    pureTest("(map)") {
+      val x = 1
+      val y = 2
+      expect(List(x, y).map(v => clue(v)) == List(x, x))
+    }
+
+    pureTest("(show)") {
+      implicit val intShow: Show[Int] = i => s"int-$i"
+      val x                           = 1
+      val y                           = 2
+      expect(clue(x) == clue(y))
+    }
+
+    pureTest("(show-from-to-string)") {
+      class Foo(i: Int) {
+        override def toString = s"foo-$i"
+      }
+      val x: Foo = new Foo(1)
+      val y: Foo = new Foo(2)
+
+      expect(clue(x) == clue(y))
+    }
+
+    pureTest("(helpers)") {
+      val x = 1
+      val y = 2
+      val z = 3
+      import Expectations.Helpers.{ clue => otherclue }
+      object CustomHelpers extends Expectations.Helpers
+      expect(CustomHelpers.clue(x) == otherclue(y) || x == clue(z))
+    }
+
   }
 
   object FailingTestStatusReporting extends SimpleIOSuite {

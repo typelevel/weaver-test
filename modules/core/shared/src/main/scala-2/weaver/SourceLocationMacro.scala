@@ -2,7 +2,7 @@ package weaver
 
 // kudos to https://github.com/monix/minitest
 // format: off
-import scala.reflect.macros.whitebox
+import scala.reflect.macros.blackbox
 
 trait SourceLocationMacro {
 
@@ -22,10 +22,10 @@ trait SourceLocationMacro {
 }
 
 object macros {
-  class Macros(val c: whitebox.Context) {
+  class Macros(val c: blackbox.Context) {
     import c.universe._
 
-    def fromContext: Tree = {
+    def fromContext: c.Tree = {
       val (pathExpr, relPathExpr, lineExpr) = getSourceLocation
       val SourceLocationSym = symbolOf[SourceLocation].companion
       q"""$SourceLocationSym($pathExpr, $relPathExpr, $lineExpr)"""

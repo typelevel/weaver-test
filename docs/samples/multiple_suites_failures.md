@@ -26,7 +26,7 @@ object MyAnotherSuite extends SimpleIOSuite {
     } yield check(x).traced(here)
   }
 
-  def check(x : String) = expect(x.length > 10)
+  def check(x : String) = expect(clue(clue(x).length) > 10)
 }
 ```
 

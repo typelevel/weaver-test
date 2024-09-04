@@ -157,7 +157,7 @@ object Expectations {
           ))
     }
 
-  trait Helpers {
+  trait Helpers extends weaver.internals.ClueHelpers {
 
     /**
      * Expect macros

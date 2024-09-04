@@ -175,18 +175,16 @@ object DogFoodTests extends IOSuite {
           case LoggedEvent.Error(msg) => msg
         }.get
 
-        // HONESTLY.
-        val (location, capturedExpression) =
-          if (Platform.isScala3) (31, "1 == 2") else (32, "expect(1 == 2)")
-
         val expected = s"""
         |- lots 0ms
         |  of
         |  multiline
         |  (failure)
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:$location)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:34)
         |
-        |  $capturedExpression
+        |  Clues {
+        |    x: Int = 1
+        |  }
         |
         """.stripMargin.trim
 
@@ -297,6 +295,163 @@ object DogFoodTests extends IOSuite {
         |  +  i: 1
         |   }""".stripMargin.trim
         expect.same(actual, expected)
+    }
+  }
+
+  test("successes with clues are rendered correctly") {
+    _.runSuite(Meta.Clue).map {
+      case (logs, _) =>
+        val actual = extractLogEventBeforeFailures(logs) {
+          case LoggedEvent.Info(msg) if msg.contains("(success)") =>
+            msg
+        }.get
+
+        val expected = s"""
+        |+ (success) 0ms
+        |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("failures with clues are rendered correctly") {
+    _.runSuite(Meta.Clue).map {
+      case (logs, _) =>
+        val actual = extractLogEventAfterFailures(logs) {
+          case LoggedEvent.Error(msg) if msg.contains("(failure)") =>
+            msg
+        }.get
+
+        val expected = s"""
+        |- (failure) 0ms
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:83)
+        |
+        |  Clues {
+        |    x: Int = 1
+        |    y: Int = 2
+        |  }
+        |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("failures with nested clues are rendered correctly") {
+    _.runSuite(Meta.Clue).map {
+      case (logs, _) =>
+        val actual = extractLogEventAfterFailures(logs) {
+          case LoggedEvent.Error(msg) if msg.contains("(nested)") =>
+            msg
+        }.get
+
+        val expected = s"""
+        |- (nested) 0ms
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:89)
+        |
+        |  Clues {
+        |    x: Int = 1
+        |    y: Int = 2
+        |    List(clue(x), clue(y)): List[Int] = List(1, 2)
+        |  }
+        |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("failures with identical clue expressions are rendered correctly") {
+    _.runSuite(Meta.Clue).map {
+      case (logs, _) =>
+        val actual = extractLogEventAfterFailures(logs) {
+          case LoggedEvent.Error(msg) if msg.contains("(map)") =>
+            msg
+        }.get
+
+        val expected = s"""
+        |- (map) 0ms
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:95)
+        |
+        |  Clues {
+        |    v: Int = 1
+        |    v: Int = 2
+        |  }
+        |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("values of clues are rendered with the given show") {
+    _.runSuite(Meta.Clue).map {
+      case (logs, _) =>
+        val actual = extractLogEventAfterFailures(logs) {
+          case LoggedEvent.Error(msg) if msg.contains("(show)") =>
+            msg
+        }.get
+
+        val expected = s"""
+        |- (show) 0ms
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        |
+        |  Clues {
+        |    x: Int = int-1
+        |    y: Int = int-2
+        |  }
+        |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("values of clues are rendered with show constructed from toString if no show is given") {
+    _.runSuite(Meta.Clue).map {
+      case (logs, _) =>
+        val actual = extractLogEventAfterFailures(logs) {
+          case LoggedEvent.Error(msg)
+              if msg.contains("(show-from-to-string)") =>
+            msg
+        }.get
+
+        val expected = s"""
+        |- (show-from-to-string) 0ms
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:112)
+        |
+        |  Clues {
+        |    x: Foo = foo-1
+        |    y: Foo = foo-2
+        |  }
+        |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+  test("clue calls are replaced when using helper objects") {
+    _.runSuite(Meta.Clue).map {
+      case (logs, _) =>
+        val actual = extractLogEventAfterFailures(logs) {
+          case LoggedEvent.Error(msg) if msg.contains("(helpers)") =>
+            msg
+        }.get
+
+        val expected = s"""
+        |- (helpers) 0ms
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:121)
+        |
+        |  Clues {
+        |    x: Int = 1
+        |    y: Int = 2
+        |    z: Int = 3
+        |  }
+        |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
     }
   }
 
