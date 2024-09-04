@@ -41,7 +41,6 @@ val Version = new {
   val catsEffect             = "3.5.4"
   val catsLaws               = "2.9.0"
   val discipline             = "1.5.1"
-  val expecty                = "0.16.0"
   val fs2                    = "3.10.2"
   val junit                  = "4.13.2"
   val portableReflect        = "1.1.2"
@@ -67,13 +66,16 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     name := "weaver-core",
     libraryDependencies ++= Seq(
-      "co.fs2"               %%% "fs2-core"    % Version.fs2,
-      "org.typelevel"        %%% "cats-effect" % Version.catsEffect,
-      "com.eed3si9n.expecty" %%% "expecty"     % Version.expecty,
+      "co.fs2"        %%% "fs2-core"    % Version.fs2,
+      "org.typelevel" %%% "cats-effect" % Version.catsEffect,
       // https://github.com/portable-scala/portable-scala-reflect/issues/23
       "org.portable-scala" %%% "portable-scala-reflect" % Version.portableReflect cross CrossVersion.for3Use2_13,
       "org.typelevel" %% "scalac-compat-annotation" % Version.scalacCompatAnnotation,
-      "org.scalameta" %%% "munit-diff" % Version.munitDiff
+      "org.scalameta" %%% "munit-diff" % Version.munitDiff,
+      if (scalaVersion.value.startsWith("3."))
+        "org.scala-lang" % "scala-reflect" % scala213
+      else
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value
     ),
     // Shades the scala-diff dependency.
     shadedDependencies += "org.scalameta" %%% "munit-diff" % "<ignored>",
@@ -86,11 +88,7 @@ lazy val coreJVM = core.jvm
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-stubs" % Version.scalajsStubs % "provided" cross CrossVersion.for3Use2_13,
-      "junit" % "junit" % Version.junit % Optional,
-      if (scalaVersion.value.startsWith("3."))
-        "org.scala-lang" % "scala-reflect" % scala213
-      else
-        "org.scala-lang" % "scala-reflect" % scalaVersion.value
+      "junit" % "junit" % Version.junit % Optional
     )
   )
 

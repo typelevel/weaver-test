@@ -3,7 +3,7 @@ Expectations (assertions)
 
 Expectations are pure, composable values. This forces developers to separate the test's checks from the scenario, which is generally cleaner/clearer.
 
-The easiest way to construct expectactions is to call the `expect` macro, which is built using the [expecty](https://github.com/eed3si9n/expecty/) library.
+The easiest way to construct expectactions is to call the `expect` macro. The `clue` function can be used to investigate failures.
 
 ## TL;DR
 
@@ -11,6 +11,12 @@ The easiest way to construct expectactions is to call the `expect` macro, which 
    
    ```scala mdoc:compile-only
    expect(myVar == 25 && list.size == 4)
+   ```
+
+- Investigate failures using `clue`:
+
+   ```scala mdoc:compile-only
+   expect(clue(myVar) == 25 && clue(list).size == 4)
    ```
 
 - Compose expectations using `and`/`or`
@@ -132,7 +138,7 @@ object ExpectationsSuite extends SimpleIOSuite {
   pureTest("Simple expectations (failure)") {
     val z = 15
     
-    expect(A.B.C.test(z) % 7 == 0)
+    expect(clue(A.B.C.test(z)) % 7 == 0)
   }
 
 
@@ -141,7 +147,7 @@ object ExpectationsSuite extends SimpleIOSuite {
   }
 
   pureTest("And/Or composition (failure)") {
-    (expect(1 != 2) and expect(2 == 1)) or expect(2 == 3)
+    (expect(1 != clue(2)) and expect(2 == clue(1))) or expect(2 == clue(3))
   }
 
   pureTest("Varargs composition (success)") {
@@ -151,7 +157,7 @@ object ExpectationsSuite extends SimpleIOSuite {
 
   pureTest("Varargs composition (failure)") {
     // expect(1 + 1 == 2) && expect (2 + 2 == 4) && expect(4 * 2 == 8)
-    expect.all(1 + 1 == 2, 2 + 2 == 5, 4 * 2 == 8)
+    expect.all(clue(1 + 1) == 2, clue(2 + 2) == 5, clue(4 * 2) == 8)
   }
 
   pureTest("Working with collections (success)") {
@@ -166,7 +172,7 @@ object ExpectationsSuite extends SimpleIOSuite {
   }
 
   pureTest("Working with collections (failure 2)") {
-    exists(Option(39))(i => expect(i > 50))
+    exists(Option(39))(i => expect(clue(i) > 50))
   }
 
   import cats.Eq
@@ -220,7 +226,7 @@ object ExpectationsSuite extends SimpleIOSuite {
   test("Failing fast expectations") {
     for {
       h <- IO.pure("hello")
-      _ <- expect(h.isEmpty).failFast
+      _ <- expect(clue(h).isEmpty).failFast
     } yield success
   }
 }
