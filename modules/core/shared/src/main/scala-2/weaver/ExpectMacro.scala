@@ -145,15 +145,23 @@ private[weaver] object ExpectMacro {
       value: c.Tree): c.Tree = {
 
     import c.universe._
+
+    // This transformation outputs code that adds clues to a local
+    // clues collection `cluesName`. It recurses over the input code and replaces
+    // all calls of `ClueHelpers.clue` with `cluesName.addClue`.
     object transformer extends Transformer {
 
       override def transform(input: Tree): Tree = input match {
         case c.universe.Apply(fun, List(clueValue))
             if fun.symbol == clueMethodSymbol =>
+          // The input tree corresponds to `ClueHelpers.clue(clueValue)` .
+          // Transform it into `clueName.addClue(clueValue)`
+          // Apply the transformation recursively to `clueValue` to support nested clues.
           val transformedClueValue = super.transform(clueValue)
-          val clueName             = TermName(c.freshName("clue$"))
-          q"""{val $clueName = ${transformedClueValue}; ${cluesName}.addClue($clueName)}"""
-        case o => super.transform(o)
+          q"""${cluesName}.addClue($transformedClueValue)"""
+        case o =>
+          // Otherwise, recurse over the input.
+          super.transform(o)
       }
     }
 
