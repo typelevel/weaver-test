@@ -156,22 +156,22 @@
     } </span><span class="keyword">yield</span><span> </span><span class="identifier">check</span><span>(</span><span class="identifier">x</span><span>).</span><span class="identifier">traced</span><span>(</span><span class="identifier">here</span><span>)
   }
 
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">check</span><span>(</span><span class="identifier">x</span><span> : </span><span class="type-name">String</span><span>) = </span><span class="identifier">expect</span><span>(</span><span class="identifier">x</span><span>.</span><span class="identifier">length</span><span> &gt; </span><span class="number-literal">10</span><span>)
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">check</span><span>(</span><span class="identifier">x</span><span> : </span><span class="type-name">String</span><span>) = </span><span class="identifier">expect</span><span>(</span><span class="identifier">clue</span><span>(</span><span class="identifier">clue</span><span>(</span><span class="identifier">x</span><span>).</span><span class="identifier">length</span><span>) &gt; </span><span class="number-literal">10</span><span>)
 }</span></code></pre>
         <p>The report looks like this:</p>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>1ms</b></span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>0ms</b></span>
 
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>3ms</b></span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>2ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>1ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:18)<br/><br/>&nbsp;&nbsp;expect(1&nbsp;&gt;=&nbsp;2)</span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>0ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:18)</span>
 
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>3ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:34)<br/>&nbsp;(multiple_suites_failures.md:31)<br/><br/>&nbsp;&nbsp;def&nbsp;check(x&nbsp;:&nbsp;String)&nbsp;=&nbsp;expect(x.length&nbsp;&gt;&nbsp;10)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;false<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KiUyajWZXX</span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>2ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:34)<br/>&nbsp;(multiple_suites_failures.md:31)<br/><br/>&nbsp;&nbsp;Clues&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;x:&nbsp;String&nbsp;=&nbsp;j7zxCx2r90<br/>&nbsp;&nbsp;&nbsp;&nbsp;clue(x).length:&nbsp;Int&nbsp;=&nbsp;10<br/>&nbsp;&nbsp;}</span>
 
 Total&nbsp;2,&nbsp;Failed&nbsp;2,&nbsp;Passed&nbsp;0,&nbsp;Ignored&nbsp;0,&nbsp;Cancelled&nbsp;0
 </pre></div>
