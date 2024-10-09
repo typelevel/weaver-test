@@ -298,6 +298,22 @@ object DogFoodTests extends IOSuite {
     }
   }
 
+  test("assert failures are rendered correctly") {
+    _.runSuite(Meta.Rendering).map {
+      case (logs, _) =>
+        val actual = extractLogEventAfterFailures(logs) {
+          case LoggedEvent.Error(msg) if msg.contains("(assert)") => msg
+        }.get
+
+        val expected = s"""
+        |- (assert) 0ms
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:69)
+        """.stripMargin.trim
+
+        expect.same(actual, expected)
+    }
+  }
+
   test("successes with clues are rendered correctly") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
@@ -325,7 +341,7 @@ object DogFoodTests extends IOSuite {
 
         val expected = s"""
         |- (failure) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:83)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:88)
         |
         |  Clues {
         |    x: Int = 1
@@ -348,7 +364,7 @@ object DogFoodTests extends IOSuite {
 
         val expected = s"""
         |- (nested) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:89)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:94)
         |
         |  Clues {
         |    x: Int = 1
@@ -372,7 +388,7 @@ object DogFoodTests extends IOSuite {
 
         val expected = s"""
         |- (map) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:95)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:100)
         |
         |  Clues {
         |    v: Int = 1
@@ -395,7 +411,7 @@ object DogFoodTests extends IOSuite {
 
         val expected = s"""
         |- (show) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:107)
         |
         |  Clues {
         |    x: Int = int-1
@@ -419,7 +435,7 @@ object DogFoodTests extends IOSuite {
 
         val expected = s"""
         |- (show-from-to-string) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:112)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:117)
         |
         |  Clues {
         |    x: Foo = foo-1
@@ -441,7 +457,7 @@ object DogFoodTests extends IOSuite {
 
         val expected = s"""
         |- (helpers) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:121)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:126)
         |
         |  Clues {
         |    x: Int = 1

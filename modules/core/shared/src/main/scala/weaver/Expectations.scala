@@ -163,7 +163,7 @@ object Expectations {
      * Expect macros
      */
     def expect = new Expect
-    def assert = new Expect
+    def assert = new Assert
 
     val success: Expectations = Monoid[Expectations].empty
 

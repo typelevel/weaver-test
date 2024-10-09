@@ -34,3 +34,5 @@ private[weaver] trait ExpectSame {
       loc: SourceLocation): Expectations =
     eql(expected, found)(comparisonA, loc)
 }
+
+private[weaver] object ExpectSame extends ExpectSame

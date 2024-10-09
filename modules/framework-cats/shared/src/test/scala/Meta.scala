@@ -64,6 +64,11 @@ object Meta {
     pureTest("(same Comparison)") {
       expect.same(Foo("foo", 1), Foo("foo", 2))
     }
+
+    pureTest("(assert)") {
+      assert(1 == 2)
+      success
+    }
   }
 
   object Clue extends SimpleIOSuite {
