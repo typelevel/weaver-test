@@ -168,7 +168,8 @@ trait Checkers {
             s"""Property test failed on try $ith with seed $seed and input $input.
                 |You can reproduce this by adding the following override to your suite:
                 |
-                |override def checkConfig = super.checkConfig.withInitialSeed($seed.toOption)""".stripMargin)
+                |override def checkConfig = super.checkConfig.withInitialSeed($seed.toOption)"""
+              .stripMargin)
           .and(exp)
         copy(failure = Some(failure))
       } else this

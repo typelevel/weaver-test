@@ -96,7 +96,8 @@ object DogFoodTests extends IOSuite {
 
         val expected =
           s"""
-            |- erroring with a long message: ${Meta.ErroringWithLongPayload.smiles} 0ms
+            |- erroring with a long message: ${Meta.ErroringWithLongPayload
+              .smiles} 0ms
             |  Meta$$CustomException: surfaced error
             |
             |  DogFoodTests.scala:15    my.package.MyClass#MyMethod
