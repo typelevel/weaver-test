@@ -9,14 +9,14 @@ You'll need to install an additional dependency in order to use ScalaCheck with 
 
 ### SBT
 ```scala
-libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "@VERSION@" % Test
+libraryDependencies +=  "org.typelevel" %% "weaver-scalacheck" % "@VERSION@" % Test
 ```
 
 ### Mill
 ```scala
 object test extends Tests {
   def ivyDeps = Agg(
-    ivy"com.disneystreaming::weaver-scalacheck:@VERSION@"
+    ivy"org.typelevel::weaver-scalacheck:@VERSION@"
   )
 }
 ```
