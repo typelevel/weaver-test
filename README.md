@@ -1,11 +1,9 @@
-<img src="https://github.com/disneystreaming/weaver-test/raw/main/website/static/img/logo.png" width="200px" height="231px" align="right">
+<img src="https://github.com/typelevel/weaver-test/raw/main/docs/assets/logo.png" width="200px" height="231px" align="right">
 
-[![CI](https://github.com/disneystreaming/weaver-test/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/disneystreaming/weaver-test/actions/workflows/ci.yml)
-[![Latest version](https://index.scala-lang.org/disneystreaming/weaver-test/weaver-core/latest.svg?color=orange)](https://index.scala-lang.org/disneystreaming/weaver-test/weaver-core)
-[![Gitter](https://img.shields.io/gitter/room/disneystreaming/weaver-test.svg)](https://gitter.im/disneystreaming/weaver-test)
-[![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
-[![CLA assistant](https://cla-assistant.io/readme/badge/disneystreaming/weaver-test)](https://cla-assistant.io/disneystreaming/weaver-test)
-
+[![CI](https://github.com/typelevel/weaver-test/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/typelevel/weaver-test/actions/workflows/ci.yml)
+[![Latest version](https://index.scala-lang.org/typelevel/weaver-test/weaver-core/latest.svg?color=orange)](https://index.scala-lang.org/typelevel/weaver-test/weaver-core)
+[![Discord](https://img.shields.io/discord/632277896739946517.svg?label=&logo=discord&logoColor=ffffff&color=404244&labelColor=6A7EC2)](https://discord.gg/xQETVDrGxy)
+[![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://github.com/scala-steward-org/scala-steward)
 # Weaver-test
 
 A test-framework built on [cats-effect](https://github.com/typelevel/cats-effect) and
@@ -17,14 +15,14 @@ Weaver-test is currently published for **Scala 2.12, 2.13, and 3.0**
 
 ### SBT
 
-Refer yourself to the [releases](https://github.com/disneystreaming/weaver-test/releases) page to know the latest released version, and add the following (or scoped equivalent) to your `build.sbt` file.
+Refer yourself to the [releases](https://github.com/typelevel/weaver-test/releases) page to know the latest released version, and add the following (or scoped equivalent) to your `build.sbt` file.
 
 ```scala
-libraryDependencies += "com.disneystreaming" %% "weaver-cats" % "x.y.z" % Test
+libraryDependencies += "org.typelevel" %% "weaver-cats" % "x.y.z" % Test
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 
 // optionally (for Scalacheck usage)
-libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "x.y.z" % Test
+libraryDependencies +=  "org.typelevel" %% "weaver-scalacheck" % "x.y.z" % Test
 ```
 
 ## Motivation
@@ -247,7 +245,6 @@ Note that the site will look a tiny bit different because to build a versioned w
 
 Please:
 
-- Sign the CLA
 - Write positive and negative tests
 - Include documentation
 
