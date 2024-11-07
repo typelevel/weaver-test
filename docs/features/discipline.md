@@ -9,14 +9,14 @@ You'll need to install an additional dependency in order to use Discipline with 
 
 ### SBT
 ```scala
-libraryDependencies +=  "com.disneystreaming" %% "weaver-discipline" % "@VERSION@" % Test
+libraryDependencies +=  "org.typelevel" %% "weaver-discipline" % "@VERSION@" % Test
 ```
 
 ### Mill
 ```scala
 object test extends Tests {
   def ivyDeps = Agg(
-    ivy"com.disneystreaming::weaver-discipline:@VERSION@"
+    ivy"org.typelevel::weaver-discipline:@VERSION@"
   )
 }
 ```

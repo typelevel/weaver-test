@@ -8,7 +8,7 @@ You'll need to install the following dependencies to test your programs against 
 Newer versions of SBT have [`weaver` automatically integrated](https://github.com/sbt/sbt/pull/7263).
 
 ```scala
-libraryDependencies +=  "com.disneystreaming" %% "weaver-cats" % "@VERSION@" % Test
+libraryDependencies +=  "org.typelevel" %% "weaver-cats" % "@VERSION@" % Test
 ```
 
 ### SBT (older versions)
@@ -16,7 +16,7 @@ libraryDependencies +=  "com.disneystreaming" %% "weaver-cats" % "@VERSION@" % T
 Internally, SBT has a hardcoded list of test frameworks it integrates with. `weaver` must be manually added to this list.
 
 ```scala
-libraryDependencies +=  "com.disneystreaming" %% "weaver-cats" % "@VERSION@" % Test
+libraryDependencies +=  "org.typelevel" %% "weaver-cats" % "@VERSION@" % Test
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 ```
 
@@ -24,7 +24,7 @@ testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 ```scala
 object test extends Tests {
   def ivyDeps = Agg(
-    ivy"com.disneystreaming::weaver-cats:@VERSION@"
+    ivy"org.typelevel::weaver-cats:@VERSION@"
   )
   def testFramework = "weaver.framework.CatsEffect"
 }
@@ -32,7 +32,7 @@ object test extends Tests {
 
 ### scala-cli
 ```scala
-//> using lib "com.disneystreaming::weaver-cats:@VERSION@"
+//> using lib "org.typelevel::weaver-cats:@VERSION@"
 //> using testFramework "weaver.framework.CatsEffect" // this may neccessary if you have other TestFramework on your dependencies
 ```
 
