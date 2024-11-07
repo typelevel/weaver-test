@@ -176,7 +176,7 @@ trait Checkers {
     def shouldStop(config: CheckConfig) =
       failure.isDefined ||
         succeeded >= config.minimumSuccessful ||
-        discarded >= config.maximumDiscarded
+        discarded > config.maximumDiscarded
 
     def shouldContinue(config: CheckConfig) = !shouldStop(config)
 

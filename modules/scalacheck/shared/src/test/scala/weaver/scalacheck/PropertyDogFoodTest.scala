@@ -64,13 +64,13 @@ object PropertyDogFoodTest extends IOSuite {
 
   test("Config can be overridden") { dogfood =>
     expectErrorMessage(
-      s"Discarded more inputs (${Meta.ConfigOverrideChecks.configOverride.maximumDiscarded}) than allowed",
+      s"Discarded more inputs (${Meta.ConfigOverrideChecks.configOverride.maximumDiscarded + 1}) than allowed",
       dogfood.runSuite(Meta.ConfigOverrideChecks))
   }
 
   test("Discarded counts should be accurate") { dogfood =>
     expectErrorMessage(
-      s"Discarded more inputs (${Meta.DiscardedChecks.checkConfig.maximumDiscarded}) than allowed",
+      s"Discarded more inputs (${Meta.DiscardedChecks.checkConfig.maximumDiscarded + 1}) than allowed",
       dogfood.runSuite(Meta.DiscardedChecks))
   }
   test("Discard ratio of zero should still run tests") {
@@ -184,7 +184,7 @@ object Meta {
 
     override def checkConfig =
       super.checkConfig
-        .withMinimumSuccessful(1)
+        .withMinimumSuccessful(5)
         // Set the discard ratio to 0. No discarded tests are permitted.
         .withMaximumDiscardRatio(0)
         .withPerPropertyParallelism(
