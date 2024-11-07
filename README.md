@@ -239,6 +239,13 @@ yarn start
 
 If you're only changing `.md` files, you can run `sbt '~docs/mdoc'`.
 
+If you want to view images, such as the logo, use `git lfs` to check them out:
+
+```bash
+git lfs install --local
+git lfs pull
+```
+
 Note that the site will look a tiny bit different because to build a versioned website we have some machinery in the script running on CI - but you don't have to worry about that.
 
 ### PR Guidelines

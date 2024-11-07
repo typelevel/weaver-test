@@ -1,3 +1,4 @@
+import _root_.cats.syntax.all.*
 import laika.helium.config.TextLink
 import laika.helium.config.ReleaseInfo
 import laika.helium.config.HeliumIcon
@@ -9,7 +10,6 @@ import laika.ast.Image
 import laika.config.LinkValidation
 import org.typelevel.sbt.site.TypelevelSiteSettings
 import sbt.librarymanagement.Configurations.ScalaDocTool
-
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
 ThisBuild / tlBaseVersion := "0.0" // your current series x.y
 
@@ -187,6 +187,20 @@ lazy val docsOutput = crossProject(JVMPlatform)
 lazy val docs = project
   .in(file("site"))
   .enablePlugins(TypelevelSitePlugin)
+  .settings(
+    ThisBuild / githubWorkflowAddedJobs ~= {
+      // Checkout site assets from LFS
+      _.map {
+        case job: WorkflowJob if job.name === "Generate Site" =>
+          job.withSteps(job.steps.map {
+            case step: WorkflowStep.Use
+                if step.name === Some("Checkout current branch (full)") =>
+              step.updatedParams("lfs", "true")
+            case other => other
+          })
+        case other => other
+      }
+    })
   .dependsOn(
     core.jvm,
     framework.jvm,
