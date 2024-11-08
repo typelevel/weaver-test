@@ -184,7 +184,7 @@ trait Checkers {
       failure.getOrElse {
         if (succeeded < config.minimumSuccessful)
           Expectations.Helpers.failure(
-            s"Discarded more inputs ($discarded) than allowed")
+            s"Discarded more inputs ($discarded) than allowed (${config.maximumDiscarded})")
         else Expectations.Helpers.success
       }
   }
