@@ -23,9 +23,6 @@ ThisBuild / developers := List(
 
 ThisBuild / tlCiHeaderCheck := false
 
-// publish to s01.oss.sonatype.org
-ThisBuild / sonatypeCredentialHost := Sonatype.sonatypeLegacy
-
 // enable the sbt-typelevel-site laika documentation
 ThisBuild / tlSitePublishBranch := Some("main")
 
