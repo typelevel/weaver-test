@@ -14,12 +14,21 @@ case class CheckConfig private (
   assert(maximumDiscardRatio <= 100)
   assert(minimumSuccessful > 0)
 
+  /**
+   * The maximum number of values that can be discarded by the generator. The
+   * test will fail if the generator discards more values.
+   */
   def maximumDiscarded = minimumSuccessful * maximumDiscardRatio / 100
 
+  /** The number of successful runs required for a test to succeed */
   def withMinimumSuccessful(minimumSuccessful: Int) = copy(
     minimumSuccessful = minimumSuccessful
   )
 
+  /**
+   * The proportion of values discarded by the generator allowed before the test
+   * is considered failed.
+   */
   def withMaximumDiscardRatio(maximumDiscardRatio: Int) = copy(
     maximumDiscardRatio = maximumDiscardRatio
   )

@@ -63,15 +63,22 @@ object PropertyDogFoodTest extends IOSuite {
   }
 
   test("Config can be overridden") { dogfood =>
+    val maximumDiscarded =
+      Meta.ConfigOverrideChecks.configOverride.maximumDiscarded
     expectErrorMessage(
-      s"Discarded more inputs (${Meta.ConfigOverrideChecks.configOverride.maximumDiscarded}) than allowed",
+      s"Discarded more inputs (${maximumDiscarded + 1}) than allowed (${maximumDiscarded})",
       dogfood.runSuite(Meta.ConfigOverrideChecks))
   }
 
   test("Discarded counts should be accurate") { dogfood =>
+    val maximumDiscarded = Meta.DiscardedChecks.checkConfig.maximumDiscarded
     expectErrorMessage(
-      s"Discarded more inputs (${Meta.DiscardedChecks.checkConfig.maximumDiscarded}) than allowed",
+      s"Discarded more inputs (${maximumDiscarded + 1}) than allowed (${maximumDiscarded})",
       dogfood.runSuite(Meta.DiscardedChecks))
+  }
+  test("Discard ratio of zero should still run tests") {
+    dogfood =>
+      expectNoErrorMessage(dogfood.runSuite(Meta.NoDiscardsChecks))
   }
 
   def expectErrorMessage(
@@ -84,6 +91,14 @@ object PropertyDogFoodTest extends IOSuite {
       exists(errorLogs) { log =>
         expect(log.contains(msg))
       }
+    }
+
+  def expectNoErrorMessage(state: IO[DogFood.State]): IO[Expectations] =
+    state.map { case (logs, _) =>
+      val errorLogs = logs.collect {
+        case LoggedEvent.Error(msg) => msg
+      }
+      expect(errorLogs.size == 0)
     }
 }
 
@@ -127,6 +142,15 @@ object Meta {
     }
   }
 
+  trait SucceededChecks extends MetaSuite {
+
+    test("foobar") {
+      partiallyAppliedForall { (_: Int) =>
+        IO(expect(true))
+      }
+    }
+  }
+
   trait DiscardedChecks extends MetaSuite {
 
     test("Discards all the time") {
@@ -156,4 +180,19 @@ object Meta {
           1
         ) // to avoid overcounting of discarded checks
   }
+
+  object NoDiscardsChecks extends SucceededChecks {
+
+    override def partiallyAppliedForall: PartiallyAppliedForall = forall
+
+    override def checkConfig =
+      super.checkConfig
+        .withMinimumSuccessful(5)
+        // Set the discard ratio to 0. No discarded tests are permitted.
+        .withMaximumDiscardRatio(0)
+        .withPerPropertyParallelism(
+          1
+        ) // to avoid overcounting of discarded checks
+  }
+
 }

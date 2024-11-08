@@ -176,7 +176,7 @@ trait Checkers {
     def shouldStop(config: CheckConfig) =
       failure.isDefined ||
         succeeded >= config.minimumSuccessful ||
-        discarded >= config.maximumDiscarded
+        discarded > config.maximumDiscarded
 
     def shouldContinue(config: CheckConfig) = !shouldStop(config)
 
@@ -184,7 +184,7 @@ trait Checkers {
       failure.getOrElse {
         if (succeeded < config.minimumSuccessful)
           Expectations.Helpers.failure(
-            s"Discarded more inputs ($discarded) than allowed")
+            s"Discarded more inputs ($discarded) than allowed (${config.maximumDiscarded})")
         else Expectations.Helpers.success
       }
   }
