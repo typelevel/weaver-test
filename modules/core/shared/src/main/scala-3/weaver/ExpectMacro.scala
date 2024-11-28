@@ -12,15 +12,13 @@ private[weaver] trait ExpectMacro {
    * Use the [[Expectations.Helpers.clue]] function to investigate any failures.
    */
   inline def apply(assertion: Clues ?=> Boolean): Expectations =
-    ${ ExpectMacro.applyImpl('assertion) }
+  ${ ExpectMacro.applyImpl('assertion) }
 
-    /**
-     * Asserts that a boolean value is true and displays a failure message if
-     * not.
-     *
-     * Use the [[Expectations.Helpers.clue]] function to investigate any
-     * failures.
-     */
+  /**
+   * Asserts that a boolean value is true and displays a failure message if not.
+   *
+   * Use the [[Expectations.Helpers.clue]] function to investigate any failures.
+   */
   inline def apply(
       assertion: Clues ?=> Boolean,
       message: => String): Expectations =

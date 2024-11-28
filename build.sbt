@@ -66,7 +66,8 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       "co.fs2"        %%% "fs2-core"    % Version.fs2,
       "org.typelevel" %%% "cats-effect" % Version.catsEffect,
       // https://github.com/portable-scala/portable-scala-reflect/issues/23
-      "org.portable-scala" %%% "portable-scala-reflect" % Version.portableReflect cross CrossVersion.for3Use2_13,
+      "org.portable-scala" %%% "portable-scala-reflect" % Version
+        .portableReflect cross CrossVersion.for3Use2_13,
       "org.typelevel" %% "scalac-compat-annotation" % Version.scalacCompatAnnotation,
       "org.scalameta" %%% "munit-diff" % Version.munitDiff,
       if (scalaVersion.value.startsWith("3."))
@@ -84,8 +85,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 lazy val coreJVM = core.jvm
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-stubs" % Version.scalajsStubs % "provided" cross CrossVersion.for3Use2_13,
-      "junit" % "junit" % Version.junit % Optional
+      "org.scala-js" %%% "scalajs-stubs" % Version
+        .scalajsStubs  % "provided" cross CrossVersion.for3Use2_13,
+      "junit"          % "junit"         % Version.junit % Optional
     )
   )
 
@@ -102,8 +104,9 @@ lazy val framework = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 lazy val frameworkJVM = framework.jvm
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-sbt" % "test-interface" % Version.testInterface,
-      "org.scala-js" %%% "scalajs-stubs" % Version.scalajsStubs % "provided" cross CrossVersion.for3Use2_13
+      "org.scala-sbt"  % "test-interface" % Version.testInterface,
+      "org.scala-js" %%% "scalajs-stubs" % Version
+        .scalajsStubs  % "provided" cross CrossVersion.for3Use2_13
     )
   )
 
