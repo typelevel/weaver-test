@@ -1,6 +1,6 @@
 /*
 rule = RenameAssertToExpect
-*/
+ */
 package fix
 import weaver._
 
