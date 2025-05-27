@@ -143,12 +143,12 @@
         <p>You&#39;ll need to install an additional dependency in order to use ScalaCheck with Weaver.</p>
         
         <h3 id="sbt" class="section"><a class="anchor-link left" href="#sbt"><i class="icofont-laika link">&#xef71;</i></a>SBT</h3>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-scalacheck&quot;</span><span> % </span><span class="string-literal">&quot;0.0-70b2e5f-SNAPSHOT&quot;</span><span> % </span><span class="type-name">Test</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-scalacheck&quot;</span><span> % </span><span class="string-literal">&quot;0.0-66dd0a4-SNAPSHOT&quot;</span><span> % </span><span class="type-name">Test</span></code></pre>
         
         <h3 id="mill" class="section"><a class="anchor-link left" href="#mill"><i class="icofont-laika link">&#xef71;</i></a>Mill</h3>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="identifier">test</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">Tests</span><span> {
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(
-    </span><span class="string-literal">ivy&quot;org.typelevel::weaver-scalacheck:0.0-70b2e5f-SNAPSHOT&quot;</span><span>
+    </span><span class="string-literal">ivy&quot;org.typelevel::weaver-scalacheck:0.0-66dd0a4-SNAPSHOT&quot;</span><span>
   )
 }</span></code></pre>
         
@@ -202,14 +202,14 @@
 }</span></code></pre>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppForallExamples</span>
-<span style='color: green'>+&nbsp;</span>Single&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>99ms</b></span>
-<span style='color: green'>+&nbsp;</span>Multiple&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>102ms</b></span>
-<span style='color: green'>+&nbsp;</span>Arbitrary&nbsp;form&nbsp;<span style='color: lightgray'><b>92ms</b></span>
-<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>20ms</b></span>
+<span style='color: green'>+&nbsp;</span>Single&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>97ms</b></span>
+<span style='color: green'>+&nbsp;</span>Multiple&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>109ms</b></span>
+<span style='color: green'>+&nbsp;</span>Arbitrary&nbsp;form&nbsp;<span style='color: lightgray'><b>113ms</b></span>
+<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>33ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>repl.MdocSessionMdocAppForallExamples</span>
-<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>20ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;1&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;8GHvGMtytOJnZl9T0RN6uemFIEY3U4rlHEWc5ujpb1D=&quot;)&nbsp;and&nbsp;input&nbsp;(550245665,1135121503).&nbsp;(modules/scalacheck/shared/src/main/scala/weaver/scalacheck/Checkers.scala:167)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;override&nbsp;to&nbsp;your&nbsp;suite:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;override&nbsp;def&nbsp;checkConfig&nbsp;=&nbsp;super.checkConfig.withInitialSeed(Seed.fromBase64(&quot;8GHvGMtytOJnZl9T0RN6uemFIEY3U4rlHEWc5ujpb1D=&quot;).toOption)</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md:53)</span>
+<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>33ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;1&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;5wZyxQU5Poc8F3lXdXl8qIaMaJym8LS4DslgXsDkTrL=&quot;)&nbsp;and&nbsp;input&nbsp;(883965917,-1).&nbsp;(modules/scalacheck/shared/src/main/scala/weaver/scalacheck/Checkers.scala:167)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;override&nbsp;to&nbsp;your&nbsp;suite:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;override&nbsp;def&nbsp;checkConfig&nbsp;=&nbsp;super.checkConfig.withInitialSeed(Seed.fromBase64(&quot;5wZyxQU5Poc8F3lXdXl8qIaMaJym8LS4DslgXsDkTrL=&quot;).toOption)</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md:53)</span>
 
 Total&nbsp;4,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;3,&nbsp;Ignored&nbsp;0,&nbsp;Cancelled&nbsp;0
 </pre></div>
