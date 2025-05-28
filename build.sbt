@@ -1,4 +1,5 @@
 import _root_.cats.syntax.all.*
+import com.typesafe.tools.mima.core.{ MissingClassProblem, ProblemFilters }
 import laika.helium.config.TextLink
 import laika.helium.config.ReleaseInfo
 import laika.helium.config.HeliumIcon
@@ -78,7 +79,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     shadedDependencies += "org.scalameta" %%% "munit-diff" % "<ignored>",
     shadingRules += ShadingRule.moveUnder("munit.diff",
                                           "weaver.internal.shaded"),
-    validNamespaces ++= Set("weaver", "org")
+    validNamespaces ++= Set("weaver", "org"),
+    mimaBinaryIssueFilters += ProblemFilters.exclude[MissingClassProblem](
+      "weaver.internal.shaded.*")
   ).enablePlugins(ShadingPlugin)
 
 lazy val coreJVM = core.jvm
