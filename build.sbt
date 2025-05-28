@@ -1,4 +1,5 @@
 import _root_.cats.syntax.all.*
+import com.typesafe.tools.mima.core.{ MissingClassProblem, ProblemFilters }
 import laika.helium.config.TextLink
 import laika.helium.config.ReleaseInfo
 import laika.helium.config.HeliumIcon
@@ -11,7 +12,7 @@ import laika.config.LinkValidation
 import org.typelevel.sbt.site.TypelevelSiteSettings
 import sbt.librarymanagement.Configurations.ScalaDocTool
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
-ThisBuild / tlBaseVersion := "0.0" // your current series x.y
+ThisBuild / tlBaseVersion := "0.9" // your current series x.y
 
 ThisBuild / startYear := Some(2019)
 ThisBuild / licenses  := Seq(License.Apache2)
@@ -78,7 +79,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     shadedDependencies += "org.scalameta" %%% "munit-diff" % "<ignored>",
     shadingRules += ShadingRule.moveUnder("munit.diff",
                                           "weaver.internal.shaded"),
-    validNamespaces ++= Set("weaver", "org")
+    validNamespaces ++= Set("weaver", "org"),
+    mimaBinaryIssueFilters += ProblemFilters.exclude[MissingClassProblem](
+      "weaver.internal.shaded.*")
   ).enablePlugins(ShadingPlugin)
 
 lazy val coreJVM = core.jvm
