@@ -20,4 +20,3 @@ object RenameAssertToExpectTest extends SimpleIOSuite {
     not(expect(2 == 1) xor expect(1 == 2))
   }
 }
-

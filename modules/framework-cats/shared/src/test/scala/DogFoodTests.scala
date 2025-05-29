@@ -175,7 +175,8 @@ object DogFoodTests extends IOSuite {
           case LoggedEvent.Error(msg) => msg
         }.get
 
-        val expected = s"""
+        val expected =
+          s"""
         |- lots 0ms
         |  of
         |  multiline
@@ -323,7 +324,8 @@ object DogFoodTests extends IOSuite {
             msg
         }.get
 
-        val expected = s"""
+        val expected =
+          s"""
         |- (failure) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:83)
         |
@@ -346,7 +348,8 @@ object DogFoodTests extends IOSuite {
             msg
         }.get
 
-        val expected = s"""
+        val expected =
+          s"""
         |- (nested) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:89)
         |
@@ -370,7 +373,8 @@ object DogFoodTests extends IOSuite {
             msg
         }.get
 
-        val expected = s"""
+        val expected =
+          s"""
         |- (map) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:95)
         |
@@ -393,7 +397,8 @@ object DogFoodTests extends IOSuite {
             msg
         }.get
 
-        val expected = s"""
+        val expected =
+          s"""
         |- (show) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
         |
@@ -417,7 +422,8 @@ object DogFoodTests extends IOSuite {
             msg
         }.get
 
-        val expected = s"""
+        val expected =
+          s"""
         |- (show-from-to-string) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:112)
         |
@@ -439,7 +445,8 @@ object DogFoodTests extends IOSuite {
             msg
         }.get
 
-        val expected = s"""
+        val expected =
+          s"""
         |- (helpers) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:121)
         |

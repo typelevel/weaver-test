@@ -62,8 +62,8 @@ object GlobalResourceF {
 
     def putLazyR[A](
         resource: Resource[F, A],
-        label: Option[String] = None)(implicit
-    rt: ResourceTag[A]): Resource[F, Unit] =
+        label: Option[String] =
+          None)(implicit rt: ResourceTag[A]): Resource[F, Unit] =
       Resource.eval(putLazy(resource, label))
   }
 
@@ -114,7 +114,7 @@ object GlobalResourceF {
       implicit protected def F: MonadError[F, Throwable] = effect
 
       protected def rawGet[A](label: Option[String])(implicit
-      rt: ResourceTag[A]): F[Option[Either[A, Resource[F, A]]]] =
+          rt: ResourceTag[A]): F[Option[Either[A, Resource[F, A]]]] =
         effect.pure(None)
     }
   }
