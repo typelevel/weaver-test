@@ -209,44 +209,18 @@ object ForallExamples extends SimpleIOSuite with Checkers {
 
 Contributions are most welcome !
 
-### Development requirements
-
-:warning: This repository uses [Git LFS](https://git-lfs.github.com/). Having it installed is required for
-`git checkout` to work properly.
-
-To install for Mac using `brew`:
-
-```bash
-brew install git-lfs
-git lfs install
-```
-
-If you want to build and run the website then you will need yarn installed:
-
-```bash
-brew install yarn
-```
-
 ### Building the website
 
 If you're changing documentation, here's how you can check your changes locally:
 
 ```bash
-sbt docs/docusaurusCreateSite
-cd website
-yarn start
+sbt docs/tlSitePreview
 ```
 
-If you're only changing `.md` files, you can run `sbt '~docs/mdoc'`.
+Then navigate to `http://localhost:4242` to see the documentation site.
 
-If you want to view images, such as the logo, use `git lfs` to check them out:
-
-```bash
-git lfs install --local
-git lfs pull
-```
-
-Note that the site will look a tiny bit different because to build a versioned website we have some machinery in the script running on CI - but you don't have to worry about that.
+Weaver uses `sbt-typelevel-site`, for more details on writing documentation
+[see here](https://typelevel.org/sbt-typelevel/site.html#quick-start).
 
 ### PR Guidelines
 
@@ -257,6 +231,6 @@ Please:
 
 ## Inspiration
 
-A **HUGE** thank you to Alexandru Nedelcu, author of [Monix](https://github.com/monix/monix) and contributor to
-cats-effect, as he wrote the [minitest](https://github.com/monix/minitest)
+A **HUGE** thank you to Alexandru Nedelcu, author of [Monix](https://github.com/monix/monix)
+and contributor to cats-effect, as he wrote the [minitest](https://github.com/monix/minitest)
 framework which got this framework started.
