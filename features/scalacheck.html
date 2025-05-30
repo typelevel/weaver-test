@@ -112,7 +112,7 @@
     <li class="level2 nav-leaf"><a href="../samples/multiple_suites_logging.html">Logging</a></li>
     <li class="level1 nav-header">Frequently Asked Questions</li>
     <li class="level2 nav-leaf"><a href="../faqs/ide_faqs.html">IDE Support?</a></li>
-    <li class="level2 nav-leaf"><a href="../faqs/other_effects.html">What happened to ZIO / Monix / MonixBIO ?</a></li>
+    <li class="level2 nav-leaf"><a href="../faqs/other_effects.html">What happened to other effect types ?</a></li>
   </ul>
 
 </nav>
@@ -202,14 +202,14 @@
 }</span></code></pre>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppForallExamples</span>
-<span style='color: green'>+&nbsp;</span>Single&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>91ms</b></span>
-<span style='color: green'>+&nbsp;</span>Multiple&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>87ms</b></span>
-<span style='color: green'>+&nbsp;</span>Arbitrary&nbsp;form&nbsp;<span style='color: lightgray'><b>70ms</b></span>
-<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>13ms</b></span>
+<span style='color: green'>+&nbsp;</span>Single&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>115ms</b></span>
+<span style='color: green'>+&nbsp;</span>Multiple&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>120ms</b></span>
+<span style='color: green'>+&nbsp;</span>Arbitrary&nbsp;form&nbsp;<span style='color: lightgray'><b>120ms</b></span>
+<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>23ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>repl.MdocSessionMdocAppForallExamples</span>
-<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>13ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;2&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;PPB2Clku7TCPS4aHAofSBgKHX3_yKeT9-v7_uMtEq0J=&quot;)&nbsp;and&nbsp;input&nbsp;(-1935994574,1847555551).&nbsp;(modules/scalacheck/shared/src/main/scala/weaver/scalacheck/Checkers.scala:167)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;override&nbsp;to&nbsp;your&nbsp;suite:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;override&nbsp;def&nbsp;checkConfig&nbsp;=&nbsp;super.checkConfig.withInitialSeed(Seed.fromBase64(&quot;PPB2Clku7TCPS4aHAofSBgKHX3_yKeT9-v7_uMtEq0J=&quot;).toOption)</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md:53)</span>
+<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>23ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;1&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;bn2-VHJHu1bnTz0Fqa5mg1kNSY6jQgF34QZPnbkYnZO=&quot;)&nbsp;and&nbsp;input&nbsp;(-1,-2147483648).&nbsp;(modules/scalacheck/shared/src/main/scala/weaver/scalacheck/Checkers.scala:167)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;override&nbsp;to&nbsp;your&nbsp;suite:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;override&nbsp;def&nbsp;checkConfig&nbsp;=&nbsp;super.checkConfig.withInitialSeed(Seed.fromBase64(&quot;bn2-VHJHu1bnTz0Fqa5mg1kNSY6jQgF34QZPnbkYnZO=&quot;).toOption)</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md:53)</span>
 
 Total&nbsp;4,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;3,&nbsp;Ignored&nbsp;0,&nbsp;Cancelled&nbsp;0
 </pre></div>

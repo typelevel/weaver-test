@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="Typelevel Laika + Helium Theme" />
-  <title>What happened to ZIO / Monix / MonixBIO ?</title>
+  <title>What happened to other effect types ?</title>
   
   <meta name="author" content="Olivier Mélois"/>
   
@@ -112,7 +112,7 @@
     <li class="level2 nav-leaf"><a href="../samples/multiple_suites_logging.html">Logging</a></li>
     <li class="level1 nav-header">Frequently Asked Questions</li>
     <li class="level2 nav-leaf"><a href="ide_faqs.html">IDE Support?</a></li>
-    <li class="level2 active nav-leaf"><a href="#">What happened to ZIO / Monix / MonixBIO ?</a></li>
+    <li class="level2 active nav-leaf"><a href="#">What happened to other effect types ?</a></li>
   </ul>
 
 </nav>
@@ -121,7 +121,7 @@
 
       
 <nav id="page-nav">
-  <p class="header"><a href="#">What happened to ZIO / Monix / MonixBIO ?</a></p>
+  <p class="header"><a href="#">What happened to other effect types ?</a></p>
 
   <ul class="nav-list">
   </ul>
@@ -132,20 +132,55 @@
 
       <main class="content">
 
-        <h1 id="what-happened-to-zio-monix-monixbio" class="title">What happened to ZIO / Monix / MonixBIO ?</h1>
-        <p>Starting with version 0.8.0, Weaver no longer offers out-of-the-box support for other effect types
-        than cats-effect.</p>
-        <p>We (maintainers) are happy to keep the core of weaver effect-agnostic, in an effort to allow for third party
-        to resurrect support for the effect types they use in repository they control.</p>
-        <p>You can read about the rationale for decision <a href="https://github.com/disneystreaming/weaver-test/discussions/570">here</a>. Feel free to ping us via a github discussion, if you seek to resurrect support for a given effect-type.</p>
-        <p>If you are looking for documentation of the maintenance branch of weaver that did support other effect types, you can find it <a href="https://github.com/disneystreaming/weaver-test/blob/v0.6.15/docs/installation.md">over there</a>.</p>
-        <p>We will try to fix critical bugs on the 0.6/0.7 series, as they get found.</p>
-        <p>To summarise :</p>
-        <ul>
-          <li><code>0.8.x</code> and further -&gt; CE3 only, active development,</li>
-          <li><code>0.7.x</code> -&gt; CE3 + ZIO 1 support (maintenance mode, fixing critical bugs that not have workarounds)</li>
-          <li><code>0.6.x</code> -&gt;  CE2 + Monix/MonixBIO/ZIO 1 support (maintenance mode, fixing critical bugs that do not have workarounds)</li>
-        </ul>
+        <h1 id="what-happened-to-other-effect-types" class="title">What happened to other effect types ?</h1>
+        <p>Starting with version 0.8.0, Weaver only supports cats-effect out-of-the-box.</p>
+        <p>We (maintainers) are happy to keep the core of weaver effect-agnostic, in an
+        effort to allow for third party to resurrect support for the effect types they
+        use in repository they control.</p>
+        <p>If you are looking for documentation of the legacy branches of weaver that did
+        support other effect types, you can find it <a href="https://github.com/disneystreaming/weaver-test/blob/v0.6.15/docs/installation.md">in the archived repository</a>.</p>
+        <p>To summarize :</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>Cats Effect</th>
+              <th>ZIO</th>
+              <th>Monix</th>
+              <th>maintained?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0.9.x</td>
+              <td>✅ 3.x</td>
+              <td>❌</td>
+              <td>❌</td>
+              <td>✅</td>
+            </tr>
+            <tr>
+              <td>0.8.x</td>
+              <td>✅ 3.x</td>
+              <td>❌</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <td>0.7.x</td>
+              <td>✅ 3.x</td>
+              <td>✅ 1.x</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <td>0.6.x</td>
+              <td>✅ 2.x</td>
+              <td>✅ 1.x</td>
+              <td>✅ 3.x</td>
+              <td>❌</td>
+            </tr>
+          </tbody>
+        </table>
 
         
 <hr class="footer-rule"/>
