@@ -1,6 +1,12 @@
 Installation
 ============
 
+@:callout(info)
+The stewardship of Weaver has moved from `disneystreaming` to `typelevel`.
+
+You can migrate from previous versions of weaver by following the [migration guide](https://github.com/typelevel/weaver-test/releases/tag/v0.9.0), or [learn more about the stewardship](../faqs/typelevel-stewardship.md).
+@:@
+
 You'll need to install the following dependencies to test your programs against `cats.effect.IO`
 
 ### SBT (1.9.0+)
