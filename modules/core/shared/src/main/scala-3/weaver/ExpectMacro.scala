@@ -48,7 +48,7 @@ private[weaver] object ExpectMacro {
    * contruct [[Expectations]].
    */
   def applyImpl[T: Type](assertion: Expr[Clues ?=> Boolean])(using
-  q: Quotes): Expr[Expectations] = {
+      q: Quotes): Expr[Expectations] = {
     val sourceLoc = weaver.macros.fromContextImpl(using q)
     '{
       val clues  = new Clues
@@ -81,7 +81,7 @@ private[weaver] object ExpectMacro {
    * part of the failed expectation.
    */
   def allImpl[T: Type](assertions: Expr[Seq[(Clues ?=> Boolean)]])(using
-  q: Quotes): Expr[Expectations] = {
+      q: Quotes): Expr[Expectations] = {
     val sourceLoc = weaver.macros.fromContextImpl(using q)
     '{
       val clues   = new Clues

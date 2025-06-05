@@ -72,6 +72,7 @@ object MetaJVM {
           initialised <- Ref[IO].of(0)
           finalised   <- Ref[IO].of(0)
           totalUses   <- Ref[IO].of(0)
+
           /**
            * NOTE: the number 3 refers to the current number of instantiated
            * suites in the DogFoodTestsJVM spec, tests involving "global lazy
@@ -81,9 +82,7 @@ object MetaJVM {
            *
            *   - Change the number of LazyAccessParallel suites in "global lazy
            *     resources (parallel)" test
-           *
            *   - Change the number below
-           *
            *   - Add another test to the LazyAccessParallel spec below
            *
            * You are very likely to face a very confusing non-deterministic
