@@ -32,7 +32,7 @@ object Test {
 
     val res = attempt match {
       case Success(assertions) => Result.fromAssertion(assertions)
-      case Failure(ex)         => Result.from(ex)
+      case Failure(e)          => Result.from(e)
     }
 
     TestOutcome(name, duration.millis, res, Chain.empty)
