@@ -27,7 +27,7 @@ object TestOutcomeEncodingTests
   )
 
   private def roundtripTest(name: TestName, input: TestOutcomeNative)(implicit
-  loc: SourceLocation) = {
+      loc: SourceLocation) = {
 
     test(name.copy(name = "Roundtrip test - " + name.name)) {
       val encoded = TestOutcomeNative.encode(input)
