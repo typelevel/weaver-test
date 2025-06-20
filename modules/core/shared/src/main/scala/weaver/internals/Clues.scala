@@ -59,7 +59,7 @@ object Clues {
       val cluesMessage = if (clueList.nonEmpty) {
         val lines = clueList.map(clue => s"  ${clue.prettyPrint}")
         lines.mkString("Clues {\n", "\n", "\n}")
-      } else ""
+      } else "Use the `clue` function to troubleshoot"
       val fullMessage = header + "\n\n" + cluesMessage
 
       val exception =
