@@ -11,6 +11,6 @@ addSbtPlugin("org.typelevel"        % "sbt-typelevel-site"            % "0.8.0")
 
 addSbtPlugin("org.scalameta"        % "sbt-scalafmt"                  % "2.5.4")
 
-addSbtPlugin("org.scalameta"        % "sbt-mdoc"                      % "2.5.2")
+addSbtPlugin("org.scalameta"        % "sbt-mdoc"                      % "2.5.4")
 
 addSbtPlugin("io.get-coursier"      % "sbt-shading"                   % "2.1.5")
