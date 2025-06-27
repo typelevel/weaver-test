@@ -1,1 +1,3 @@
 fix.RenameAssertToExpect
+fix.RenameExpectToExpectSame
+fix.AddClueToExpect
