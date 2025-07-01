@@ -1,3 +1,5 @@
+import sbt.internal.ProjectMatrix
+
 lazy val V = _root_.scalafix.sbt.BuildInfo
 
 lazy val rulesCrossVersions = Seq(V.scala213, V.scala212)
@@ -18,9 +20,12 @@ inThisBuild(
 lazy val `weaver-test` = (project in file("."))
   .aggregate(
     rules.projectRefs ++
-      input.projectRefs ++
-      output.projectRefs ++
-      tests.projectRefs: _*
+      v0_8_3_input.projectRefs ++
+      v0_8_3_output.projectRefs ++
+      v0_8_3_tests.projectRefs ++
+      v0_9_0_input.projectRefs ++
+      v0_9_0_output.projectRefs ++
+      v0_9_0_tests.projectRefs: _*
   )
   .settings(
     publish / skip := true
@@ -34,29 +39,43 @@ lazy val rules = projectMatrix
   .defaultAxes(VirtualAxis.jvm)
   .jvmPlatform(rulesCrossVersions)
 
-lazy val input = projectMatrix
-  .settings(
-    publish / skip                               := true,
-    libraryDependencies += "com.disneystreaming" %% "weaver-cats" % "0.8.3"
-  )
-  .defaultAxes(VirtualAxis.jvm)
-  .jvmPlatform(scalaVersions = rulesCrossVersions :+ scala3Version)
+lazy val v0_8_3_input =
+  makeInput("v0_8_3", "com.disneystreaming" %% "weaver-cats" % "0.8.3")
+lazy val v0_8_3_output =
+  makeOutput("v0_8_3", "com.disneystreaming" %% "weaver-cats" % "0.8.3")
+lazy val v0_8_3_tests = makeTests("v0_8_3", v0_8_3_input, v0_8_3_output)
 
-lazy val output = projectMatrix
-  .settings(
-    publish / skip                               := true,
-    libraryDependencies += "com.disneystreaming" %% "weaver-cats" % "0.8.3"
-  )
-  .defaultAxes(VirtualAxis.jvm)
-  .jvmPlatform(scalaVersions = rulesCrossVersions :+ scala3Version)
+lazy val v0_9_0_input =
+  makeInput("v0_9_0", "org.typelevel" %% "weaver-cats" % "0.9.0")
+lazy val v0_9_0_output =
+  makeOutput("v0_9_0", "org.typelevel" %% "weaver-cats" % "0.9.0")
+lazy val v0_9_0_tests = makeTests("v0_9_0", v0_9_0_input, v0_9_0_output)
 
 lazy val testsAggregate = Project("tests", file("target/testsAggregate"))
-  .aggregate(tests.projectRefs: _*)
+  .aggregate(v0_8_3_tests.projectRefs ++ v0_9_0_tests.projectRefs: _*)
   .settings(
     publish / skip := true
   )
 
-lazy val tests = projectMatrix
+def makeOutput(name: String, weaver: ModuleID): ProjectMatrix = makeInputOrOutput(name, weaver, "output")
+def makeInput(name: String, weaver: ModuleID): ProjectMatrix = makeInputOrOutput(name, weaver, "input")
+
+def makeInputOrOutput(name: String, weaver: ModuleID, inputOrOutput: String): ProjectMatrix = ProjectMatrix(
+  s"${name}_$inputOrOutput",
+  file(s"$name/$inputOrOutput")
+).settings(
+  publish / skip := true,
+  libraryDependencies += weaver
+).defaultAxes(VirtualAxis.jvm)
+  .jvmPlatform(scalaVersions = rulesCrossVersions :+ scala3Version)
+
+def makeTests(
+    name: String,
+    input: sbt.internal.ProjectMatrix,
+    output: sbt.internal.ProjectMatrix) = sbt.internal.ProjectMatrix(
+  s"${name}_tests",
+  file(s"$name/tests")
+)
   .settings(
     publish / skip := true,
     scalafixTestkitOutputSourceDirectories :=
