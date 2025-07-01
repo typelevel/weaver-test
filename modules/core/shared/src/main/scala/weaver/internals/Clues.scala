@@ -39,7 +39,7 @@ object Clues {
   /**
    * Constructs [[Expectations]] from the collection of clues.
    *
-   * If the results are successful, the clues are discarded. If any result has
+   * If the result is successful, the clues are discarded. If the result has
    * failed, the clues are printed as part of the failure message.
    *
    * This function is called as part of the expansion of the `expect` macro. It
@@ -49,12 +49,17 @@ object Clues {
       sourceLoc: SourceLocation,
       message: Option[String],
       clues: Clues,
-      results: Boolean*): Expectations = {
-    val success = results.toList.forall(identity)
+      indexAndTotalNumberOfAssertions: Option[(Int, Int)],
+      success: Boolean): Expectations = {
     if (success) {
       Expectations(Validated.valid(()))
     } else {
-      val header   = "assertion failed" + message.fold("")(msg => s": $msg")
+      val headerPrefix = indexAndTotalNumberOfAssertions match {
+        case Some((index, total)) => s"assertion ${index + 1} of $total failed"
+        case None                 => "assertion failed"
+      }
+
+      val header   = headerPrefix + message.fold("")(msg => s": $msg")
       val clueList = clues.getClues
       val cluesMessage = if (clueList.nonEmpty) {
         val lines = clueList.map(clue => s"  ${clue.prettyPrint}")

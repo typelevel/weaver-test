@@ -2,6 +2,8 @@ package weaver
 
 import scala.quoted._
 import scala.language.experimental.macros
+import cats.syntax.all.*
+
 import weaver.internals.Clues
 
 private[weaver] trait ExpectMacro {
@@ -53,7 +55,7 @@ private[weaver] object ExpectMacro {
     '{
       val clues  = new Clues
       val result = ${ assertion }(using clues)
-      Clues.toExpectations($sourceLoc, None, clues, result)
+      Clues.toExpectations($sourceLoc, None, clues, None, result)
     }
   }
 
@@ -70,7 +72,7 @@ private[weaver] object ExpectMacro {
     '{
       val clues  = new Clues
       val result = ${ assertion }(using clues)
-      Clues.toExpectations($sourceLoc, Some($message), clues, result)
+      Clues.toExpectations($sourceLoc, Some($message), clues, None, result)
     }
   }
 
@@ -84,9 +86,18 @@ private[weaver] object ExpectMacro {
       q: Quotes): Expr[Expectations] = {
     val sourceLoc = weaver.macros.fromContextImpl(using q)
     '{
-      val clues   = new Clues
-      val results = ${ assertions }.map(assertion => assertion(using clues))
-      Clues.toExpectations($sourceLoc, None, clues, results: _*)
+      val totalNumberOfAssertions = ${ assertions }.size
+      val expectations =
+        ${ assertions }.zipWithIndex.map { case (assertion, index) =>
+          val clues  = new Clues
+          val result = assertion(using clues)
+          Clues.toExpectations($sourceLoc,
+                               None,
+                               clues,
+                               Some((index, totalNumberOfAssertions)),
+                               result)
+        }
+      expectations.toList.combineAll
     }
   }
 

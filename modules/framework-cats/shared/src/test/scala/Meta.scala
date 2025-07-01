@@ -95,6 +95,13 @@ object Meta {
       expect(List(x, y).map(v => clue(v)) == List(x, x))
     }
 
+    pureTest("(all)") {
+      val x = 1
+      val y = 2
+      val z = 3
+      expect.all(x == x, clue(x) == clue(y), y == y, clue(y) == clue(z), z == z)
+    }
+
     pureTest("(show)") {
       implicit val intShow: Show[Int] = i => s"int-$i"
       val x                           = 1
