@@ -33,7 +33,7 @@ private[weaver] trait ExpectMacro {
    *
    * Use the [[Expectations.Helpers.clue]] function to investigate any failures.
    */
-  inline def all(assertions: (Clues ?=> Boolean)*): Expectations =
+  inline def all(inline assertions: (Clues ?=> Boolean)*): Expectations =
     ${ ExpectMacro.allImpl('assertions) }
 }
 private[weaver] object ExpectMacro {
@@ -84,15 +84,21 @@ private[weaver] object ExpectMacro {
    */
   def allImpl[T: Type](assertions: Expr[Seq[(Clues ?=> Boolean)]])(using
       q: Quotes): Expr[Expectations] = {
+    import q.reflect.*
     val sourceLoc = weaver.macros.fromContextImpl(using q)
+    val sourceCodes: Expr[List[Option[String]]] = Expr(assertions match {
+      case Varargs(exprs) => exprs.toList.map(_.asTerm.pos.sourceCode)
+      case _              => Nil
+    })
     '{
       val totalNumberOfAssertions = ${ assertions }.size
       val expectations =
         ${ assertions }.zipWithIndex.map { case (assertion, index) =>
-          val clues  = new Clues
-          val result = assertion(using clues)
+          val clues      = new Clues
+          val result     = assertion(using clues)
+          val sourceCode = ${ sourceCodes }.get(index).flatten
           Clues.toExpectations($sourceLoc,
-                               None,
+                               sourceCode,
                                clues,
                                Some((index, totalNumberOfAssertions)),
                                result)

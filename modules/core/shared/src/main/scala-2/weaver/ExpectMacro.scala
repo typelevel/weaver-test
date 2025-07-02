@@ -46,11 +46,14 @@ private[weaver] object ExpectMacro {
         val clueMethodSymbol         = getClueMethodSymbol(c)
         val transformedValue =
           replaceClueMethodCalls(c)(clueMethodSymbol, cluesName, value)
+        val sourceCode =
+          new String(value.pos.source.content.slice(value.pos.start,
+                                                    value.pos.end))
         makeExpectations(c)(cluesName,
                             cluesValDef,
                             transformedValue,
                             sourceLoc,
-                            message = q"None",
+                            message = q"Some($sourceCode)",
                             indexAndTotalNumberOfAssertions =
                               q"Some(($index, $total))")
       }

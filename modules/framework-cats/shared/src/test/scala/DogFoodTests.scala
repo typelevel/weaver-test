@@ -376,14 +376,14 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (all) 0ms
-        | [0] assertion 2 of 5 failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [0] assertion 2 of 5 failed: clue(x) == clue(y) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
         | [0] 
         | [0] Clues {
         | [0]   x: Int = 1
         | [0]   y: Int = 2
         | [0] }
         |
-        | [1] assertion 4 of 5 failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [1] assertion 4 of 5 failed: clue(y) == clue(z) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
         | [1] 
         | [1] Clues {
         | [1]   y: Int = 2
