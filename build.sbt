@@ -12,7 +12,7 @@ import laika.config.LinkValidation
 import org.typelevel.sbt.site.TypelevelSiteSettings
 import sbt.librarymanagement.Configurations.ScalaDocTool
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
-ThisBuild / tlBaseVersion := "0.9" // your current series x.y
+ThisBuild / tlBaseVersion := "0.10" // your current series x.y
 
 ThisBuild / startYear := Some(2019)
 ThisBuild / licenses  := Seq(License.Apache2)
