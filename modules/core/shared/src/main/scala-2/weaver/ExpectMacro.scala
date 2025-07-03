@@ -39,9 +39,9 @@ private[weaver] object ExpectMacro {
   def allImpl(c: blackbox.Context)(values: c.Tree*): c.Tree = {
     import c.universe._
     val sourceLoc = new weaver.macros.Macros(c).fromContext.asInstanceOf[c.Tree]
+    val clueMethodSymbol = getClueMethodSymbol(c)
     val allExpectations = values.toList.map { value =>
       val (cluesName, cluesValDef) = makeClues(c)
-      val clueMethodSymbol         = getClueMethodSymbol(c)
       val transformedValue =
         replaceClueMethodCalls(c)(clueMethodSymbol, cluesName, value)
       val sourceCode =
