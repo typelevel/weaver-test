@@ -39,7 +39,7 @@ object Clues {
   /**
    * Constructs [[Expectations]] from the collection of clues.
    *
-   * If the results are successful, the clues are discarded. If any result has
+   * If the result is successful, the clues are discarded. If the result has
    * failed, the clues are printed as part of the failure message.
    *
    * This function is called as part of the expansion of the `expect` macro. It

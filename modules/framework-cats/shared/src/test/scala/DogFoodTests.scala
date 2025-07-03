@@ -257,11 +257,7 @@ object DogFoodTests extends IOSuite {
     "expect.eql delegates to Comparison show when an instance is found") {
     _.runSuite(Meta.Rendering).map {
       case (logs, _) =>
-        val actual =
-          extractLogEventAfterFailures(logs) {
-            case LoggedEvent.Error(msg) if msg.contains("(eql Comparison)") =>
-              msg
-          }.get
+        val actual = extractFailureMessageForTest(logs, "(eql Comparison)")
 
         val expected = """
         |- (eql Comparison) 0ms
@@ -280,11 +276,7 @@ object DogFoodTests extends IOSuite {
     "expect.same delegates to Comparison show when an instance is found") {
     _.runSuite(Meta.Rendering).map {
       case (logs, _) =>
-        val actual =
-          extractLogEventAfterFailures(logs) {
-            case LoggedEvent.Error(msg) if msg.contains("(same Comparison)") =>
-              msg
-          }.get
+        val actual = extractFailureMessageForTest(logs, "(same Comparison)")
 
         val expected = """
         |- (same Comparison) 0ms
@@ -319,11 +311,7 @@ object DogFoodTests extends IOSuite {
   test("failures with clues are rendered correctly") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractLogEventAfterFailures(logs) {
-          case LoggedEvent.Error(msg) if msg.contains("(failure)") =>
-            msg
-        }.get
-
+        val actual = extractFailureMessageForTest(logs, "(failure)")
         val expected =
           s"""
         |- (failure) 0ms
@@ -343,11 +331,7 @@ object DogFoodTests extends IOSuite {
   test("failures with nested clues are rendered correctly") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractLogEventAfterFailures(logs) {
-          case LoggedEvent.Error(msg) if msg.contains("(nested)") =>
-            msg
-        }.get
-
+        val actual = extractFailureMessageForTest(logs, "(nested)")
         val expected =
           s"""
         |- (nested) 0ms
@@ -368,10 +352,7 @@ object DogFoodTests extends IOSuite {
   test("failures with identical clue expressions are rendered correctly") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractLogEventAfterFailures(logs) {
-          case LoggedEvent.Error(msg) if msg.contains("(map)") =>
-            msg
-        }.get
+        val actual = extractFailureMessageForTest(logs, "(map)")
 
         val expected =
           s"""
@@ -388,19 +369,40 @@ object DogFoodTests extends IOSuite {
         expect.same(expected, actual)
     }
   }
+  test("failures in expect.all are reported with their source code") {
+    _.runSuite(Meta.Clue).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(all)")
+        val expected =
+          s"""
+        |- (all) 0ms
+        | [0] assertion failed: clue(x) == clue(y) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [0] 
+        | [0] Clues {
+        | [0]   x: Int = 1
+        | [0]   y: Int = 2
+        | [0] }
+        |
+        | [1] assertion failed: clue(y) == clue(z) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [1] 
+        | [1] Clues {
+        | [1]   y: Int = 2
+        | [1]   z: Int = 3
+        | [1] }
+        """.stripMargin.trim
+        expect.same(expected, actual)
+    }
+  }
 
   test("values of clues are rendered with the given show") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractLogEventAfterFailures(logs) {
-          case LoggedEvent.Error(msg) if msg.contains("(show)") =>
-            msg
-        }.get
+        val actual = extractFailureMessageForTest(logs, "(show)")
 
         val expected =
           s"""
         |- (show) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:109)
         |
         |  Clues {
         |    x: Int = int-1
@@ -416,16 +418,12 @@ object DogFoodTests extends IOSuite {
   test("values of clues are rendered with show constructed from toString if no show is given") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractLogEventAfterFailures(logs) {
-          case LoggedEvent.Error(msg)
-              if msg.contains("(show-from-to-string)") =>
-            msg
-        }.get
+        val actual = extractFailureMessageForTest(logs, "(show-from-to-string)")
 
         val expected =
           s"""
         |- (show-from-to-string) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:112)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:119)
         |
         |  Clues {
         |    x: Foo = foo-1
@@ -440,15 +438,12 @@ object DogFoodTests extends IOSuite {
   test("clue calls are replaced when using helper objects") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractLogEventAfterFailures(logs) {
-          case LoggedEvent.Error(msg) if msg.contains("(helpers)") =>
-            msg
-        }.get
+        val actual = extractFailureMessageForTest(logs, "(helpers)")
 
         val expected =
           s"""
         |- (helpers) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:121)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:128)
         |
         |  Clues {
         |    x: Int = 1
@@ -489,6 +484,14 @@ object DogFoodTests extends IOSuite {
       .map(Colours.removeASCIIColors)
       .map(_.trim)
   }
+
+  private def extractFailureMessageForTest(
+      logs: Chain[LoggedEvent],
+      testName: String): String =
+    extractLogEventAfterFailures(logs) {
+      case LoggedEvent.Error(msg) if msg.contains(testName) =>
+        msg
+    }.get
 
   private def extractLogEventAfterFailures(logs: Chain[LoggedEvent])(
       pf: PartialFunction[LoggedEvent, String]): Option[String] = {

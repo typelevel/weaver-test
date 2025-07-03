@@ -39,18 +39,21 @@ private[weaver] object ExpectMacro {
   def allImpl(c: blackbox.Context)(values: c.Tree*): c.Tree = {
     import c.universe._
     val sourceLoc = new weaver.macros.Macros(c).fromContext.asInstanceOf[c.Tree]
-    val (cluesName, cluesValDef) = makeClues(c)
-    val clueMethodSymbol         = getClueMethodSymbol(c)
-
-    val transformedValues =
-      values.toList.map(replaceClueMethodCalls(c)(clueMethodSymbol,
-                                                  cluesName,
-                                                  _))
-    makeExpectations(c)(cluesName,
-                        cluesValDef,
-                        transformedValues,
-                        sourceLoc,
-                        q"None")
+    val clueMethodSymbol = getClueMethodSymbol(c)
+    val allExpectations = values.toList.map { value =>
+      val (cluesName, cluesValDef) = makeClues(c)
+      val transformedValue =
+        replaceClueMethodCalls(c)(clueMethodSymbol, cluesName, value)
+      val sourceCode =
+        new String(value.pos.source.content.slice(value.pos.start,
+                                                  value.pos.end))
+      makeExpectations(c)(cluesName,
+                          cluesValDef,
+                          transformedValue,
+                          sourceLoc,
+                          message = q"Some($sourceCode)")
+    }
+    q"List(..$allExpectations).reduce(_ and _)"
   }
 
   /**
@@ -71,9 +74,9 @@ private[weaver] object ExpectMacro {
       replaceClueMethodCalls(c)(clueMethodSymbol, cluesName, value)
     makeExpectations(c)(cluesName,
                         cluesValDef,
-                        List(transformedValue),
+                        transformedValue,
                         sourceLoc,
-                        q"Some($message)")
+                        message = q"Some($message)")
   }
 
   /**
@@ -100,25 +103,24 @@ private[weaver] object ExpectMacro {
       replaceClueMethodCalls(c)(clueMethodSymbol, cluesName, value)
     makeExpectations(c)(cluesName,
                         cluesValDef,
-                        List(transformedValue),
+                        transformedValue,
                         sourceLoc,
-                        q"None")
+                        message = q"None")
   }
 
   /** Constructs [[Expectations]] from the local [[Clues]] collection. */
   private def makeExpectations(c: blackbox.Context)(
       cluesName: c.TermName,
       cluesValDef: c.Tree,
-      values: List[c.Tree],
+      value: c.Tree,
       sourceLoc: c.Tree,
       message: c.Tree): c.Tree = {
     import c.universe._
     val block =
-      q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($sourceLoc, $message, $cluesName, ..$values)"
+      q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($sourceLoc, $message, $cluesName, $value)"
     val untyped = c.untypecheck(block)
     val retyped = c.typecheck(untyped, pt = c.typeOf[Expectations])
     retyped
-
   }
 
   /** Get the [[ClueHelpers.clue]] symbol. */
