@@ -183,6 +183,8 @@ object DogFoodTests extends IOSuite {
         |  (failure)
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:34)
         |
+        |  expect(clue(x) == y)
+        |
         |  Clues {
         |    x: Int = 1
         |  }
@@ -317,6 +319,8 @@ object DogFoodTests extends IOSuite {
         |- (failure) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:83)
         |
+        |  expect(clue(x) == clue(y))
+        |
         |  Clues {
         |    x: Int = 1
         |    y: Int = 2
@@ -336,6 +340,8 @@ object DogFoodTests extends IOSuite {
           s"""
         |- (nested) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:89)
+        |
+        |  expect(clue(List(clue(x), clue(y))) == List(x, x))
         |
         |  Clues {
         |    x: Int = 1
@@ -359,6 +365,8 @@ object DogFoodTests extends IOSuite {
         |- (map) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:95)
         |
+        |  expect(List(x, y).map(v => clue(v)) == List(x, x))
+        |
         |  Clues {
         |    v: Int = 1
         |    v: Int = 2
@@ -376,14 +384,18 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (all) 0ms
-        | [0] assertion failed: clue(x) == clue(y) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [0] assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [0] 
+        | [0] clue(x) == clue(y)
         | [0] 
         | [0] Clues {
         | [0]   x: Int = 1
         | [0]   y: Int = 2
         | [0] }
         |
-        | [1] assertion failed: clue(y) == clue(z) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [1] assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [1] 
+        | [1] clue(y) == clue(z)
         | [1] 
         | [1] Clues {
         | [1]   y: Int = 2
@@ -403,6 +415,8 @@ object DogFoodTests extends IOSuite {
           s"""
         |- (show) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:109)
+        |
+        |  expect(clue(x) == clue(y))
         |
         |  Clues {
         |    x: Int = int-1
@@ -425,6 +439,8 @@ object DogFoodTests extends IOSuite {
         |- (show-from-to-string) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:119)
         |
+        |  expect(clue(x) == clue(y))
+        |
         |  Clues {
         |    x: Foo = foo-1
         |    y: Foo = foo-2
@@ -444,6 +460,8 @@ object DogFoodTests extends IOSuite {
           s"""
         |- (helpers) 0ms
         |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:128)
+        |
+        |  expect(CustomHelpers.clue(x) == otherclue(y) || x == clue(z))
         |
         |  Clues {
         |    x: Int = 1

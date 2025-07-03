@@ -47,11 +47,12 @@ private[weaver] object ExpectMacro {
       val sourceCode =
         new String(value.pos.source.content.slice(value.pos.start,
                                                   value.pos.end))
-      makeExpectations(c)(cluesName,
-                          cluesValDef,
-                          transformedValue,
-                          sourceLoc,
-                          message = q"Some($sourceCode)")
+      makeExpectations(c)(cluesName = cluesName,
+                          cluesValDef = cluesValDef,
+                          value = transformedValue,
+                          sourceLoc = sourceLoc,
+                          sourceCode = sourceCode,
+                          message = q"None")
     }
     q"List(..$allExpectations).reduce(_ and _)"
   }
@@ -67,15 +68,19 @@ private[weaver] object ExpectMacro {
       message: c.Tree): c.Tree = {
     import c.universe._
     val sourceLoc = new weaver.macros.Macros(c).fromContext.asInstanceOf[c.Tree]
+    val sourcePos = c.enclosingPosition
+    val sourceCode =
+      new String(sourcePos.source.content.slice(sourcePos.start, sourcePos.end))
     val (cluesName, cluesValDef) = makeClues(c)
     val clueMethodSymbol         = getClueMethodSymbol(c)
 
     val transformedValue =
       replaceClueMethodCalls(c)(clueMethodSymbol, cluesName, value)
-    makeExpectations(c)(cluesName,
-                        cluesValDef,
-                        transformedValue,
-                        sourceLoc,
+    makeExpectations(c)(cluesName = cluesName,
+                        cluesValDef = cluesValDef,
+                        value = transformedValue,
+                        sourceLoc = sourceLoc,
+                        sourceCode = sourceCode,
                         message = q"Some($message)")
   }
 
@@ -96,15 +101,20 @@ private[weaver] object ExpectMacro {
 
     import c.universe._
     val sourceLoc = new weaver.macros.Macros(c).fromContext.asInstanceOf[c.Tree]
+    val sourcePos = c.enclosingPosition
+    val sourceCode =
+      new String(sourcePos.source.content.slice(sourcePos.start, sourcePos.end))
+
     val (cluesName, cluesValDef) = makeClues(c)
     val clueMethodSymbol         = getClueMethodSymbol(c)
 
     val transformedValue =
       replaceClueMethodCalls(c)(clueMethodSymbol, cluesName, value)
-    makeExpectations(c)(cluesName,
-                        cluesValDef,
-                        transformedValue,
-                        sourceLoc,
+    makeExpectations(c)(cluesName = cluesName,
+                        cluesValDef = cluesValDef,
+                        value = transformedValue,
+                        sourceLoc = sourceLoc,
+                        sourceCode = sourceCode,
                         message = q"None")
   }
 
@@ -114,10 +124,11 @@ private[weaver] object ExpectMacro {
       cluesValDef: c.Tree,
       value: c.Tree,
       sourceLoc: c.Tree,
+      sourceCode: String,
       message: c.Tree): c.Tree = {
     import c.universe._
     val block =
-      q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($sourceLoc, $message, $cluesName, $value)"
+      q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($sourceLoc, Some($sourceCode), $message, $cluesName, $value)"
     val untyped = c.untypecheck(block)
     val retyped = c.typecheck(untyped, pt = c.typeOf[Expectations])
     retyped
