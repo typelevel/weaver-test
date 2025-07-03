@@ -49,17 +49,11 @@ object Clues {
       sourceLoc: SourceLocation,
       message: Option[String],
       clues: Clues,
-      indexAndTotalNumberOfAssertions: Option[(Int, Int)],
       success: Boolean): Expectations = {
     if (success) {
       Expectations(Validated.valid(()))
     } else {
-      val headerPrefix = indexAndTotalNumberOfAssertions match {
-        case Some((index, total)) => s"assertion ${index + 1} of $total failed"
-        case None                 => "assertion failed"
-      }
-
-      val header   = headerPrefix + message.fold("")(msg => s": $msg")
+      val header   = "assertion failed" + message.fold("")(msg => s": $msg")
       val clueList = clues.getClues
       val cluesMessage = if (clueList.nonEmpty) {
         val lines = clueList.map(clue => s"  ${clue.prettyPrint}")

@@ -369,21 +369,21 @@ object DogFoodTests extends IOSuite {
         expect.same(expected, actual)
     }
   }
-  test("failures in expect.all are reported with their index") {
+  test("failures in expect.all are reported with their source code") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(all)")
         val expected =
           s"""
         |- (all) 0ms
-        | [0] assertion 2 of 5 failed: clue(x) == clue(y) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [0] assertion failed: clue(x) == clue(y) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
         | [0] 
         | [0] Clues {
         | [0]   x: Int = 1
         | [0]   y: Int = 2
         | [0] }
         |
-        | [1] assertion 4 of 5 failed: clue(y) == clue(z) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [1] assertion failed: clue(y) == clue(z) (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
         | [1] 
         | [1] Clues {
         | [1]   y: Int = 2

@@ -55,7 +55,7 @@ private[weaver] object ExpectMacro {
     '{
       val clues  = new Clues
       val result = ${ assertion }(using clues)
-      Clues.toExpectations($sourceLoc, None, clues, None, result)
+      Clues.toExpectations($sourceLoc, None, clues, result)
     }
   }
 
@@ -72,7 +72,7 @@ private[weaver] object ExpectMacro {
     '{
       val clues  = new Clues
       val result = ${ assertion }(using clues)
-      Clues.toExpectations($sourceLoc, Some($message), clues, None, result)
+      Clues.toExpectations($sourceLoc, Some($message), clues, result)
     }
   }
 
@@ -91,7 +91,6 @@ private[weaver] object ExpectMacro {
       case _              => Nil
     })
     '{
-      val totalNumberOfAssertions = ${ assertions }.size
       val expectations =
         ${ assertions }.zipWithIndex.map { case (assertion, index) =>
           val clues      = new Clues
@@ -100,7 +99,6 @@ private[weaver] object ExpectMacro {
           Clues.toExpectations($sourceLoc,
                                sourceCode,
                                clues,
-                               Some((index, totalNumberOfAssertions)),
                                result)
         }
       expectations.toList.combineAll
