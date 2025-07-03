@@ -49,7 +49,8 @@ object Clues {
       sourceLoc: SourceLocation,
       message: Option[String],
       clues: Clues,
-      success: Boolean): Expectations = {
+      results: Boolean*): Expectations = {
+    val success = results.toList.forall(identity)
     if (success) {
       Expectations(Validated.valid(()))
     } else {
