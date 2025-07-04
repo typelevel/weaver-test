@@ -36,6 +36,16 @@ final class Clues {
 
 object Clues {
 
+  // TODO 0.10.x: Remove this method. It is kept to ensure binary compatibility in the 0.9.x series.
+  def toExpectations(
+      sourceLoc: SourceLocation,
+      message: Option[String],
+      clues: Clues,
+      results: Boolean*): Expectations = {
+    val success = results.toList.forall(identity)
+    toExpectations(sourceLoc, None, message, clues, success)
+  }
+
   /**
    * Constructs [[Expectations]] from the collection of clues.
    *
@@ -47,20 +57,21 @@ object Clues {
    */
   def toExpectations(
       sourceLoc: SourceLocation,
+      sourceCode: Option[String],
       message: Option[String],
       clues: Clues,
-      results: Boolean*): Expectations = {
-    val success = results.toList.forall(identity)
+      success: Boolean): Expectations = {
     if (success) {
       Expectations(Validated.valid(()))
     } else {
-      val header   = "assertion failed" + message.fold("")(msg => s": $msg")
-      val clueList = clues.getClues
+      val header = "assertion failed" + message.fold("")(msg => s": $msg")
+      val sourceCodeMessage = sourceCode.fold("")(msg => s"\n\n$msg")
+      val clueList          = clues.getClues
       val cluesMessage = if (clueList.nonEmpty) {
         val lines = clueList.map(clue => s"  ${clue.prettyPrint}")
         lines.mkString("Clues {\n", "\n", "\n}")
       } else "Use the `clue` function to troubleshoot"
-      val fullMessage = header + "\n\n" + cluesMessage
+      val fullMessage = header + sourceCodeMessage + "\n\n" + cluesMessage
 
       val exception =
         new AssertionException(fullMessage, NonEmptyList.of(sourceLoc))

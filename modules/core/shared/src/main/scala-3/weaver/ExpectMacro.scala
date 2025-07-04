@@ -51,11 +51,20 @@ private[weaver] object ExpectMacro {
    */
   def applyImpl[T: Type](assertion: Expr[Clues ?=> Boolean])(using
       q: Quotes): Expr[Expectations] = {
+    import q.reflect.*
     val sourceLoc = weaver.macros.fromContextImpl(using q)
+    // The compiler doesn't return the correct position information
+    // for `assertion.asTerm.pos`. Use the position of the entire
+    // expect statement instead.
+    val sourceCode = Expr(Position.ofMacroExpansion.sourceCode)
     '{
       val clues  = new Clues
       val result = ${ assertion }(using clues)
-      Clues.toExpectations($sourceLoc, None, clues, result)
+      Clues.toExpectations($sourceLoc,
+                           sourceCode = $sourceCode,
+                           message = None,
+                           clues,
+                           result)
     }
   }
 
@@ -68,11 +77,17 @@ private[weaver] object ExpectMacro {
   def applyMessageImpl[T: Type](
       assertion: Expr[Clues ?=> Boolean],
       message: => Expr[String])(using q: Quotes): Expr[Expectations] = {
-    val sourceLoc = weaver.macros.fromContextImpl(using q)
+    import q.reflect.*
+    val sourceLoc  = weaver.macros.fromContextImpl(using q)
+    val sourceCode = Expr(Position.ofMacroExpansion.sourceCode)
     '{
       val clues  = new Clues
       val result = ${ assertion }(using clues)
-      Clues.toExpectations($sourceLoc, Some($message), clues, result)
+      Clues.toExpectations($sourceLoc,
+                           sourceCode = $sourceCode,
+                           message = Some($message),
+                           clues,
+                           result)
     }
   }
 
@@ -97,7 +112,8 @@ private[weaver] object ExpectMacro {
           val result     = assertion(using clues)
           val sourceCode = ${ sourceCodes }.get(index).flatten
           Clues.toExpectations($sourceLoc,
-                               sourceCode,
+                               sourceCode = sourceCode,
+                               message = None,
                                clues,
                                result)
         }
