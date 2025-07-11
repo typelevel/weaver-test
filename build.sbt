@@ -212,6 +212,7 @@ lazy val docs = project
   .settings(
     moduleName := "weaver-docs",
     name       := "Weaver documentation",
+    mdocExtraArguments += "--allowCodeFenceIndented",
     watchSources += (ThisBuild / baseDirectory).value / "docs",
     libraryDependencies ++= Seq(
       "org.http4s"    %% "http4s-ember-client" % Version.http4s,
