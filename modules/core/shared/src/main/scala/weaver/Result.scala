@@ -164,7 +164,8 @@ object Result {
       color: String,
       prefix: String): String = {
 
-    val lines = message.split("\\r?\\n").zipWithIndex.map {
+    val footer = locationFooter(location)
+    val lines = (message.split("\\r?\\n") ++ footer).zipWithIndex.map {
       case (line, index) =>
         if (index == 0)
           color + prefix + line +
@@ -184,7 +185,8 @@ object Result {
       color: String,
       width: Tabulation): String = {
 
-    val lines = message.split("\\r?\\n").zipWithIndex.map {
+    val footer = locationFooter(location)
+    val lines = (message.split("\\r?\\n") ++ footer).zipWithIndex.map {
       case (line, index) =>
         val prefix = if (line.trim == "") "" else width.prefix
         if (index == 0)
@@ -197,5 +199,16 @@ object Result {
     }
 
     lines.mkString(EOL) + Console.RESET
+  }
+
+  private def locationFooter(locations: List[SourceLocation]): List[String] = {
+    val lines = locations.flatMap { l =>
+      val prefix = s"${l.fileRelativePath}:${l.line}"
+      l.sourceCode.fold(List.empty[String]) { sourceCode =>
+        val pointer = List.fill(sourceCode.column - 1)(" ").mkString + "^"
+        List(prefix, sourceCode.sourceLine, pointer)
+      }
+    }
+    if (lines.nonEmpty) "" :: lines else Nil
   }
 }
