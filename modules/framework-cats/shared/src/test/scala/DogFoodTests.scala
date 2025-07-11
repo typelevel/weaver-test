@@ -181,7 +181,7 @@ object DogFoodTests extends IOSuite {
         |  of
         |  multiline
         |  (failure)
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:34)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:54)
         |
         |  expect(clue(x) == y)
         |
@@ -189,6 +189,7 @@ object DogFoodTests extends IOSuite {
         |    x: Int = 1
         |  }
         |
+        |  54:      expect(clue(x) == y)
         """.stripMargin.trim
 
         expect.same(actual, expected)
@@ -317,7 +318,7 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (failure) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:83)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:103)
         |
         |  expect(clue(x) == clue(y))
         |
@@ -326,6 +327,7 @@ object DogFoodTests extends IOSuite {
         |    y: Int = 2
         |  }
         |
+        |  103:      expect(clue(x) == clue(y))
         """.stripMargin.trim
 
         expect.same(expected, actual)
@@ -339,7 +341,7 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (nested) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:89)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:109)
         |
         |  expect(clue(List(clue(x), clue(y))) == List(x, x))
         |
@@ -349,6 +351,7 @@ object DogFoodTests extends IOSuite {
         |    List(clue(x), clue(y)): List[Int] = List(1, 2)
         |  }
         |
+        |  109:      expect(clue(List(clue(x), clue(y))) == List(x, x))
         """.stripMargin.trim
 
         expect.same(expected, actual)
@@ -363,7 +366,7 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (map) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:95)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:115)
         |
         |  expect(List(x, y).map(v => clue(v)) == List(x, x))
         |
@@ -372,6 +375,7 @@ object DogFoodTests extends IOSuite {
         |    v: Int = 2
         |  }
         |
+        |  115:      expect(List(x, y).map(v => clue(v)) == List(x, x))
         """.stripMargin.trim
 
         expect.same(expected, actual)
@@ -384,7 +388,7 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (all) 0ms
-        | [0] assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [0] assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:122)
         | [0] 
         | [0] clue(x) == clue(y)
         | [0] 
@@ -393,7 +397,7 @@ object DogFoodTests extends IOSuite {
         | [0]   y: Int = 2
         | [0] }
         |
-        | [1] assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:102)
+        | [1] assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:122)
         | [1] 
         | [1] clue(y) == clue(z)
         | [1] 
@@ -414,7 +418,7 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (show) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:109)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:129)
         |
         |  expect(clue(x) == clue(y))
         |
@@ -423,6 +427,7 @@ object DogFoodTests extends IOSuite {
         |    y: Int = int-2
         |  }
         |
+        |  129:      expect(clue(x) == clue(y))
         """.stripMargin.trim
 
         expect.same(expected, actual)
@@ -437,7 +442,7 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (show-from-to-string) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:119)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:139)
         |
         |  expect(clue(x) == clue(y))
         |
@@ -445,6 +450,8 @@ object DogFoodTests extends IOSuite {
         |    x: Foo = foo-1
         |    y: Foo = foo-2
         |  }
+        |
+        |  139:      expect(clue(x) == clue(y))
         |
         """.stripMargin.trim
 
@@ -459,7 +466,7 @@ object DogFoodTests extends IOSuite {
         val expected =
           s"""
         |- (helpers) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:128)
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:148)
         |
         |  expect(CustomHelpers.clue(x) == otherclue(y) || x == clue(z))
         |
@@ -469,11 +476,93 @@ object DogFoodTests extends IOSuite {
         |    z: Int = 3
         |  }
         |
+        |  148:      expect(CustomHelpers.clue(x) == otherclue(y) || x == clue(z))
         """.stripMargin.trim
 
         expect.same(expected, actual)
     }
   }
+
+  test("expect.same source locations are rendered correctly") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(expect-same)")
+
+        val expected =
+          s"""
+        |- (expect-same) 0ms
+        |  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:22)
+        |
+        |  => Diff (- obtained, + expected)
+        |  -2
+        |  +1
+        |
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:22
+        |        expect.same(x, y)
+        |                   ^
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("multiple expectations on the same source line are rendered correctly") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(multiple)")
+
+        val expected =
+          s"""
+        |- (multiple) 0ms
+        | [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+        | [0] 
+        | [0] => Diff (- obtained, + expected)
+        | [0] -2
+        | [0] +1
+        | [0] 
+        | [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+        | [0]       expect.same(x, y) && expect.same(y, z)
+        | [0]                  ^
+        |
+        | [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+        | [1] 
+        | [1] => Diff (- obtained, + expected)
+        | [1] -3
+        | [1] +2
+        | [1] 
+        | [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+        | [1]       expect.same(x, y) && expect.same(y, z)
+        | [1]                                       ^
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("traced source locations are rendered correctly") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(traced)")
+
+        val expected =
+          s"""
+        |- (traced) 0ms
+        |  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:26)
+        |
+        |  => Diff (- obtained, + expected)
+        |  -2
+        |  +1
+        |
+        |
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:26      helper
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:33      expect.same(1, 2).traced(here)
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:30      nestedHelper.traced(here)
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
 
   private def outputBeforeFailures(logs: Chain[LoggedEvent]): Chain[String] = {
     logs

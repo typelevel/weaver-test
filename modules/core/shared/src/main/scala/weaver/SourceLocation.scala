@@ -4,7 +4,8 @@ package weaver
 final case class SourceLocation(
     filePath: String,
     fileRelativePath: String,
-    line: Int
+    line: Int,
+    lineSource: Option[(String, Int)]
 ) {
   def fileName: Option[String] = filePath.split("/").lastOption
 }
