@@ -144,8 +144,15 @@ object Result {
       } else ""
     }
 
+    val messageWithNoSource =
+      if (msg != null && msg.nonEmpty) msg else "Test failed"
+    val lineSource = location.headOption.flatMap(loc =>
+      loc.lineSource.map(source => s"${loc.line}:$source"))
+    val message = lineSource.fold(messageWithNoSource)(src =>
+      messageWithNoSource + DOUBLE_EOL + src)
+
     val formattedMessage = indent(
-      if (msg != null && msg.nonEmpty) msg else "Test failed",
+      message,
       location,
       Console.RED,
       TAB2

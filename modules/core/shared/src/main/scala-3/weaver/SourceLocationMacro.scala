@@ -25,6 +25,10 @@ object macros {
     val pwd  = java.nio.file.Paths.get("").toAbsolutePath
 
     val position = Position.ofMacroExpansion
+    val content = position.sourceFile.content.map { content =>
+      content.slice(0, position.end).split("\n").last
+    }
+    val sourceCode = Expr(content)
 
     val psj = position.sourceFile.getJPath.getOrElse(Paths.get(position.sourceFile.path))
     // Comparing roots to workaround a Windows-specific behaviour
@@ -33,7 +37,7 @@ object macros {
     val absPath = Expr(psj.toAbsolutePath.toString)
     val l = Expr(position.startLine + 1)
 
-    '{new SourceLocation($absPath, $rp, $l) }
+    '{new SourceLocation($absPath, $rp, $l, $sourceCode) }
   }
 }
 
