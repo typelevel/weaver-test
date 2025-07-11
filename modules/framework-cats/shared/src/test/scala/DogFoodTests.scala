@@ -497,12 +497,72 @@ object DogFoodTests extends IOSuite {
         |  -2
         |  +1
         |
-        |  22:      expect.same(x, y)
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:22
+        |        expect.same(x, y)
+        |                   ^
         """.stripMargin.trim
 
         expect.same(expected, actual)
     }
   }
+
+  test("multiple expectations on the same source line are rendered correctly") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(multiple)")
+
+        val expected =
+          s"""
+        |- (multiple) 0ms
+        | [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+        | [0] 
+        | [0] => Diff (- obtained, + expected)
+        | [0] -2
+        | [0] +1
+        | [0] 
+        | [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+        | [0]       expect.same(x, y) && expect.same(y, z)
+        | [0]                  ^
+        |
+        | [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+        | [1] 
+        | [1] => Diff (- obtained, + expected)
+        | [1] -3
+        | [1] +2
+        | [1] 
+        | [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+        | [1]       expect.same(x, y) && expect.same(y, z)
+        | [1]                                       ^
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("traced source locations are rendered correctly") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(traced)")
+
+        val expected =
+          s"""
+        |- (traced) 0ms
+        |  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:26)
+        |
+        |  => Diff (- obtained, + expected)
+        |  -2
+        |  +1
+        |
+        |
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:26      helper
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:33      expect.same(1, 2).traced(here)
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:30      nestedHelper.traced(here)
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
 
   private def outputBeforeFailures(logs: Chain[LoggedEvent]): Chain[String] = {
     logs

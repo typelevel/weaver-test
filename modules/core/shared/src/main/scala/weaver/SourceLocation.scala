@@ -5,7 +5,7 @@ final case class SourceLocation(
     filePath: String,
     fileRelativePath: String,
     line: Int,
-    lineSource: Option[String]
+    lineSource: Option[(String, Int)]
 ) {
   def fileName: Option[String] = filePath.split("/").lastOption
 }

@@ -26,7 +26,10 @@ object macros {
 
     val position = Position.ofMacroExpansion
     val content = position.sourceFile.content.map { content =>
-      content.slice(0, position.end).split("\n").last
+      val startSlice = content.slice(0, position.end).split("\n").last
+      val column = startSlice.length
+      val endSlice = content.drop(position.end).takeWhile(char => char != '\n')
+      (s"$startSlice$endSlice", column)
     }
     val sourceCode = Expr(content)
 

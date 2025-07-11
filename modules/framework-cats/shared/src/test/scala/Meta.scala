@@ -22,12 +22,22 @@ object Meta {
       expect.same(x, y)
     }
 
-    pureTest("(expect-same)") {
+    pureTest("(multiple)") {
       val x = 1
       val y = 2
-      expect.same(x, y)
+      val z = 3
+      expect.same(x, y) && expect.same(y, z)
     }
 
+    pureTest("(traced)") {
+      helper
+    }
+
+    def helper(implicit loc: SourceLocation): Expectations =
+      nestedHelper.traced(here)
+
+    def nestedHelper(implicit loc: SourceLocation): Expectations =
+      expect.same(1, 2).traced(here)
   }
 
   object MutableSuiteTest extends MutableSuiteTest

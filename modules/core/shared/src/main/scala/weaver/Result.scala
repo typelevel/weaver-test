@@ -146,13 +146,9 @@ object Result {
 
     val messageWithNoSource =
       if (msg != null && msg.nonEmpty) msg else "Test failed"
-    val lineSource = location.headOption.flatMap(loc =>
-      loc.lineSource.map(source => s"${loc.line}:$source"))
-    val message = lineSource.fold(messageWithNoSource)(src =>
-      messageWithNoSource + DOUBLE_EOL + src)
 
     val formattedMessage = indent(
-      message,
+      messageWithNoSource,
       location,
       Console.RED,
       TAB2
@@ -181,8 +177,11 @@ object Result {
         else
           color + prefix + line
     }
+    val locationTrace = color + prefix :: mao(location).map { line =>
+      color + prefix + line
+    }
 
-    lines.mkString(EOL) + Console.RESET
+    (lines ++ locationTrace).mkString(EOL) + Console.RESET
   }
 
   private def indent(
@@ -197,12 +196,27 @@ object Result {
         if (index == 0)
           color + prefix + line +
             location
+              .headOption
               .map(l => s" (${l.fileRelativePath}:${l.line})")
-              .mkString("\n")
+              .getOrElse("")
         else
           color + prefix + line
     }
 
-    lines.mkString(EOL) + Console.RESET
+    val locationTrace = "" :: mao(location).map { line =>
+      color + width.prefix + line
+    }
+
+    (lines ++ locationTrace).mkString(EOL) + Console.RESET
+  }
+
+  def mao(locations: List[SourceLocation]): List[String] = {
+    locations.flatMap { l =>
+      val prefix = s"${l.fileRelativePath}:${l.line}"
+      l.lineSource.fold(List(prefix)) { case (source, column) =>
+        val pointer = List.fill(column - 1)(" ").mkString + "^"
+        List(prefix, source, pointer)
+      }
+    }
   }
 }

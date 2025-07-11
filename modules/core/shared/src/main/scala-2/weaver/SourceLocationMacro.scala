@@ -36,7 +36,8 @@ object macros {
       val p = c.enclosingPosition.source.path
       val abstractFile = c.enclosingPosition.source.file
       val lineSource = c.enclosingPosition.source.lineToString(c.enclosingPosition.line - 1)
-      val lineSourceExpr = if (lineSource.trim.isEmpty) q"None" else q"Some($lineSource)"
+      val column = c.enclosingPosition.column
+      val lineSourceExpr = if (lineSource.trim.isEmpty) q"None" else q"Some(($lineSource, $column))"
 
       // Comparing roots to workaround a Windows-specific behaviour
       // https://github.com/disneystreaming/weaver-test/issues/364
