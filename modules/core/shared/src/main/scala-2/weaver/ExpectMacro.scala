@@ -10,14 +10,16 @@ private[weaver] trait ExpectMacro {
    *
    * Use the [[Expectations.Helpers.clue]] function to investigate any failures.
    */
-  def apply(value: Boolean): Expectations = macro ExpectMacro.applyImpl
+  def apply(value: Boolean)(implicit loc: SourceLocation): Expectations =
+    macro ExpectMacro.applyImpl
 
   /**
    * Asserts that a boolean value is true and displays a failure message if not.
    *
    * Use the [[Expectations.Helpers.clue]] function to investigate any failures.
    */
-  def apply(value: Boolean, message: => String): Expectations =
+  def apply(value: Boolean, message: => String)(implicit
+      loc: SourceLocation): Expectations =
     macro ExpectMacro.messageImpl
 
   /**
@@ -25,7 +27,8 @@ private[weaver] trait ExpectMacro {
    *
    * Use the [[Expectations.Helpers.clue]] function to investigate any failures.
    */
-  def all(values: Boolean*): Expectations = macro ExpectMacro.allImpl
+  def all(values: Boolean*)(implicit loc: SourceLocation): Expectations =
+    macro ExpectMacro.allImpl
 }
 
 private[weaver] object ExpectMacro {
@@ -36,9 +39,9 @@ private[weaver] object ExpectMacro {
    * If any value evaluates to false, all generated clues are displayed as part
    * of the failed expectation.
    */
-  def allImpl(c: blackbox.Context)(values: c.Tree*): c.Tree = {
+  def allImpl(c: blackbox.Context)(values: c.Tree*)(
+      loc: c.Tree): c.Tree = {
     import c.universe._
-    val sourceLoc = new weaver.macros.Macros(c).fromContext.asInstanceOf[c.Tree]
     val clueMethodSymbol = getClueMethodSymbol(c)
     val allExpectations = values.toList.map { value =>
       val (cluesName, cluesValDef) = makeClues(c)
@@ -50,7 +53,7 @@ private[weaver] object ExpectMacro {
       makeExpectations(c)(cluesName = cluesName,
                           cluesValDef = cluesValDef,
                           value = transformedValue,
-                          sourceLoc = sourceLoc,
+                          loc = loc,
                           sourceCode = sourceCode,
                           message = q"None")
     }
@@ -65,9 +68,8 @@ private[weaver] object ExpectMacro {
    */
   def messageImpl(c: blackbox.Context)(
       value: c.Tree,
-      message: c.Tree): c.Tree = {
+      message: c.Tree)(loc: c.Tree): c.Tree = {
     import c.universe._
-    val sourceLoc = new weaver.macros.Macros(c).fromContext.asInstanceOf[c.Tree]
     val sourcePos = c.enclosingPosition
     val sourceCode =
       new String(sourcePos.source.content.slice(sourcePos.start, sourcePos.end))
@@ -79,7 +81,7 @@ private[weaver] object ExpectMacro {
     makeExpectations(c)(cluesName = cluesName,
                         cluesValDef = cluesValDef,
                         value = transformedValue,
-                        sourceLoc = sourceLoc,
+                        loc = loc,
                         sourceCode = sourceCode,
                         message = q"Some($message)")
   }
@@ -97,10 +99,10 @@ private[weaver] object ExpectMacro {
    * After the value is evaluated, the [[Clues]] collection is used to contruct
    * [[Expectations]].
    */
-  def applyImpl(c: blackbox.Context)(value: c.Tree): c.Tree = {
+  def applyImpl(c: blackbox.Context)(value: c.Tree)(
+      loc: c.Tree): c.Tree = {
 
     import c.universe._
-    val sourceLoc = new weaver.macros.Macros(c).fromContext.asInstanceOf[c.Tree]
     val sourcePos = c.enclosingPosition
     val sourceCode =
       new String(sourcePos.source.content.slice(sourcePos.start, sourcePos.end))
@@ -113,7 +115,7 @@ private[weaver] object ExpectMacro {
     makeExpectations(c)(cluesName = cluesName,
                         cluesValDef = cluesValDef,
                         value = transformedValue,
-                        sourceLoc = sourceLoc,
+                        loc = loc,
                         sourceCode = sourceCode,
                         message = q"None")
   }
@@ -123,12 +125,12 @@ private[weaver] object ExpectMacro {
       cluesName: c.TermName,
       cluesValDef: c.Tree,
       value: c.Tree,
-      sourceLoc: c.Tree,
+      loc: c.Tree,
       sourceCode: String,
       message: c.Tree): c.Tree = {
     import c.universe._
     val block =
-      q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($sourceLoc, Some($sourceCode), $message, $cluesName, $value)"
+      q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($loc, Some($sourceCode), $message, $cluesName, $value)"
     val untyped = c.untypecheck(block)
     val retyped = c.typecheck(untyped, pt = c.typeOf[Expectations])
     retyped

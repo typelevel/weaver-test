@@ -13,8 +13,9 @@ private[weaver] trait ExpectMacro {
    *
    * Use the [[Expectations.Helpers.clue]] function to investigate any failures.
    */
-  inline def apply(assertion: Clues ?=> Boolean): Expectations =
-    ${ ExpectMacro.applyImpl('assertion) }
+  inline def apply(assertion: Clues ?=> Boolean)(using
+      loc: SourceLocation): Expectations =
+    ${ ExpectMacro.applyImpl('assertion, 'loc) }
 
     /**
      * Asserts that a boolean value is true and displays a failure message if
@@ -25,16 +26,17 @@ private[weaver] trait ExpectMacro {
      */
   inline def apply(
       assertion: Clues ?=> Boolean,
-      message: => String): Expectations =
-    ${ ExpectMacro.applyMessageImpl('assertion, 'message) }
+      message: => String)(using loc: SourceLocation): Expectations =
+    ${ ExpectMacro.applyMessageImpl('assertion, 'message, 'loc) }
 
   /**
    * Asserts that boolean values are all true.
    *
    * Use the [[Expectations.Helpers.clue]] function to investigate any failures.
    */
-  inline def all(inline assertions: (Clues ?=> Boolean)*): Expectations =
-    ${ ExpectMacro.allImpl('assertions) }
+  inline def all(inline assertions: (Clues ?=> Boolean)*)(using
+      loc: SourceLocation): Expectations =
+    ${ ExpectMacro.allImpl('assertions, 'loc) }
 }
 private[weaver] object ExpectMacro {
 
@@ -49,10 +51,10 @@ private[weaver] object ExpectMacro {
    * After the assertion is evaluated, the [[Clues]] collection is used to
    * contruct [[Expectations]].
    */
-  def applyImpl[T: Type](assertion: Expr[Clues ?=> Boolean])(using
-      q: Quotes): Expr[Expectations] = {
+  def applyImpl[T: Type](
+      assertion: Expr[Clues ?=> Boolean],
+      loc: Expr[SourceLocation])(using q: Quotes): Expr[Expectations] = {
     import q.reflect.*
-    val sourceLoc = weaver.macros.fromContextImpl(using q)
     // The compiler doesn't return the correct position information
     // for `assertion.asTerm.pos`. Use the position of the entire
     // expect statement instead.
@@ -60,7 +62,7 @@ private[weaver] object ExpectMacro {
     '{
       val clues  = new Clues
       val result = ${ assertion }(using clues)
-      Clues.toExpectations($sourceLoc,
+      Clues.toExpectations($loc,
                            sourceCode = $sourceCode,
                            message = None,
                            clues,
@@ -76,14 +78,14 @@ private[weaver] object ExpectMacro {
    */
   def applyMessageImpl[T: Type](
       assertion: Expr[Clues ?=> Boolean],
-      message: => Expr[String])(using q: Quotes): Expr[Expectations] = {
+      message: => Expr[String],
+      loc: Expr[SourceLocation])(using q: Quotes): Expr[Expectations] = {
     import q.reflect.*
-    val sourceLoc  = weaver.macros.fromContextImpl(using q)
     val sourceCode = Expr(Position.ofMacroExpansion.sourceCode)
     '{
       val clues  = new Clues
       val result = ${ assertion }(using clues)
-      Clues.toExpectations($sourceLoc,
+      Clues.toExpectations($loc,
                            sourceCode = $sourceCode,
                            message = Some($message),
                            clues,
@@ -97,10 +99,10 @@ private[weaver] object ExpectMacro {
    * If any assertion evaluates to false, all generated clues are displayed as
    * part of the failed expectation.
    */
-  def allImpl[T: Type](assertions: Expr[Seq[(Clues ?=> Boolean)]])(using
-      q: Quotes): Expr[Expectations] = {
+  def allImpl[T: Type](
+      assertions: Expr[Seq[(Clues ?=> Boolean)]],
+      loc: Expr[SourceLocation])(using q: Quotes): Expr[Expectations] = {
     import q.reflect.*
-    val sourceLoc = weaver.macros.fromContextImpl(using q)
     val sourceCodes: Expr[List[Option[String]]] = Expr(assertions match {
       case Varargs(exprs) => exprs.toList.map(_.asTerm.pos.sourceCode)
       case _              => Nil
@@ -111,7 +113,7 @@ private[weaver] object ExpectMacro {
           val clues      = new Clues
           val result     = assertion(using clues)
           val sourceCode = ${ sourceCodes }.get(index).flatten
-          Clues.toExpectations($sourceLoc,
+          Clues.toExpectations($loc,
                                sourceCode = sourceCode,
                                message = None,
                                clues,

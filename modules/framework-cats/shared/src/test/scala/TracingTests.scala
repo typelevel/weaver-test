@@ -30,7 +30,7 @@ object TracingTests extends SimpleIOSuite {
         val locations = e.head.locations.toList
         val paths     = locations.map(_.fileRelativePath).map(standardise)
         forEach(paths)(p => expect(p == thisFile)) &&
-        expect(locations.map(_.line).distinct.size == 4)
+        expect(locations.map(_.line).distinct.size == 3)
       case Valid(_) => failure("Should have been invalid")
     }
   }
