@@ -34,7 +34,6 @@ libraryDependencies +=  "org.typelevel" %% "weaver-cats" % "x.y.z" % Test
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 ```
 
-
 ## Motivation
 
 ![time](docs/assets/time.png)
