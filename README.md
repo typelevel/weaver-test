@@ -15,15 +15,25 @@ Weaver-test is currently published for **Scala 2.12, 2.13, and 3.0**
 
 ### SBT
 
-Refer yourself to the [releases](https://github.com/typelevel/weaver-test/releases) page to know the latest released version, and add the following (or scoped equivalent) to your `build.sbt` file.
+Refer to the [releases](https://github.com/typelevel/weaver-test/releases) page to know the latest released version, and add the following (or scoped equivalent) to your `build.sbt` file.
+
+#### 1.9.0+
+
+Newer versions of SBT have [`weaver` automatically integrated](https://github.com/sbt/sbt/pull/7263).
 
 ```scala
-libraryDependencies += "org.typelevel" %% "weaver-cats" % "x.y.z" % Test
-testFrameworks += new TestFramework("weaver.framework.CatsEffect")
-
-// optionally (for Scalacheck usage)
-libraryDependencies +=  "org.typelevel" %% "weaver-scalacheck" % "x.y.z" % Test
+libraryDependencies +=  "org.typelevel" %% "weaver-cats" % "x.y.z" % Test
 ```
+
+#### older versions
+
+Internally, SBT has a hardcoded list of test frameworks it integrates with. `weaver` must be manually added to this list.
+
+```scala
+libraryDependencies +=  "org.typelevel" %% "weaver-cats" % "x.y.z" % Test
+testFrameworks += new TestFramework("weaver.framework.CatsEffect")
+```
+
 
 ## Motivation
 
