@@ -6,7 +6,7 @@ import scala.language.experimental.macros
 private[weaver] trait ClueHelpers {
 
   /**
-   * Used to investigate failures in `expect` or `assert` statements.
+   * Used to investigate failures in `expect` statements.
    *
    * Surround a value with a call to `clue` to display it on failure.
    */
