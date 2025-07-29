@@ -11,19 +11,17 @@ A test-framework built on [cats-effect](https://github.com/typelevel/cats-effect
 
 ## Installation
 
-Weaver-test is currently published for **Scala 2.12, 2.13, and 3.0**
+Weaver-test is currently published for **Scala 2.12, 2.13, and 3**
 
-### SBT
+### SBT (1.9.0+)
 
-Refer yourself to the [releases](https://github.com/typelevel/weaver-test/releases) page to know the latest released version, and add the following (or scoped equivalent) to your `build.sbt` file.
+Refer yourself to the [releases](https://github.com/typelevel/weaver-test/releases) page to know the latest released version, and add the following to your `build.sbt` file.
 
 ```scala
-libraryDependencies += "org.typelevel" %% "weaver-cats" % "x.y.z" % Test
-testFrameworks += new TestFramework("weaver.framework.CatsEffect")
-
-// optionally (for Scalacheck usage)
-libraryDependencies +=  "org.typelevel" %% "weaver-scalacheck" % "x.y.z" % Test
+libraryDependencies +=  "org.typelevel" %% "weaver-cats" % "@VERSION@" % Test
 ```
+
+For other build tools and older SBT versions, read the [installation guide](https://typelevel.org/weaver-test/overview/installation.html).
 
 ## Motivation
 

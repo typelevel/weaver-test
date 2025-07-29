@@ -7,7 +7,7 @@ The stewardship of Weaver has moved from `disneystreaming` to `typelevel`.
 You can migrate from previous versions of weaver by following the [migration guide](https://github.com/typelevel/weaver-test/releases/tag/v0.9.0), or [learn more about the stewardship](../faqs/typelevel-stewardship.md).
 @:@
 
-You'll need to install the following dependencies to test your programs against `cats.effect.IO`
+Weaver-test is currently published for **Scala 2.12, 2.13, and 3**
 
 ### SBT (1.9.0+)
 
