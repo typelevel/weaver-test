@@ -33,7 +33,7 @@ object TestOutcomeEncodingTests
       val encoded = TestOutcomeNative.encode(input)
       val decoded = TestOutcomeNative.decode(encoded)
 
-      assert.same(input, decoded)
+      expect.same(input, decoded)
     }
   }
 
