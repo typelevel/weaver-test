@@ -64,6 +64,13 @@ object Meta {
     pureTest("(same Comparison)") {
       expect.same(Foo("foo", 1), Foo("foo", 2))
     }
+
+    pureTest("(interpolator)") {
+      val x = 1
+      // The following code should not raise a "possible missing interpolator" warning
+      expect(s"$x" == "2")
+    }
+
   }
 
   object Clue extends SimpleIOSuite {
