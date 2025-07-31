@@ -2,6 +2,7 @@ package weaver
 
 import scala.reflect.macros.blackbox
 import weaver.internals.ClueHelpers
+import weaver.internals.SourceCode
 
 private[weaver] trait ExpectMacro {
 
@@ -129,8 +130,9 @@ private[weaver] object ExpectMacro {
       sourceCode: String,
       message: c.Tree): c.Tree = {
     import c.universe._
+    val sanitizedSourceCode = SourceCode.sanitize(c)(sourceCode)
     val block =
-      q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($loc, Some($sourceCode), $message, $cluesName, $value)"
+      q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($loc, Some($sanitizedSourceCode), $message, $cluesName, $value)"
     val untyped = c.untypecheck(block)
     val retyped = c.typecheck(untyped, pt = c.typeOf[Expectations])
     retyped

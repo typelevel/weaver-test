@@ -293,6 +293,26 @@ object DogFoodTests extends IOSuite {
     }
   }
 
+  test("expect statements with interpolators are rendered without warnings") {
+    _.runSuite(Meta.Rendering).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(interpolator)")
+
+        val expected =
+          s"""
+        |- (interpolator) 0ms
+        |  assertion failed (src/main/DogFoodTests.scala:5)
+        |
+        |  expect(s"$$x" == "2")
+        |
+        |  Use the `clue` function to troubleshoot
+        |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
   test("successes with clues are rendered correctly") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
