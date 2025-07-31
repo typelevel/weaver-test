@@ -1,12 +1,22 @@
 package weaver
 
 // kudos to https://github.com/monix/minitest
-final case class SourceLocation(
-    filePath: String,
-    fileRelativePath: String,
-    line: Int
+class SourceLocation private (
+    private[weaver] val filePath: String,
+    private[weaver] val fileRelativePath: String,
+    private[weaver] val line: Int
 ) {
-  def fileName: Option[String] = filePath.split("/").lastOption
+  private[weaver] def fileName: Option[String] = filePath.split("/").lastOption
 }
 
-object SourceLocation extends SourceLocationMacro
+object SourceLocation extends SourceLocationMacro {
+  def apply(
+      filePath: String,
+      fileRelativePath: String,
+      line: Int
+  ): SourceLocation = new SourceLocation(
+    filePath,
+    fileRelativePath,
+    line
+  )
+}

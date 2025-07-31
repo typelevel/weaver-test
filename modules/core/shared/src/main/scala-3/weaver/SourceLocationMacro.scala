@@ -33,7 +33,7 @@ object macros {
     val absPath = Expr(psj.toAbsolutePath.toString)
     val l = Expr(position.startLine + 1)
 
-    '{new SourceLocation($absPath, $rp, $l) }
+    '{SourceLocation($absPath, $rp, $l) }
   }
 }
 
