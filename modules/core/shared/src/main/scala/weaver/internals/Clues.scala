@@ -10,7 +10,7 @@ import cats.data.Chain
 // For Scala 3, the Clues collection is provided implicitly using a context function.
 // If users attempt to call the `clue` function outside of the `expect` context, they will get this implicitNotFound error.
 @implicitNotFound(
-  "The `clue` function can only be called within `expect` or `assert`.")
+  "The `clue` function can only be called within `expect`.")
 /**
  * A collection of all the clues defined within a call to `expect`.
  *
