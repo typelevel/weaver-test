@@ -2,6 +2,7 @@ package weaver
 package junit
 
 import cats.Show
+import cats.Eq
 import cats.effect._
 
 import org.junit.runner.Description
@@ -14,6 +15,7 @@ object JUnitRunnerTests extends IOSuite {
 
   implicit val showNotifList: Show[List[Notification]] =
     list => list.map(_.toString()).mkString("\n")
+  implicit val eqNotification: Eq[Notification] = Eq.fromUniversalEquals
 
   test("Notifications are issued correctly") { blocker =>
     run(blocker, Meta.MySuite).map { notifications =>
@@ -56,31 +58,50 @@ object JUnitRunnerTests extends IOSuite {
 
   test("Tests tagged with only fail when ran on CI") { blocker =>
     run(blocker, Meta.OnlyFailsOnCi).map { notifications =>
-      def testFailure(name: String, lineNumber: Int) = {
+      def testFailure(name: String, lineNumber: Int, sourceCode: String) = {
         val srcPath =
           "modules/framework-cats/jvm/src/test/scala/junit/Meta.scala"
-        val msgLine1 = s"- $name 0ms"
-        val msgLine2 =
-          s"  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)"
+        val message = s"""- $name 0ms
+          |  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)
+          |
+          |  $srcPath:$lineNumber
+          |${sourceCode.trim.stripMargin}
+          |
+          |""".stripMargin
         TestFailure(
           name = name + "(weaver.junit.Meta$OnlyFailsOnCi$)",
-          message =
-            s"$msgLine1\n$msgLine2\n\n"
+          message = message
         )
       }
+      val firstSourceCode = if (ScalaCompat.isScala3)
+        """|      pureTest("first only test".only) {
+           |                                    ^
+        """
+      else
+        """|      pureTest("first only test".only) {
+           |                                 ^
+        """
+      val secondSourceCode = if (ScalaCompat.isScala3)
+        """|      pureTest("second only test".only) {
+           |                                     ^
+        """
+      else
+        """|      pureTest("second only test".only) {
+           |                                  ^
+        """
       val expected = List(
         TestSuiteStarted("weaver.junit.Meta$OnlyFailsOnCi$"),
         TestIgnored("normal test(weaver.junit.Meta$OnlyFailsOnCi$)"),
         TestIgnored("not only(weaver.junit.Meta$OnlyFailsOnCi$)"),
         TestStarted("first only test(weaver.junit.Meta$OnlyFailsOnCi$)"),
-        testFailure("first only test", 46),
+        testFailure("first only test", 46, firstSourceCode),
         TestFinished("first only test(weaver.junit.Meta$OnlyFailsOnCi$)"),
         TestStarted("second only test(weaver.junit.Meta$OnlyFailsOnCi$)"),
-        testFailure("second only test", 50),
+        testFailure("second only test", 50, secondSourceCode),
         TestFinished("second only test(weaver.junit.Meta$OnlyFailsOnCi$)"),
         TestSuiteFinished("weaver.junit.Meta$OnlyFailsOnCi$")
       )
-      expect.same(notifications, expected)
+      expect.eql(expected, notifications)
     }
   }
 
@@ -134,30 +155,45 @@ object JUnitRunnerTests extends IOSuite {
     "Even if all tests are ignored, will fail if a test is tagged with only") {
     blocker =>
       run(blocker, Meta.OnlyFailsOnCiEvenIfIgnored).map { notifications =>
-        def testFailure(name: String, lineNumber: Int) = {
+        val testFailure = {
           val srcPath =
             "modules/framework-cats/jvm/src/test/scala/junit/Meta.scala"
-          val msgLine1 = s"- $name 0ms"
-          val msgLine2 =
-            s"  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)"
+          val name       = "only and ignored"
+          val lineNumber = 110
+          val sourceCode = if (ScalaCompat.isScala3)
+            """
+              |      pureTest("only and ignored".only.ignore) {
+              |                                     ^
+            """
+          else """
+                 |      pureTest("only and ignored".only.ignore) {
+                 |                                  ^
+               """
+          val message = s"""- $name 0ms
+          |  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)
+          |
+          |  $srcPath:$lineNumber
+          |${sourceCode.trim.stripMargin}
+          |
+          |""".stripMargin
           TestFailure(
             name = name + "(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)",
-            message =
-              s"$msgLine1\n$msgLine2\n\n"
+            message = message
           )
         }
+
         val expected = List(
           TestSuiteStarted("weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$"),
           TestIgnored(
             "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
           TestStarted(
             "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
-          testFailure("only and ignored", 110),
+          testFailure,
           TestFinished(
             "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
           TestSuiteFinished("weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$")
         )
-        expect.same(notifications, expected)
+        expect.eql(expected, notifications)
       }
   }
 

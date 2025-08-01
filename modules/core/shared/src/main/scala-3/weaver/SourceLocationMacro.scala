@@ -25,6 +25,13 @@ object macros {
     val pwd  = java.nio.file.Paths.get("").toAbsolutePath
 
     val position = Position.ofMacroExpansion
+    val lineSource = position.sourceFile.content.map { content =>
+      val lineContentBefore = content.slice(0, position.end).split("\\r?\\n").last
+      val lineContentAfter = content.drop(position.end).split("\\r?\\n").head
+      val column = lineContentBefore.length
+      (s"$lineContentBefore$lineContentAfter", column)
+    }
+    val lineSourceExpr = Expr(lineSource)
 
     val psj = position.sourceFile.getJPath.getOrElse(Paths.get(position.sourceFile.path))
     // Comparing roots to workaround a Windows-specific behaviour
@@ -33,7 +40,7 @@ object macros {
     val absPath = Expr(psj.toAbsolutePath.toString)
     val l = Expr(position.startLine + 1)
 
-    '{SourceLocation($absPath, $rp, $l) }
+    '{SourceLocation($absPath, $rp, $l, $lineSourceExpr) }
   }
 }
 

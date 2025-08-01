@@ -10,6 +10,41 @@ import cats.effect._
 // that contain failing tests, to allow for testing the framework without failing the build
 // because the framework will have ran the tests on its own.
 object Meta {
+
+  object SourceLocationSuite extends SimpleIOSuite {
+
+    override implicit protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
+
+    pureTest("(expect-same)") {
+      val x = 1
+      val y = 2
+      expect.same(x, y)
+    }
+
+    pureTest("(multiple)") {
+      val x = 1
+      val y = 2
+      val z = 3
+      expect.same(x, y) && expect.same(y, z)
+    }
+
+    pureTest("(traced)") {
+      helper
+    }
+
+    def helper(implicit loc: SourceLocation): Expectations =
+      nestedHelper.traced(here)
+
+    def nestedHelper(implicit loc: SourceLocation): Expectations =
+      expect.same(1, 2).traced(here)
+
+    pureTest("(interpolator)") {
+      val x = 1
+      forEach(Option(s"$x"))(x => expect(x == "2"))
+    }
+  }
+
   object MutableSuiteTest extends MutableSuiteTest
 
   object Boom extends Error("Boom") with scala.util.control.NoStackTrace
@@ -260,7 +295,8 @@ object Meta {
     implicit val sourceLocation: SourceLocation = SourceLocation(
       "src/main/DogFoodTests.scala",
       "src/main/DogFoodTests.scala",
-      5)
+      5,
+      None)
   }
 
   object SetTimeUnsafeRun extends CatsUnsafeRun {
