@@ -45,7 +45,9 @@ object TestOutcome {
     def cause: Option[Throwable] = result match {
       case Result.Exception(cause, _)       => Some(cause)
       case Result.Failure(_, maybeCause, _) => maybeCause
-      case _                                => None
+      case Result.Failures(failures) =>
+        failures.map(_.source).find(_.isDefined).flatten
+      case _ => None
     }
 
     def formatted(mode: Mode): String =
