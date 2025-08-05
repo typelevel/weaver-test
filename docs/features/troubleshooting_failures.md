@@ -6,9 +6,9 @@ You should add information when you write a test, and not just when it fails. Th
 
 This information will only be displayed when a test fails, so will not clutter your test report.
 
-## Using `clue`
+## Using `clue` with `expect`
 
-The `expect` and `expect.all` statements are used to assert on boolean values. By default, they don't print any diagnostic information.
+The `expect` and `expect.all` statements are used to assert on boolean values. On their own, they don't print any diagnostic information.
 
 You can add information by using the `clue` function.
 
@@ -67,18 +67,6 @@ object ExpectWithClueTest extends FunSuite {
 ```scala mdoc:passthrough
 println(weaver.docs.Output.runSuites(ExpectWithClueTest))
 ```
-
-### Ensuring `clue` is always used
-
-`expect` must be used with `clue` to provide useful diagnostics. You can use [scalafix](https://scalacenter.github.io/scalafix] to ensure that `clue` is always used in your codebase. Add the following statement to your `.scalafix.conf` file:
-
-```
-rules = [
-  "github:typelevel/weaver-test/AddClueToExpect?sha=v0.9.2"
-]
-```
-
-This will populate `expect` statements with `clue` calls.
 
 ## Logging information
 
