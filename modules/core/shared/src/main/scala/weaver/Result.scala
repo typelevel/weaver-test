@@ -205,7 +205,7 @@ object Result {
     val lines = locations.flatMap { l =>
       val prefix = s"${l.fileRelativePath}:${l.line}"
       l.sourceCode.fold(List.empty[String]) { sourceCode =>
-        val pointer = List.fill(sourceCode.column - 1)(" ").mkString + "^"
+        val pointer = " " * (sourceCode.column - 1) + "^"
         List(prefix, sourceCode.sourceLine, pointer)
       }
     }
