@@ -15,8 +15,9 @@ object Result {
   def fromAssertion(assertion: Expectations): Result = assertion.run match {
     case Valid(_) => Success
     case Invalid(failed) =>
-      Failures(failed.map(ex =>
-        Result.Failure(ex.message, Some(ex), ex.locations.toList)))
+      val failures: NonEmptyList[Failure] = failed.map(ex =>
+        Result.Failure(ex.message, Some(ex), ex.locations.toList))
+      if (failures.length == 1) failures.head else Failures(failures)
   }
 
   case object Success extends Result {
