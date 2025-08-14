@@ -81,7 +81,7 @@ object DogFoodTests extends IOSuite {
         exists(extractLogEventAfterFailures(logs) {
           case LoggedEvent.Error(msg) => msg
         }) { actual =>
-          expect.same(actual, expected)
+          expect.same(expected, actual)
         }
     }
   }
@@ -163,7 +163,7 @@ object DogFoodTests extends IOSuite {
         exists(extractLogEventAfterFailures(logs) {
           case LoggedEvent.Error(msg) => msg
         }) { actual =>
-          expect.same(actual, expected)
+          expect.same(expected, actual)
         }
     }
   }
@@ -191,7 +191,7 @@ object DogFoodTests extends IOSuite {
         |
         """.stripMargin.trim
 
-        expect.same(actual, expected)
+        expect.same(expected, actual)
     }
   }
 
@@ -230,7 +230,7 @@ object DogFoodTests extends IOSuite {
         |  Ignore me (src/main/DogFoodTests.scala:5)
         """.stripMargin.trim
 
-        expect.same(actual, expected)
+        expect.same(expected, actual)
     }
   }
 
@@ -489,6 +489,159 @@ object DogFoodTests extends IOSuite {
         |    z: Int = 3
         |  }
         |
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("expect.same source locations are rendered correctly") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(expect-same)")
+
+        val sourceCode = if (ScalaCompat.isScala3)
+          """|        expect.same(x, y)
+             |                        ^
+          """
+        else
+          """|        expect.same(x, y)
+             |                   ^
+          """
+        val expected =
+          s"""
+        |- (expect-same) 0ms
+        |  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:22)
+        |
+        |  => Diff (- obtained, + expected)
+        |  -2
+        |  +1
+        |
+        |  modules/framework-cats/shared/src/test/scala/Meta.scala:22
+        |${sourceCode.trim.stripMargin}
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("multiple expectations on the same source line are rendered correctly") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(multiple)")
+        val firstFailureSourceCode = if (ScalaCompat.isScala3)
+          """| [0]       expect.same(x, y) && expect.same(y, z)
+             | [0]                       ^
+          """
+        else
+          """| [0]       expect.same(x, y) && expect.same(y, z)
+             | [0]                  ^
+          """
+
+        val secondFailureSourceCode = if (ScalaCompat.isScala3)
+          """| [1]       expect.same(x, y) && expect.same(y, z)
+             | [1]                                            ^
+          """
+        else
+          """| [1]       expect.same(x, y) && expect.same(y, z)
+             | [1]                                       ^
+          """
+        val expected =
+          s"""
+        |- (multiple) 0ms
+        | [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+        | [0] 
+        | [0] => Diff (- obtained, + expected)
+        | [0] -2
+        | [0] +1
+        | [0] 
+        | [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+        |${firstFailureSourceCode.trim.stripMargin}
+        |
+        | [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+        | [1] 
+        | [1] => Diff (- obtained, + expected)
+        | [1] -3
+        | [1] +2
+        | [1] 
+        | [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+        |${secondFailureSourceCode.trim.stripMargin}
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("traced source locations are rendered correctly") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(traced)")
+        val trace = if (ScalaCompat.isScala3)
+          """|  modules/framework-cats/shared/src/test/scala/Meta.scala:33
+             |        helper
+             |             ^
+             |  modules/framework-cats/shared/src/test/scala/Meta.scala:40
+             |        expect.same(1, 2).traced(here)
+             |                                    ^
+             |  modules/framework-cats/shared/src/test/scala/Meta.scala:37
+             |        nestedHelper.traced(here)
+             |                               ^
+          """
+        else
+          """|  modules/framework-cats/shared/src/test/scala/Meta.scala:33
+             |        helper
+             |        ^
+             |  modules/framework-cats/shared/src/test/scala/Meta.scala:40
+             |        expect.same(1, 2).traced(here)
+             |                                 ^
+             |  modules/framework-cats/shared/src/test/scala/Meta.scala:37
+             |        nestedHelper.traced(here)
+             |                            ^
+          """
+
+        val expected =
+          s"""
+        |- (traced) 0ms
+        |  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:33)
+        | (modules/framework-cats/shared/src/test/scala/Meta.scala:40)
+        | (modules/framework-cats/shared/src/test/scala/Meta.scala:37)
+        |
+        |  => Diff (- obtained, + expected)
+        |  -2
+        |  +1
+        |
+        |${trace.trim.stripMargin}
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
+  test("source locations with interpolators are rendered without warnings") {
+    _.runSuite(Meta.SourceLocationSuite).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(interpolator)")
+        val trace = if (ScalaCompat.isScala3)
+          """|  modules/framework-cats/shared/src/test/scala/Meta.scala:44
+             |        forEach(Option(s"$x"))(x => expect(x == "2"))
+             |                                                   ^
+          """
+        else
+          """|  modules/framework-cats/shared/src/test/scala/Meta.scala:44
+             |        forEach(Option(s"$x"))(x => expect(x == "2"))
+             |                                          ^
+          """
+
+        val expected =
+          s"""
+        |- (interpolator) 0ms
+        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:44)
+        |
+        |  expect(x == "2")
+        |
+        |  Use the `clue` function to troubleshoot
+        |
+        |${trace.trim.stripMargin}
         """.stripMargin.trim
 
         expect.same(expected, actual)
