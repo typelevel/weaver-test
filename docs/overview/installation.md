@@ -39,7 +39,18 @@ object test extends Tests {
 ### scala-cli
 ```scala
 //> using lib "org.typelevel::weaver-cats:@VERSION@"
-//> using testFramework "weaver.framework.CatsEffect" // this may neccessary if you have other TestFramework on your dependencies
+//> using testFramework "weaver.framework.CatsEffect" // this may be neccessary if you have other testFramework on your dependencies
+```
+
+### Gradle
+With [Gradle plugin for multi-backend Scala](https://github.com/dubinsky/scalajs-gradle):
+```groovy
+plugins {
+  id 'org.podval.tools.scalajs' version '<latest version>'
+}
+dependencies {
+  testImplementation scalaBackend.testFramework(org.podval.tools.test.framework.WeaverTest)
+}
 ```
 
 ## Usage
