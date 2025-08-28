@@ -36,20 +36,20 @@ ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.6")
 ThisBuild / scalaVersion       := scala213 // the default Scala
 
 val Version = new {
-  val catsEffect             = "3.6.3"
-  val catsLaws               = "2.11.0"
-  val discipline             = "1.5.1"
-  val fs2                    = "3.12.0"
+  val catsEffect             = "3.7.0-RC1"
+  val catsLaws               = "2.13.0"
+  val discipline             = "1.7.0"
+  val fs2                    = "3.13.0-M6"
   val junit                  = "4.13.2"
   val portableReflect        = "1.1.3"
   val scalaJavaTime          = "2.4.0"
-  val scalacheck             = "1.17.1"
+  val scalacheck             = "1.18.1"
   val scalajsMacroTask       = "1.1.1"
   val scalajsStubs           = "1.1.0"
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
-  val munitDiff              = "1.0.0"
+  val munitDiff              = "1.1.0"
 }
 
 lazy val root = tlCrossRootProject.aggregate(core,
@@ -164,6 +164,7 @@ lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .dependsOn(core, cats)
   .settings(
     name           := "weaver-discipline",
+    evictionErrorLevel := Level.Info, // scalacheck is built with native 0.5.1, which sbt dislikes
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "discipline-core" % Version.discipline,
