@@ -163,7 +163,7 @@ lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/discipline"))
   .dependsOn(core, cats)
   .settings(
-    name           := "weaver-discipline",
+    name := "weaver-discipline",
     evictionErrorLevel := Level.Info, // scalacheck is built with native 0.5.1, which sbt dislikes
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
     libraryDependencies ++= Seq(
