@@ -11,7 +11,6 @@ private[weaver] trait CatsUnsafeRunPlatformCompat {
 
   def unsafeRunSync(task: IO[Unit]): Unit = {
     val future = task.unsafeToFuture()
-    scala.scalanative.ScalaNativeRuntime.run()
     Await.result(future, 1.minute)
   }
 
