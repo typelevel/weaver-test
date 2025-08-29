@@ -265,10 +265,10 @@ object DogFoodTests extends IOSuite {
         |- (eql Comparison) 0ms
         |  Values not equal: (src/main/DogFoodTests.scala:5)
         |
-        |  => Diff (- obtained, + expected)
+        |  => Diff (- expected, + obtained)
         |     s: foo
-        |  -  i: 2
-        |  +  i: 1
+        |  -  i: 1
+        |  +  i: 2
         |   }""".stripMargin.trim
         expect.same(actual, expected)
     }
@@ -284,10 +284,10 @@ object DogFoodTests extends IOSuite {
         |- (same Comparison) 0ms
         |  Values not equal: (src/main/DogFoodTests.scala:5)
         |
-        |  => Diff (- obtained, + expected)
+        |  => Diff (- expected, + obtained)
         |     s: foo
-        |  -  i: 2
-        |  +  i: 1
+        |  -  i: 1
+        |  +  i: 2
         |   }""".stripMargin.trim
         expect.same(actual, expected)
     }
@@ -513,9 +513,9 @@ object DogFoodTests extends IOSuite {
         |- (expect-same) 0ms
         |  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:22)
         |
-        |  => Diff (- obtained, + expected)
-        |  -2
-        |  +1
+        |  => Diff (- expected, + obtained)
+        |  -1
+        |  +2
         |
         |  modules/framework-cats/shared/src/test/scala/Meta.scala:22
         |${sourceCode.trim.stripMargin}
@@ -551,18 +551,18 @@ object DogFoodTests extends IOSuite {
         |- (multiple) 0ms
         | [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
         | [0] 
-        | [0] => Diff (- obtained, + expected)
-        | [0] -2
-        | [0] +1
+        | [0] => Diff (- expected, + obtained)
+        | [0] -1
+        | [0] +2
         | [0] 
         | [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
         |${firstFailureSourceCode.trim.stripMargin}
         |
         | [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
         | [1] 
-        | [1] => Diff (- obtained, + expected)
-        | [1] -3
-        | [1] +2
+        | [1] => Diff (- expected, + obtained)
+        | [1] -2
+        | [1] +3
         | [1] 
         | [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
         |${secondFailureSourceCode.trim.stripMargin}
@@ -606,9 +606,9 @@ object DogFoodTests extends IOSuite {
         | (modules/framework-cats/shared/src/test/scala/Meta.scala:40)
         | (modules/framework-cats/shared/src/test/scala/Meta.scala:37)
         |
-        |  => Diff (- obtained, + expected)
-        |  -2
-        |  +1
+        |  => Diff (- expected, + obtained)
+        |  -1
+        |  +2
         |
         |${trace.trim.stripMargin}
         """.stripMargin.trim
