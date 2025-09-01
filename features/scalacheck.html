@@ -95,11 +95,10 @@
     <li class="level2 nav-leaf"><a href="../overview/motivation.html">Motivation</a></li>
     <li class="level1 nav-header">Features</li>
     <li class="level2 nav-leaf"><a href="expectations.html">Expectations (assertions)</a></li>
+    <li class="level2 nav-leaf"><a href="troubleshooting_failures.html">Troubleshooting failures</a></li>
     <li class="level2 nav-leaf"><a href="asserting_equality.html">Asserting equality</a></li>
-    <li class="level2 nav-leaf"><a href="tracing_failures.html">Tracing Failures</a></li>
     <li class="level2 nav-leaf"><a href="resources.html">Sharing resources</a></li>
     <li class="level2 nav-leaf"><a href="global_resources.html">Sharing resources across suites</a></li>
-    <li class="level2 nav-leaf"><a href="logging.html">Logging information</a></li>
     <li class="level2 nav-leaf"><a href="tagging.html">Tagging</a></li>
     <li class="level2 active nav-leaf"><a href="#">ScalaCheck integration</a></li>
     <li class="level2 nav-leaf"><a href="discipline.html">Discipline integration</a></li>
@@ -145,12 +144,12 @@
         <p>You&#39;ll need to install an additional dependency in order to use ScalaCheck with Weaver.</p>
         
         <h3 id="sbt" class="section"><a class="anchor-link left" href="#sbt"><i class="icofont-laika link">&#xef71;</i></a>SBT</h3>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-scalacheck&quot;</span><span> % </span><span class="string-literal">&quot;0.9.3&quot;</span><span> % </span><span class="type-name">Test</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> +=  </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;weaver-scalacheck&quot;</span><span> % </span><span class="string-literal">&quot;0.10.0&quot;</span><span> % </span><span class="type-name">Test</span></code></pre>
         
         <h3 id="mill" class="section"><a class="anchor-link left" href="#mill"><i class="icofont-laika link">&#xef71;</i></a>Mill</h3>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">object</span><span> </span><span class="identifier">test</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">Tests</span><span> {
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(
-    </span><span class="string-literal">ivy&quot;org.typelevel::weaver-scalacheck:0.9.3&quot;</span><span>
+    </span><span class="string-literal">ivy&quot;org.typelevel::weaver-scalacheck:0.10.0&quot;</span><span>
   )
 }</span></code></pre>
         
@@ -204,14 +203,14 @@
 }</span></code></pre>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppForallExamples</span>
-<span style='color: green'>+&nbsp;</span>Single&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>100ms</b></span>
-<span style='color: green'>+&nbsp;</span>Multiple&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>92ms</b></span>
+<span style='color: green'>+&nbsp;</span>Single&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>107ms</b></span>
+<span style='color: green'>+&nbsp;</span>Multiple&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>106ms</b></span>
 <span style='color: green'>+&nbsp;</span>Arbitrary&nbsp;form&nbsp;<span style='color: lightgray'><b>106ms</b></span>
-<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>30ms</b></span>
+<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>32ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>repl.MdocSessionMdocAppForallExamples</span>
-<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>30ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;1&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;eqB5snzZNFATUPoZAztgBxjy8yfxqfQzTvSE-0hUsyC=&quot;)&nbsp;and&nbsp;input&nbsp;(-1747054820,-1608118480).&nbsp;(modules/scalacheck/shared/src/main/scala/weaver/scalacheck/Checkers.scala:167)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;override&nbsp;to&nbsp;your&nbsp;suite:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;override&nbsp;def&nbsp;checkConfig&nbsp;=&nbsp;super.checkConfig.withInitialSeed(Seed.fromBase64(&quot;eqB5snzZNFATUPoZAztgBxjy8yfxqfQzTvSE-0hUsyC=&quot;).toOption)<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;modules/scalacheck/shared/src/main/scala/weaver/scalacheck/Checkers.scala:167<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.failure(<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md:53)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;expect(a1&nbsp;+&nbsp;a2&nbsp;%&nbsp;2&nbsp;==&nbsp;0)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;scalacheck.md:53<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect(a1&nbsp;+&nbsp;a2&nbsp;%&nbsp;2&nbsp;==&nbsp;0)<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>32ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;1&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;UHlBP3mZ4ahQHyl7NlVnWdb5HWI5clE8NGivgxlc44F=&quot;)&nbsp;and&nbsp;input&nbsp;(2147483647,-625192686).&nbsp;(modules/scalacheck/shared/src/main/scala/weaver/scalacheck/Checkers.scala:167)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;override&nbsp;to&nbsp;your&nbsp;suite:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;override&nbsp;def&nbsp;checkConfig&nbsp;=&nbsp;super.checkConfig.withInitialSeed(Seed.fromBase64(&quot;UHlBP3mZ4ahQHyl7NlVnWdb5HWI5clE8NGivgxlc44F=&quot;).toOption)<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;modules/scalacheck/shared/src/main/scala/weaver/scalacheck/Checkers.scala:167<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.failure(<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md:53)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;expect(a1&nbsp;+&nbsp;a2&nbsp;%&nbsp;2&nbsp;==&nbsp;0)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;scalacheck.md:53<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect(a1&nbsp;+&nbsp;a2&nbsp;%&nbsp;2&nbsp;==&nbsp;0)<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
 
 Total&nbsp;4,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;3,&nbsp;Ignored&nbsp;0,&nbsp;Cancelled&nbsp;0
 </pre></div>

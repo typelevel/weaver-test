@@ -95,11 +95,10 @@
     <li class="level2 nav-leaf"><a href="../overview/motivation.html">Motivation</a></li>
     <li class="level1 nav-header">Features</li>
     <li class="level2 nav-leaf"><a href="expectations.html">Expectations (assertions)</a></li>
+    <li class="level2 nav-leaf"><a href="troubleshooting_failures.html">Troubleshooting failures</a></li>
     <li class="level2 nav-leaf"><a href="asserting_equality.html">Asserting equality</a></li>
-    <li class="level2 nav-leaf"><a href="tracing_failures.html">Tracing Failures</a></li>
     <li class="level2 active nav-leaf"><a href="#">Sharing resources</a></li>
     <li class="level2 nav-leaf"><a href="global_resources.html">Sharing resources across suites</a></li>
-    <li class="level2 nav-leaf"><a href="logging.html">Logging information</a></li>
     <li class="level2 nav-leaf"><a href="tagging.html">Tagging</a></li>
     <li class="level2 nav-leaf"><a href="scalacheck.html">ScalaCheck integration</a></li>
     <li class="level2 nav-leaf"><a href="discipline.html">Discipline integration</a></li>
@@ -178,7 +177,7 @@
 
 </span><span class="comment">// We will store the messages in this queue
 </span><span class="keyword">val</span><span> </span><span class="identifier">order</span><span> = </span><span class="keyword">new</span><span> </span><span class="type-name">ConcurrentLinkedQueue</span><span>[</span><span class="type-name">String</span><span>]()
-</span><span class="comment">// order: ConcurrentLinkedQueue[String] = [Acquiring resource, Test 1 is using resource 42, Test 2 is using resource 42, Releasing resource 42]
+</span><span class="comment">// order: ConcurrentLinkedQueue[String] = [Acquiring resource, Test 2 is using resource 42, Test 1 is using resource 42, Releasing resource 42]
 </span><span>
 </span><span class="keyword">object</span><span> </span><span class="type-name">ResourceDemo</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOSuite</span><span> {
 
@@ -212,8 +211,8 @@ Total&nbsp;2,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;1,&nbsp;Ignored&nbsp;0,&nbsp;
 </pre></div>
         <p>Contents of <code>order</code> are:</p>
         <pre><code>// * Acquiring resource
-// * Test 1 is using resource 42
 // * Test 2 is using resource 42
+// * Test 1 is using resource 42
 // * Releasing resource 42</code></pre>
 
         

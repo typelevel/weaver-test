@@ -95,11 +95,10 @@
     <li class="level2 nav-leaf"><a href="../overview/motivation.html">Motivation</a></li>
     <li class="level1 nav-header">Features</li>
     <li class="level2 nav-leaf"><a href="../features/expectations.html">Expectations (assertions)</a></li>
+    <li class="level2 nav-leaf"><a href="../features/troubleshooting_failures.html">Troubleshooting failures</a></li>
     <li class="level2 nav-leaf"><a href="../features/asserting_equality.html">Asserting equality</a></li>
-    <li class="level2 nav-leaf"><a href="../features/tracing_failures.html">Tracing Failures</a></li>
     <li class="level2 nav-leaf"><a href="../features/resources.html">Sharing resources</a></li>
     <li class="level2 nav-leaf"><a href="../features/global_resources.html">Sharing resources across suites</a></li>
-    <li class="level2 nav-leaf"><a href="../features/logging.html">Logging information</a></li>
     <li class="level2 nav-leaf"><a href="../features/tagging.html">Tagging</a></li>
     <li class="level2 nav-leaf"><a href="../features/scalacheck.html">ScalaCheck integration</a></li>
     <li class="level2 nav-leaf"><a href="../features/discipline.html">Discipline integration</a></li>
@@ -172,14 +171,14 @@
         <p>The report would look something like this:</p>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: green'>+&nbsp;</span>logging&nbsp;for&nbsp;success&nbsp;<span style='color: lightgray'><b>10ms</b></span>
+<span style='color: green'>+&nbsp;</span>logging&nbsp;for&nbsp;success&nbsp;<span style='color: lightgray'><b>8ms</b></span>
 
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failure&nbsp;should&nbsp;print&nbsp;logs&nbsp;<span style='color: lightgray'><b>14ms</b></span>
+<span style='color: red'>-&nbsp;</span>failure&nbsp;should&nbsp;print&nbsp;logs&nbsp;<span style='color: lightgray'><b>8ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failure&nbsp;should&nbsp;print&nbsp;logs&nbsp;<span style='color: lightgray'><b>14ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_logging.md:41)<br/><br/>&nbsp;&nbsp;expect(x.length&nbsp;&gt;&nbsp;20)<br/><br/>&nbsp;&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/><br/>&nbsp;&nbsp;multiple_suites_logging.md:41<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;expect(x.length&nbsp;&gt;&nbsp;20)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;[INFO]&nbsp;&nbsp;07:48:06&nbsp;[multiple_suites_logging.md:38]&nbsp;Starting&nbsp;the&nbsp;test...<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time&nbsp;&nbsp;&nbsp;&nbsp;-&gt;&nbsp;1755244086<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;purpose&nbsp;-&gt;&nbsp;docs<br/>&nbsp;&nbsp;&nbsp;&nbsp;[DEBUG]&nbsp;07:48:06&nbsp;[multiple_suites_logging.md:40]&nbsp;Generated&nbsp;random&nbsp;string:&nbsp;bQ9ffKhQkD
+<span style='color: red'>-&nbsp;</span>failure&nbsp;should&nbsp;print&nbsp;logs&nbsp;<span style='color: lightgray'><b>8ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_logging.md:41)<br/><br/>&nbsp;&nbsp;expect(x.length&nbsp;&gt;&nbsp;20)<br/><br/>&nbsp;&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/><br/>&nbsp;&nbsp;multiple_suites_logging.md:41<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;expect(x.length&nbsp;&gt;&nbsp;20)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;[INFO]&nbsp;&nbsp;15:38:08&nbsp;[multiple_suites_logging.md:38]&nbsp;Starting&nbsp;the&nbsp;test...<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time&nbsp;&nbsp;&nbsp;&nbsp;-&gt;&nbsp;1756741088<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;purpose&nbsp;-&gt;&nbsp;docs<br/>&nbsp;&nbsp;&nbsp;&nbsp;[DEBUG]&nbsp;15:38:08&nbsp;[multiple_suites_logging.md:40]&nbsp;Generated&nbsp;random&nbsp;string:&nbsp;tsMBVdjA21
 
 Total&nbsp;2,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;1,&nbsp;Ignored&nbsp;0,&nbsp;Cancelled&nbsp;0
 </pre></div>

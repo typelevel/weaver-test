@@ -95,11 +95,10 @@
     <li class="level2 nav-leaf"><a href="../overview/motivation.html">Motivation</a></li>
     <li class="level1 nav-header">Features</li>
     <li class="level2 nav-leaf"><a href="../features/expectations.html">Expectations (assertions)</a></li>
+    <li class="level2 nav-leaf"><a href="../features/troubleshooting_failures.html">Troubleshooting failures</a></li>
     <li class="level2 nav-leaf"><a href="../features/asserting_equality.html">Asserting equality</a></li>
-    <li class="level2 nav-leaf"><a href="../features/tracing_failures.html">Tracing Failures</a></li>
     <li class="level2 nav-leaf"><a href="../features/resources.html">Sharing resources</a></li>
     <li class="level2 nav-leaf"><a href="../features/global_resources.html">Sharing resources across suites</a></li>
-    <li class="level2 nav-leaf"><a href="../features/logging.html">Logging information</a></li>
     <li class="level2 nav-leaf"><a href="../features/tagging.html">Tagging</a></li>
     <li class="level2 nav-leaf"><a href="../features/scalacheck.html">ScalaCheck integration</a></li>
     <li class="level2 nav-leaf"><a href="../features/discipline.html">Discipline integration</a></li>
@@ -166,11 +165,11 @@
 }</span></code></pre>
         <p>The report looks like this:</p>
         <div class='terminal'><pre>
-<span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: green'>+&nbsp;</span>hello&nbsp;side-effects&nbsp;<span style='color: lightgray'><b>3ms</b></span>
-
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: green'>+&nbsp;</span>double&nbsp;reversing&nbsp;is&nbsp;identity&nbsp;<span style='color: lightgray'><b>0ms</b></span>
+<span style='color: green'>+&nbsp;</span>double&nbsp;reversing&nbsp;is&nbsp;identity&nbsp;<span style='color: lightgray'><b>1ms</b></span>
+
+<span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
+<span style='color: green'>+&nbsp;</span>hello&nbsp;side-effects&nbsp;<span style='color: lightgray'><b>4ms</b></span>
 
 Total&nbsp;2,&nbsp;Failed&nbsp;0,&nbsp;Passed&nbsp;2,&nbsp;Ignored&nbsp;0,&nbsp;Cancelled&nbsp;0
 </pre></div>

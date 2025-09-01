@@ -95,11 +95,10 @@
     <li class="level2 nav-leaf"><a href="../overview/motivation.html">Motivation</a></li>
     <li class="level1 nav-header">Features</li>
     <li class="level2 nav-leaf"><a href="../features/expectations.html">Expectations (assertions)</a></li>
+    <li class="level2 nav-leaf"><a href="../features/troubleshooting_failures.html">Troubleshooting failures</a></li>
     <li class="level2 nav-leaf"><a href="../features/asserting_equality.html">Asserting equality</a></li>
-    <li class="level2 nav-leaf"><a href="../features/tracing_failures.html">Tracing Failures</a></li>
     <li class="level2 nav-leaf"><a href="../features/resources.html">Sharing resources</a></li>
     <li class="level2 nav-leaf"><a href="../features/global_resources.html">Sharing resources across suites</a></li>
-    <li class="level2 nav-leaf"><a href="../features/logging.html">Logging information</a></li>
     <li class="level2 nav-leaf"><a href="../features/tagging.html">Tagging</a></li>
     <li class="level2 nav-leaf"><a href="../features/scalacheck.html">ScalaCheck integration</a></li>
     <li class="level2 nav-leaf"><a href="../features/discipline.html">Discipline integration</a></li>
@@ -163,17 +162,17 @@
         <p>The report looks like this:</p>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>0ms</b></span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>4ms</b></span>
 
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>3ms</b></span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>4ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>0ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:18)<br/><br/>&nbsp;&nbsp;expect(1&nbsp;&gt;=&nbsp;2)<br/><br/>&nbsp;&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/><br/>&nbsp;&nbsp;multiple_suites_failures.md:18<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect(1&nbsp;&gt;=&nbsp;2)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>4ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:18)<br/><br/>&nbsp;&nbsp;expect(1&nbsp;&gt;=&nbsp;2)<br/><br/>&nbsp;&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/><br/>&nbsp;&nbsp;multiple_suites_failures.md:18<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect(1&nbsp;&gt;=&nbsp;2)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
 
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>3ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:34)<br/>&nbsp;(multiple_suites_failures.md:31)<br/><br/>&nbsp;&nbsp;expect(clue(clue(x).length)&nbsp;&gt;&nbsp;10)<br/><br/>&nbsp;&nbsp;Clues&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;x:&nbsp;String&nbsp;=&nbsp;bK80GOOIKJ<br/>&nbsp;&nbsp;&nbsp;&nbsp;clue(x).length:&nbsp;Int&nbsp;=&nbsp;10<br/>&nbsp;&nbsp;}<br/><br/>&nbsp;&nbsp;multiple_suites_failures.md:34<br/>&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;check(x&nbsp;:&nbsp;String)&nbsp;=&nbsp;expect(clue(clue(x).length)&nbsp;&gt;&nbsp;10)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^<br/>&nbsp;&nbsp;multiple_suites_failures.md:31<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;check(x).traced(here)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>4ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:34)<br/>&nbsp;(multiple_suites_failures.md:31)<br/><br/>&nbsp;&nbsp;expect(clue(clue(x).length)&nbsp;&gt;&nbsp;10)<br/><br/>&nbsp;&nbsp;Clues&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;x:&nbsp;String&nbsp;=&nbsp;atTS85vwg1<br/>&nbsp;&nbsp;&nbsp;&nbsp;clue(x).length:&nbsp;Int&nbsp;=&nbsp;10<br/>&nbsp;&nbsp;}<br/><br/>&nbsp;&nbsp;multiple_suites_failures.md:34<br/>&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;check(x&nbsp;:&nbsp;String)&nbsp;=&nbsp;expect(clue(clue(x).length)&nbsp;&gt;&nbsp;10)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^<br/>&nbsp;&nbsp;multiple_suites_failures.md:31<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;check(x).traced(here)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
 
 Total&nbsp;2,&nbsp;Failed&nbsp;2,&nbsp;Passed&nbsp;0,&nbsp;Ignored&nbsp;0,&nbsp;Cancelled&nbsp;0
 </pre></div>
