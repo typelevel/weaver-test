@@ -43,11 +43,13 @@ object Formatter {
     import Result._
 
     result match {
-      case Success                                 => withPrefix(green("+ "))
-      case _: Failure | _: Failures | _: Exception => withPrefix(red("- "))
-      case _: Cancelled =>
+      case Success => withPrefix(green("+ "))
+      case OnlyTagNotAllowedInCI(_) | Failures(_) | Exception(_) =>
+        withPrefix(red("- "))
+      case Cancelled(_, _) =>
         withPrefix(yellow("- ")) + yellow(" !!! CANCELLED !!!")
-      case _: Ignored => withPrefix(yellow("- ")) + yellow(" !!! IGNORED !!!")
+      case Ignored(_, _) =>
+        withPrefix(yellow("- ")) + yellow(" !!! IGNORED !!!")
     }
   }
 

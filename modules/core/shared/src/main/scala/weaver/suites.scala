@@ -95,11 +95,7 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
 
 
   private[this] def onlyNotOnCiFailure(test: TestName): TestOutcome = {
-    val result = Result.Failure(
-      msg = "'Only' tag is not allowed when `isCI=true`",
-      source = None,
-      location = List(test.location)
-    )
+    val result = Result.OnlyTagNotAllowedInCI(location = test.location)
     TestOutcome(
       name = test.name,
       duration = FiniteDuration(0, "ns"),

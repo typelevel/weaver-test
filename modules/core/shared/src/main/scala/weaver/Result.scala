@@ -1,7 +1,5 @@
 package weaver
 
-import scala.util.Try
-
 import cats.data.NonEmptyList
 import cats.data.Validated.{ Invalid, Valid }
 
@@ -16,7 +14,7 @@ object Result {
     case Valid(_) => Success
     case Invalid(failed) =>
       Failures(failed.map(ex =>
-        Result.Failure(ex.message, Some(ex), ex.locations.toList)))
+        Failures.Failure(ex.message, ex, ex.locations.toList)))
   }
 
   case object Success extends Result {
@@ -39,11 +37,17 @@ object Result {
     }
   }
 
-  final case class Failures(failures: NonEmptyList[Failure]) extends Result {
+  final case class Failures(failures: NonEmptyList[Failures.Failure])
+      extends Result {
 
     def formatted: Option[String] =
-      if (failures.size == 1) failures.head.formatted
-      else {
+      if (failures.size == 1) {
+        val failure = failures.head
+        Some(formatError(failure.msg,
+                         Some(failure.source),
+                         failure.location,
+                         Some(0)))
+      } else {
 
         val descriptions = failures.zipWithIndex.map {
           case (failure, idx) =>
@@ -61,20 +65,25 @@ object Result {
       }
   }
 
-  final case class Failure(
-      msg: String,
-      source: Option[Throwable],
-      location: List[SourceLocation])
+  object Failures {
+    final case class Failure(
+        msg: String,
+        source: Throwable,
+        location: List[SourceLocation])
+  }
+
+  final case class OnlyTagNotAllowedInCI(
+      location: SourceLocation)
       extends Result {
 
     def formatted: Option[String] =
-      Some(formatError(msg, source, location, Some(0)))
+      Some(formatError("'Only' tag is not allowed when `isCI=true`",
+                       None,
+                       List(location),
+                       Some(0)))
   }
 
-  final case class Exception(
-      source: Throwable,
-      location: Option[SourceLocation])
-      extends Result {
+  final case class Exception(source: Throwable) extends Result {
 
     def formatted: Option[String] = {
       val description = {
@@ -85,16 +94,10 @@ object Result {
           .fold(className)(m => s"$className: $m")
       }
 
-      val maxStackFrames = sys.props.get("WEAVER_MAX_STACKFRAMES").flatMap(s =>
-        Try(s.trim.toInt).toOption).getOrElse(50)
-
-      val stackTraceLimit =
-        if (location.isDefined) Some(maxStackFrames) else None
-
       Some(formatError(description,
                        Some(source),
-                       location.toList,
-                       stackTraceLimit))
+                       Nil,
+                       None))
     }
   }
 
@@ -103,15 +106,16 @@ object Result {
   def from(error: Throwable): Result = {
     error match {
       case ex: AssertionException =>
-        Result.Failure(ex.message, Some(ex), ex.locations.toList)
+        Failures(NonEmptyList.of(Failures.Failure(
+          ex.message,
+          ex,
+          ex.locations.toList)))
       case ex: IgnoredException =>
-        Result.Ignored(ex.reason, ex.location)
+        Ignored(ex.reason, ex.location)
       case ex: CanceledException =>
-        Result.Cancelled(ex.reason, ex.location)
-      case ex: WeaverException =>
-        Result.Exception(ex, Some(ex.getLocation))
+        Cancelled(ex.reason, ex.location)
       case other =>
-        Result.Exception(other, None)
+        Exception(other)
     }
   }
 
