@@ -142,8 +142,7 @@ object HttpSuite extends IOSuite {
     for {
       statusCode <- httpClient.get("https://httpbin.org/oops") {
         response => for {
-          body <- response.bodyText.compile.string
-          _ <- log.info(s"The body is: $body")
+          _ <- log.info(s"Content length: ${response.contentLength}")
         } yield response.status.code
       }
     } yield expect.eql(statusCode, 200)
