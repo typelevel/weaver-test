@@ -293,6 +293,24 @@ object DogFoodTests extends IOSuite {
     }
   }
 
+  test("expect.eql values with the same string representation are rendered") {
+    _.runSuite(Meta.Rendering).map {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(eql Show)")
+
+        val expected =
+          s"""
+        |- (eql Show) 0ms
+        |  Values not equal: (src/main/DogFoodTests.scala:5)
+        |
+        |  Values have the same string representation. Consider modifying their Show instance.
+        |  foo
+        """.stripMargin.trim
+
+        expect.same(expected, actual)
+    }
+  }
+
   test("expect statements with interpolators are rendered without warnings") {
     _.runSuite(Meta.Rendering).map {
       case (logs, _) =>

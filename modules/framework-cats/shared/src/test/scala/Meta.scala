@@ -100,6 +100,11 @@ object Meta {
       expect.same(Foo("foo", 1), Foo("foo", 2))
     }
 
+    pureTest("(eql Show)") {
+      implicit val showForString: Show[String] = _.toLowerCase
+      expect.eql("FOO", "foo")
+    }
+
     pureTest("(interpolator)") {
       val x = 1
       // The following code should not raise a "possible missing interpolator" warning
