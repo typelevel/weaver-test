@@ -16,11 +16,11 @@ private[weaver] final class AssertionException(
 }
 
 private[weaver] final class IgnoredException(
-    private[weaver] val reason: Option[String],
+    private[weaver] val reason: String,
     private[weaver] val location: SourceLocation)
-    extends WeaverTestException(reason.orNull)
+    extends WeaverTestException(reason)
 
 private[weaver] final class CanceledException(
-    private[weaver] val reason: Option[String],
+    private[weaver] val reason: String,
     private[weaver] val location: SourceLocation)
-    extends WeaverTestException(reason.orNull)
+    extends WeaverTestException(reason)

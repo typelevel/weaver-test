@@ -36,13 +36,13 @@ trait EffectSuite[F[_]] extends Suite[F] with EffectSuiteAux with SourceLocation
    * Raise an error that leads to the running test being tagged as "cancelled".
    */
   def cancel(reason: String)(implicit pos: SourceLocation): F[Nothing] =
-    effect.raiseError(new CanceledException(Some(reason), pos))
+    effect.raiseError(new CanceledException(reason, pos))
 
   /**
    * Raises an error that leads to the running test being tagged as "ignored"
    */
   def ignore(reason: String)(implicit pos: SourceLocation): F[Nothing] =
-    effect.raiseError(new IgnoredException(Some(reason), pos))
+    effect.raiseError(new IgnoredException(reason, pos))
 
   override def name : String = self.getClass.getName.replace("$", "")
 
