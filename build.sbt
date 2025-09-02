@@ -35,6 +35,11 @@ val scala213 = "2.13.16"
 ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.6")
 ThisBuild / scalaVersion       := scala213 // the default Scala
 
+// Silence binary compatibility warnings for test-interface in Scala Native 0.5.x series
+// has to include _native suffix due to https://github.com/sbt/sbt/issues/7140
+ThisBuild / libraryDependencySchemes +=
+  "org.scala-native" %% "test-interface_native0.5" % VersionScheme.Always
+
 val Version = new {
   val catsEffect             = "3.7.0-RC1"
   val catsLaws               = "2.13.0"
@@ -163,8 +168,7 @@ lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/discipline"))
   .dependsOn(core, cats)
   .settings(
-    name := "weaver-discipline",
-    evictionErrorLevel := Level.Info, // scalacheck is built with native 0.5.1, which sbt dislikes
+    name           := "weaver-discipline",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "discipline-core" % Version.discipline,
