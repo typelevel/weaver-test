@@ -82,15 +82,15 @@ jobs:
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' doc
 
       - name: Make target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/native-0.5')
         run: mkdir -p modules/scalacheck/native/target modules/framework-cats/native/target modules/framework/jvm/target modules/core/native/target modules/framework/native/target modules/core/js/target modules/framework/js/target modules/core/jvm/target modules/core-cats/native/target modules/discipline/native/target modules/core-cats/js/target modules/framework-cats/js/target modules/framework-cats/jvm/target modules/discipline/js/target modules/scalacheck/jvm/target modules/discipline/jvm/target modules/core-cats/jvm/target modules/scalacheck/js/target project/target
 
       - name: Compress target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/native-0.5')
         run: tar cf targets.tar modules/scalacheck/native/target modules/framework-cats/native/target modules/framework/jvm/target modules/core/native/target modules/framework/native/target modules/core/js/target modules/framework/js/target modules/core/jvm/target modules/core-cats/native/target modules/discipline/native/target modules/core-cats/js/target modules/framework-cats/js/target modules/framework-cats/jvm/target modules/discipline/js/target modules/scalacheck/jvm/target modules/discipline/jvm/target modules/core-cats/jvm/target modules/scalacheck/js/target project/target
 
       - name: Upload target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/native-0.5')
         uses: actions/upload-artifact@v4
         with:
           name: target-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.scala }}-${{ matrix.project }}
@@ -99,7 +99,7 @@ jobs:
   publish:
     name: Publish Artifacts
     needs: [build]
-    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/native-0.5')
     strategy:
       matrix:
         os: [ubuntu-22.04]
