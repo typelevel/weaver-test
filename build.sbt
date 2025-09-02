@@ -26,6 +26,7 @@ ThisBuild / tlCiHeaderCheck := false
 
 // enable the sbt-typelevel-site laika documentation
 ThisBuild / tlSitePublishBranch := Some("main")
+ThisBuild / tlCiReleaseBranches := List("main", "feature/*")
 
 // use JDK 11
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
