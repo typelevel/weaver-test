@@ -12,7 +12,7 @@ import laika.config.LinkValidation
 import org.typelevel.sbt.site.TypelevelSiteSettings
 import sbt.librarymanagement.Configurations.ScalaDocTool
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
-ThisBuild / tlBaseVersion := "0.10" // your current series x.y
+ThisBuild / tlBaseVersion := "0.11" // your current series x.y
 
 ThisBuild / startYear := Some(2019)
 ThisBuild / licenses  := Seq(License.Apache2)
@@ -39,21 +39,26 @@ val scala213 = "2.13.16"
 ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.6")
 ThisBuild / scalaVersion       := scala213 // the default Scala
 
+// Silence binary compatibility warnings for test-interface in Scala Native 0.5.x series
+// has to include _native suffix due to https://github.com/sbt/sbt/issues/7140
+ThisBuild / libraryDependencySchemes +=
+  "org.scala-native" %% "test-interface_native0.5" % VersionScheme.Always
+
 val Version = new {
-  val catsEffect             = "3.6.3"
-  val catsLaws               = "2.11.0"
-  val discipline             = "1.5.1"
-  val fs2                    = "3.12.0"
+  val catsEffect             = "3.7.0-RC1"
+  val catsLaws               = "2.13.0"
+  val discipline             = "1.7.0"
+  val fs2                    = "3.13.0-M6"
   val junit                  = "4.13.2"
   val portableReflect        = "1.1.3"
   val scalaJavaTime          = "2.4.0"
-  val scalacheck             = "1.17.1"
+  val scalacheck             = "1.18.1"
   val scalajsMacroTask       = "1.1.1"
   val scalajsStubs           = "1.1.0"
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
-  val munitDiff              = "1.0.0"
+  val munitDiff              = "1.1.0"
 }
 
 lazy val root = tlCrossRootProject.aggregate(core,
