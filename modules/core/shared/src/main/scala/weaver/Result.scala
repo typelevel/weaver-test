@@ -3,18 +3,18 @@ package weaver
 import cats.data.NonEmptyList
 import cats.data.Validated.{ Invalid, Valid }
 
-sealed trait Result {
+private[weaver] sealed trait Result {
   def formatted: Option[String]
 }
 
-object Result {
+private[weaver] object Result {
   import Formatter._
 
   def fromAssertion(assertion: Expectations): Result = assertion.run match {
     case Valid(_) => Success
     case Invalid(failed) =>
       Failures(failed.map(ex =>
-        Failures.Failure(ex.message, ex, ex.locations.toList)))
+        Failures.Failure(ex.message, ex, ex.locations)))
   }
 
   case object Success extends Result {
@@ -45,7 +45,7 @@ object Result {
         val failure = failures.head
         Some(formatError(failure.msg,
                          Some(failure.source),
-                         failure.location,
+                         failure.locations.toList,
                          Some(0)))
       } else {
 
@@ -55,7 +55,7 @@ object Result {
 
             formatDescription(
               if (msg != null && msg.nonEmpty) msg else "Test failed",
-              location,
+              locations.toList,
               Console.RED,
               s" [$idx] "
             )
@@ -69,7 +69,7 @@ object Result {
     final case class Failure(
         msg: String,
         source: Throwable,
-        location: List[SourceLocation])
+        locations: NonEmptyList[SourceLocation])
   }
 
   final case class OnlyTagNotAllowedInCI(
@@ -109,7 +109,7 @@ object Result {
         Failures(NonEmptyList.of(Failures.Failure(
           ex.message,
           ex,
-          ex.locations.toList)))
+          ex.locations)))
       case ex: IgnoredException =>
         Ignored(ex.reason, ex.location)
       case ex: CanceledException =>

@@ -108,7 +108,7 @@ case class Expectations(run: ValidatedNel[AssertionException, Unit]) {
    */
   def traced(loc: SourceLocation): Expectations =
     Expectations(run.leftMap(_.map(e =>
-      e.copy(locations = e.locations.append(loc)))))
+      e.withLocation(loc))))
 
 }
 

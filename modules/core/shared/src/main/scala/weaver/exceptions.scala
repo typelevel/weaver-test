@@ -2,22 +2,26 @@ package weaver
 
 import cats.data.NonEmptyList
 
-sealed abstract class WeaverTestException(
+private[weaver] sealed abstract class WeaverTestException(
     message: String,
     cause: Option[Throwable]
 ) extends RuntimeException(message, cause.orNull)
 
-final case class AssertionException(
-    message: String,
-    locations: NonEmptyList[SourceLocation])
-    extends WeaverTestException(message, None)
+private[weaver] final class AssertionException(
+    private[weaver] val message: String,
+    private[weaver] val locations: NonEmptyList[SourceLocation])
+    extends WeaverTestException(message, None) {
+  private[weaver] def withLocation(
+      location: SourceLocation): AssertionException =
+    new AssertionException(message, locations.append(location))
+}
 
-final class IgnoredException(
-    val reason: Option[String],
-    val location: SourceLocation)
+private[weaver] final class IgnoredException(
+    private[weaver] val reason: Option[String],
+    private[weaver] val location: SourceLocation)
     extends WeaverTestException(reason.orNull, None)
 
-final class CanceledException(
-    val reason: Option[String],
-    val location: SourceLocation)
+private[weaver] final class CanceledException(
+    private[weaver] val reason: Option[String],
+    private[weaver] val location: SourceLocation)
     extends WeaverTestException(reason.orNull, None)
