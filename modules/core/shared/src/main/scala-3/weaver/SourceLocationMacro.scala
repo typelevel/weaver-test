@@ -27,7 +27,8 @@ object macros {
     val position = Position.ofMacroExpansion
     val lineSource = position.sourceFile.content.map { content =>
       val lineContentBefore = content.slice(0, position.end).split("\\r?\\n").last
-      val lineContentAfter = content.drop(position.end).split("\\r?\\n").head
+      // If the expect statement is the last line in the file, the line content after it will be empty
+      val lineContentAfter = content.drop(position.end).split("\\r?\\n").headOption.getOrElse("")
       val column = lineContentBefore.length
       (s"$lineContentBefore$lineContentAfter", column)
     }
