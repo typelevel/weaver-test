@@ -44,9 +44,8 @@ private[weaver] object Result {
       if (failures.size == 1) {
         val failure = failures.head
         Some(formatError(failure.msg,
-                         Some(failure.source),
-                         failure.locations.toList,
-                         Some(0)))
+                         Some(failure.source -> Some(0)),
+                         failure.locations.toList))
       } else {
 
         val descriptions = failures.zipWithIndex.map {
@@ -54,7 +53,7 @@ private[weaver] object Result {
             import failure._
 
             formatDescription(
-              if (msg != null && msg.nonEmpty) msg else "Test failed",
+              msg,
               locations.toList,
               Console.RED,
               s" [$idx] "
@@ -79,8 +78,7 @@ private[weaver] object Result {
     def formatted: Option[String] =
       Some(formatError("'Only' tag is not allowed when `isCI=true`",
                        None,
-                       List(location),
-                       Some(0)))
+                       List(location)))
   }
 
   final case class Exception(source: Throwable) extends Result {
@@ -94,10 +92,7 @@ private[weaver] object Result {
           .fold(className)(m => s"$className: $m")
       }
 
-      Some(formatError(description,
-                       Some(source),
-                       Nil,
-                       None))
+      Some(formatError(description, Some(source -> None), Nil))
     }
   }
 
@@ -121,11 +116,11 @@ private[weaver] object Result {
 
   private def formatError(
       msg: String,
-      source: Option[Throwable],
-      location: List[SourceLocation],
-      traceLimit: Option[Int]): String = {
+      source: Option[(Throwable, Option[Int])],
+      location: List[SourceLocation]
+  ): String = {
 
-    val stackTrace = source.fold("") { ex =>
+    val stackTrace = source.fold("") { case (ex, traceLimit) =>
       val stackTraceLines = TestErrorFormatter.formatStackTrace(ex, traceLimit)
 
       def traverseCauses(ex: Throwable): Vector[Throwable] = {
