@@ -150,9 +150,13 @@ lazy val cats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .dependsOn(framework, coreCats)
   .settings(
     name           := "weaver-cats",
-    testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
-    libraryDependencies += "com.siriusxm" %%% "snapshot4s-core" % Version.snapshot4s % Test
-  ).enablePlugins(Snapshot4sPlugin)
+    testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect"))
+  )
+lazy val catsJVM = cats.jvm
+  .settings(
+    libraryDependencies += "com.siriusxm" %% "snapshot4s-core" % Version.snapshot4s % Test
+  )
+  .enablePlugins(Snapshot4sPlugin)
 
 lazy val scalacheck = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/scalacheck"))

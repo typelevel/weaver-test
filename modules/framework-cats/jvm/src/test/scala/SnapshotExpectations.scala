@@ -6,6 +6,8 @@ import cats.effect.IO
 
 import snapshot4s.*
 
+// Implements assertInlineSnapshot for weaver.
+// See https://siriusxm.github.io/snapshot4s/contributing/supporting-a-test-framework/#integrating-your-own-test-framework
 object SnapshotExpectations extends SnapshotAssertions[IO[Expectations]] {
 
   val nonExistentMessage: String =
@@ -13,7 +15,7 @@ object SnapshotExpectations extends SnapshotAssertions[IO[Expectations]] {
   val failureMessage: String =
     "Snapshot not equal. Run 'sbt snapshot4sPromote' to update it."
 
-  implicit def snapshotEqForCasEq[A](implicit eq: cats.Eq[A]): SnapshotEq[A] =
+  implicit def snapshotEqForCatsEq[A](implicit eq: cats.Eq[A]): SnapshotEq[A] =
     SnapshotEq.instance(eq.eqv)
 
   implicit def weaverResultLike[A](
