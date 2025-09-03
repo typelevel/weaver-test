@@ -44,9 +44,16 @@ object Comparison {
         if (eqv.eqv(found, expected)) {
           Result.Success
         } else {
-          val report =
-            Diffs.createDiffOnlyReport(showA.show(found), showA.show(expected))
-          Result.Failure(report)
+          val foundStr    = showA.show(found)
+          val expectedStr = showA.show(expected)
+          if (foundStr == expectedStr) {
+            Result.Failure(
+              s"Values have the same string representation. Consider modifying their Show instance.\n${foundStr}")
+          } else {
+            val report = Diffs.createDiffOnlyReport(showA.show(found),
+                                                    showA.show(expected))
+            Result.Failure(report)
+          }
         }
       }
     }
