@@ -54,6 +54,7 @@ val Version = new {
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
   val munitDiff              = "1.0.0"
+  val snapshot4s             = _root_.snapshot4s.BuildInfo.snapshot4sVersion
 }
 
 lazy val root = tlCrossRootProject.aggregate(core,
@@ -151,6 +152,11 @@ lazy val cats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name           := "weaver-cats",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect"))
   )
+lazy val catsJVM = cats.jvm
+  .settings(
+    libraryDependencies += "com.siriusxm" %% "snapshot4s-core" % Version.snapshot4s % Test
+  )
+  .enablePlugins(Snapshot4sPlugin)
 
 lazy val scalacheck = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/scalacheck"))
