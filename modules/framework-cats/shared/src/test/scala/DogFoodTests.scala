@@ -7,6 +7,8 @@ import cats.effect.{ IO, Resource }
 import cats.syntax.all._
 
 import sbt.testing.Status.Error
+import snapshot4s.generated.snapshotConfig
+import SnapshotExpectations.*
 
 object DogFoodTests extends IOSuite {
 
@@ -46,19 +48,17 @@ object DogFoodTests extends IOSuite {
 
   test(
     "test suite outputs failed test names alongside successes in status report") {
-    _.runSuite(Meta.FailingTestStatusReporting).map {
+    _.runSuite(Meta.FailingTestStatusReporting).flatMap {
       case (logs, _) =>
         val statusReport = outputBeforeFailures(logs).mkString_("\n").trim()
 
-        val expected = """
-        |weaver.framework.test.Meta$FailingTestStatusReporting
-        |+ I succeeded 0ms
-        |- I failed 0ms
-        |+ I succeeded again 0ms
-        |
-        """.stripMargin.trim
-
-        expect.same(statusReport, expected)
+        assertInlineSnapshot(
+          statusReport,
+          """weaver.framework.test.Meta$FailingTestStatusReporting
++ I succeeded 0ms
+- I failed 0ms
++ I succeeded again 0ms"""
+        )
     }
   }
 
@@ -110,37 +110,34 @@ object DogFoodTests extends IOSuite {
   }
 
   test("test suite outputs stack traces of exception causes") {
-    _.runSuite(Meta.ErroringWithCauses).map {
+    _.runSuite(Meta.ErroringWithCauses).flatMap {
       case (logs, _) =>
         val actual = extractLogEventAfterFailures(logs) {
           case LoggedEvent.Error(msg) => msg
         }.get
 
-        val expected =
-          """
-          |- erroring with causes 0ms
-          |  Meta$CustomException: surfaced error
-          |
-          |  DogFoodTests.scala:15    my.package.MyClass#MyMethod
-          |  DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$new$1
-          |
-          |  Caused by: weaver.framework.test.Meta$CustomException: first cause
-          |
-          |  DogFoodTests.scala:15    my.package.MyClass#MyMethod
-          |  DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$new$1
-          |  <snipped>                cats.effect.internals.<...>
-          |  <snipped>                java.util.concurrent.<...>
-          |
-          |  Caused by: weaver.framework.test.Meta$CustomException: root
-          |
-          |  DogFoodTests.scala:15    my.package.MyClass#MyMethod
-          |  DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$new$1
-          |  <snipped>                cats.effect.internals.<...>
-          |  <snipped>                java.util.concurrent.<...>
-          |
-          |""".stripMargin.trim
+        assertInlineSnapshot(
+          actual,
+          """- erroring with causes 0ms
+  Meta$CustomException: surfaced error
 
-        expect.same(actual, expected)
+  DogFoodTests.scala:15    my.package.MyClass#MyMethod
+  DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$new$1
+
+  Caused by: weaver.framework.test.Meta$CustomException: first cause
+
+  DogFoodTests.scala:15    my.package.MyClass#MyMethod
+  DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$new$1
+  <snipped>                cats.effect.internals.<...>
+  <snipped>                java.util.concurrent.<...>
+
+  Caused by: weaver.framework.test.Meta$CustomException: root
+
+  DogFoodTests.scala:15    my.package.MyClass#MyMethod
+  DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$new$1
+  <snipped>                cats.effect.internals.<...>
+  <snipped>                java.util.concurrent.<...>"""
+        )
     }
   }
 
@@ -169,29 +166,26 @@ object DogFoodTests extends IOSuite {
   }
 
   test("failures with multi-line test name are rendered correctly") {
-    _.runSuite(Meta.Rendering).map {
+    _.runSuite(Meta.Rendering).flatMap {
       case (logs, _) =>
         val actual = extractLogEventAfterFailures(logs) {
           case LoggedEvent.Error(msg) => msg
         }.get
 
-        val expected =
-          s"""
-        |- lots 0ms
-        |  of
-        |  multiline
-        |  (failure)
-        |  assertion failed (src/main/DogFoodTests.scala:5)
-        |
-        |  expect(clue(x) == y)
-        |
-        |  Clues {
-        |    x: Int = 1
-        |  }
-        |
-        """.stripMargin.trim
+        assertInlineSnapshot(
+          actual,
+          """- lots 0ms
+  of
+  multiline
+  (failure)
+  assertion failed (src/main/DogFoodTests.scala:5)
 
-        expect.same(expected, actual)
+  expect(clue(x) == y)
+
+  Clues {
+    x: Int = 1
+  }"""
+        )
     }
   }
 
