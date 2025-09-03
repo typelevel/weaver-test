@@ -63,26 +63,42 @@ object DogFoodTests extends IOSuite {
   }
 
   test("test suite outputs logs for failed tests") {
-    _.runSuite(Meta.FailingSuiteWithlogs).map {
+    _.runSuite(Meta.FailingSuiteWithLogs).flatMap {
       case (logs, _) =>
-        val expected =
-          s"""
-            |- failure 0ms
-            |  expected (src/main/DogFoodTests.scala:5)
-            |
-            |    [INFO]  12:54:35 [DogFoodTests.scala:5] this test
-            |    [ERROR] 12:54:35 [DogFoodTests.scala:5] has failed
-            |    [DEBUG] 12:54:35 [DogFoodTests.scala:5] with context
-            |        a       -> b
-            |        token   -> <something>
-            |        request -> true
-            |""".stripMargin.trim
+        val actual = extractFailureMessageForTest(logs, "(failure)")
+        assertInlineSnapshot(
+          actual,
+          """- (failure) 0ms
+  expected (src/main/DogFoodTests.scala:5)
 
-        exists(extractLogEventAfterFailures(logs) {
-          case LoggedEvent.Error(msg) => msg
-        }) { actual =>
-          expect.same(expected, actual)
-        }
+    [INFO]  12:54:35 [DogFoodTests.scala:5] this test
+    [ERROR] 12:54:35 [DogFoodTests.scala:5] has failed
+    [DEBUG] 12:54:35 [DogFoodTests.scala:5] with context
+        a       -> b
+        token   -> <something>
+        request -> true"""
+        )
+    }
+  }
+
+  test("test suite renders logs for tests with multiple failures") {
+    _.runSuite(Meta.FailingSuiteWithLogs).flatMap {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(multiple-failures)")
+        assertInlineSnapshot(
+          actual,
+          """- (multiple-failures) 0ms
+ [0] expected (src/main/DogFoodTests.scala:5)
+
+ [1] another (src/main/DogFoodTests.scala:5)
+
+    [INFO]  12:54:35 [DogFoodTests.scala:5] this test
+    [ERROR] 12:54:35 [DogFoodTests.scala:5] has failed
+    [DEBUG] 12:54:35 [DogFoodTests.scala:5] with context
+        a       -> b
+        token   -> <something>
+        request -> true"""
+        )
     }
   }
 

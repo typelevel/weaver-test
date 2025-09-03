@@ -195,12 +195,12 @@ object Meta {
     }
   }
 
-  object FailingSuiteWithlogs extends SimpleIOSuite {
+  object FailingSuiteWithLogs extends SimpleIOSuite {
     override implicit protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
-    loggedTest("failure") { log =>
+    loggedTest("(failure)") { log =>
       val context = Map(
         "a"       -> "b",
         "token"   -> "<something>",
@@ -214,6 +214,19 @@ object Meta {
       } yield failure("expected")
     }
 
+    loggedTest("(multiple-failures)") { log =>
+      val context = Map(
+        "a"       -> "b",
+        "token"   -> "<something>",
+        "request" -> "true"
+      )
+
+      for {
+        _ <- log.info("this test")
+        _ <- log.error("has failed")
+        _ <- log.debug("with context", context)
+      } yield failure("expected") && failure("another")
+    }
   }
 
   object ErroringWithCauses extends SimpleIOSuite {
