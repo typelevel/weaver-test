@@ -3,7 +3,7 @@ import scala.annotation.implicitNotFound
 import cats.data.{ NonEmptyList, Validated }
 
 import weaver.Expectations
-import weaver.AssertionException
+import weaver.ExpectationFailed
 import weaver.SourceLocation
 import cats.data.Chain
 
@@ -74,7 +74,7 @@ object Clues {
       val fullMessage = header + sourceCodeMessage + "\n\n" + cluesMessage
 
       val exception =
-        new AssertionException(fullMessage, NonEmptyList.of(sourceLoc))
+        new ExpectationFailed(fullMessage, NonEmptyList.of(sourceLoc))
       Expectations(Validated.invalidNel(exception))
     }
   }

@@ -115,7 +115,7 @@ private[weaver] object Result {
 
   def from(error: Throwable): Result = {
     error match {
-      case ex: AssertionException =>
+      case ex: ExpectationFailed =>
         Failures(NonEmptyList.of(Failures.Failure(
           ex.message,
           ex,

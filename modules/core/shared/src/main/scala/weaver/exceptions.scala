@@ -6,13 +6,13 @@ private[weaver] sealed abstract class WeaverTestException(
     message: String
 ) extends RuntimeException(message)
 
-final class AssertionException private[weaver] (
+final class ExpectationFailed private[weaver] (
     private[weaver] val message: String,
     private[weaver] val locations: NonEmptyList[SourceLocation])
     extends WeaverTestException(message) {
   private[weaver] def withLocation(
-      location: SourceLocation): AssertionException =
-    new AssertionException(message, locations.append(location))
+      location: SourceLocation): ExpectationFailed =
+    new ExpectationFailed(message, locations.append(location))
 }
 
 private[weaver] final class IgnoredException(

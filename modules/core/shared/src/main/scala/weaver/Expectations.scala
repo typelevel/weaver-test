@@ -6,7 +6,7 @@ import cats.data.{ NonEmptyList, Validated, ValidatedNel }
 import cats.effect.Sync
 import cats.syntax.all._
 
-case class Expectations(run: ValidatedNel[AssertionException, Unit]) {
+case class Expectations(run: ValidatedNel[ExpectationFailed, Unit]) {
   self =>
 
   /**
@@ -147,8 +147,8 @@ object Expectations {
       override def empty: Additive =
         Additive(
           Expectations(
-            Validated.invalidNel(new AssertionException("empty",
-                                                        NonEmptyList.of(loc)))))
+            Validated.invalidNel(new ExpectationFailed("empty",
+                                                       NonEmptyList.of(loc)))))
 
       override def combine(x: Additive, y: Additive): Additive =
         Additive(
@@ -167,7 +167,7 @@ object Expectations {
     val success: Expectations = Monoid[Expectations].empty
 
     def failure(hint: String)(implicit pos: SourceLocation): Expectations =
-      Expectations(Validated.invalidNel(new AssertionException(
+      Expectations(Validated.invalidNel(new ExpectationFailed(
         hint,
         NonEmptyList.of(pos))))
 

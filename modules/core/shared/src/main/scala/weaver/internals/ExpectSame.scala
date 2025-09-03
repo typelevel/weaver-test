@@ -18,8 +18,8 @@ private[weaver] trait ExpectSame {
         val header     = "Values not equal:"
         val sourceLocs = NonEmptyList.of(loc)
         Expectations(
-          Validated.invalidNel[AssertionException, Unit](
-            new AssertionException(header + "\n\n" + report, sourceLocs)))
+          Validated.invalidNel[ExpectationFailed, Unit](
+            new ExpectationFailed(header + "\n\n" + report, sourceLocs)))
     }
   }
 
