@@ -158,26 +158,21 @@ object DogFoodTests extends IOSuite {
   }
 
   test("failures with exceptions in logs display them correctly") {
-    _.runSuite(Meta.SucceedsWithErrorInLogs).map {
+    _.runSuite(Meta.SucceedsWithErrorInLogs).flatMap {
       case (logs, _) =>
-        val expected =
-          """
-             |- failure 0ms
-             |  expected (src/main/DogFoodTests.scala:5)
-             |
-             |    [ERROR] 12:54:35 [DogFoodTests.scala:5] error
-             |    weaver.framework.test.Meta$CustomException: surfaced error
-             |        DogFoodTests.scala:15    my.package.MyClass#MyMethod
-             |        DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$new$1
-             |        <snipped>                cats.effect.internals.<...>
-             |        <snipped>                java.util.concurrent.<...>
-             |""".stripMargin.trim
+        val actual = extractFailureMessageForTest(logs, "(failure)")
+        assertInlineSnapshot(
+          actual,
+          """- (failure) 0ms
+  expected (src/main/DogFoodTests.scala:5)
 
-        exists(extractLogEventAfterFailures(logs) {
-          case LoggedEvent.Error(msg) => msg
-        }) { actual =>
-          expect.same(expected, actual)
-        }
+    [ERROR] 12:54:35 [DogFoodTests.scala:5] error
+    weaver.framework.test.Meta$CustomException: surfaced error
+        DogFoodTests.scala:15    my.package.MyClass#MyMethod
+        DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$new$1
+        <snipped>                cats.effect.internals.<...>
+        <snipped>                java.util.concurrent.<...>"""
+        )
     }
   }
 
@@ -206,473 +201,455 @@ object DogFoodTests extends IOSuite {
   }
 
   test("successes with multi-line test name are rendered correctly") {
-    _.runSuite(Meta.Rendering).map {
+    _.runSuite(Meta.Rendering).flatMap {
       case (logs, _) =>
         val actual =
           extractLogEventBeforeFailures(logs) {
             case LoggedEvent.Info(msg) if msg.contains("(success)") => msg
           }.get
 
-        val expected = """
-        |+ lots 0ms
-        |  of
-        |  multiline
-        |  (success)
-        """.stripMargin.trim
-
-        expect.same(actual, expected)
+        assertInlineSnapshot(actual,
+                             """+ lots 0ms
+  of
+  multiline
+  (success)""")
     }
   }
 
   test("ignored tests with multi-line test name are rendered correctly") {
-    _.runSuite(Meta.Rendering).map {
+    _.runSuite(Meta.Rendering).flatMap {
       case (logs, _) =>
         val actual =
           extractLogEventBeforeFailures(logs) {
             case LoggedEvent.Info(msg) if msg.contains("(ignored)") => msg
           }.get
-
-        val expected = """
-        |- lots 0ms
-        |  of
-        |  multiline
-        |  (ignored) !!! IGNORED !!!
-        |  Ignore me (src/main/DogFoodTests.scala:5)
-        """.stripMargin.trim
-
-        expect.same(expected, actual)
+        assertInlineSnapshot(actual,
+                             """- lots 0ms
+  of
+  multiline
+  (ignored) !!! IGNORED !!!
+  Ignore me (src/main/DogFoodTests.scala:5)""")
     }
   }
 
   test(
     "cancelled tests with multi-line test name are rendered correctly") {
-    _.runSuite(Meta.Rendering).map {
+    _.runSuite(Meta.Rendering).flatMap {
       case (logs, _) =>
         val actual =
           extractLogEventBeforeFailures(logs) {
             case LoggedEvent.Info(msg) if msg.contains("(cancelled)") => msg
           }.get
-
-        val expected = """
-        |- lots 0ms
-        |  of
-        |  multiline
-        |  (cancelled) !!! CANCELLED !!!
-        |  I was cancelled :( (src/main/DogFoodTests.scala:5)
-        """.stripMargin.trim
-
-        expect.same(actual, expected)
+        assertInlineSnapshot(actual,
+                             """- lots 0ms
+  of
+  multiline
+  (cancelled) !!! CANCELLED !!!
+  I was cancelled :( (src/main/DogFoodTests.scala:5)""")
     }
   }
 
   test(
     "expect.eql delegates to Comparison show when an instance is found") {
-    _.runSuite(Meta.Rendering).map {
+    _.runSuite(Meta.Rendering).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(eql Comparison)")
+        assertInlineSnapshot(
+          actual,
+          """- (eql Comparison) 0ms
+  Values not equal: (src/main/DogFoodTests.scala:5)
 
-        val expected = """
-        |- (eql Comparison) 0ms
-        |  Values not equal: (src/main/DogFoodTests.scala:5)
-        |
-        |  => Diff (- obtained, + expected)
-        |     s: foo
-        |  -  i: 2
-        |  +  i: 1
-        |   }""".stripMargin.trim
-        expect.same(actual, expected)
+  => Diff (- obtained, + expected)
+     s: foo
+  -  i: 2
+  +  i: 1
+   }"""
+        )
     }
   }
 
   test(
     "expect.same delegates to Comparison show when an instance is found") {
-    _.runSuite(Meta.Rendering).map {
+    _.runSuite(Meta.Rendering).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(same Comparison)")
+        assertInlineSnapshot(
+          actual,
+          """- (same Comparison) 0ms
+  Values not equal: (src/main/DogFoodTests.scala:5)
 
-        val expected = """
-        |- (same Comparison) 0ms
-        |  Values not equal: (src/main/DogFoodTests.scala:5)
-        |
-        |  => Diff (- obtained, + expected)
-        |     s: foo
-        |  -  i: 2
-        |  +  i: 1
-        |   }""".stripMargin.trim
-        expect.same(actual, expected)
+  => Diff (- obtained, + expected)
+     s: foo
+  -  i: 2
+  +  i: 1
+   }"""
+        )
     }
   }
 
   test("expect.eql values with the same string representation are rendered") {
-    _.runSuite(Meta.Rendering).map {
+    _.runSuite(Meta.Rendering).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(eql Show)")
+        assertInlineSnapshot(
+          actual,
+          """- (eql Show) 0ms
+  Values not equal: (src/main/DogFoodTests.scala:5)
 
-        val expected =
-          s"""
-        |- (eql Show) 0ms
-        |  Values not equal: (src/main/DogFoodTests.scala:5)
-        |
-        |  Values have the same string representation. Consider modifying their Show instance.
-        |  foo
-        """.stripMargin.trim
-
-        expect.same(expected, actual)
+  Values have the same string representation. Consider modifying their Show instance.
+  foo"""
+        )
     }
   }
 
   test("expect statements with interpolators are rendered without warnings") {
-    _.runSuite(Meta.Rendering).map {
+    _.runSuite(Meta.Rendering).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(interpolator)")
 
-        val expected =
-          s"""
-        |- (interpolator) 0ms
-        |  assertion failed (src/main/DogFoodTests.scala:5)
-        |
-        |  expect(s"$$x" == "2")
-        |
-        |  Use the `clue` function to troubleshoot
-        |
-        """.stripMargin.trim
+        assertInlineSnapshot(
+          actual,
+          """- (interpolator) 0ms
+  assertion failed (src/main/DogFoodTests.scala:5)
 
-        expect.same(expected, actual)
+  expect(s"$x" == "2")
+
+  Use the `clue` function to troubleshoot"""
+        )
     }
   }
 
   test("successes with clues are rendered correctly") {
-    _.runSuite(Meta.Clue).map {
+    _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
         val actual = extractLogEventBeforeFailures(logs) {
           case LoggedEvent.Info(msg) if msg.contains("(success)") =>
             msg
         }.get
-
-        val expected = s"""
-        |+ (success) 0ms
-        |
-        """.stripMargin.trim
-
-        expect.same(expected, actual)
+        assertInlineSnapshot(actual, "+ (success) 0ms")
     }
   }
 
   test("failures with clues are rendered correctly") {
-    _.runSuite(Meta.Clue).map {
+    _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(failure)")
-        val expected =
-          s"""
-        |- (failure) 0ms
-        |  assertion failed (src/main/DogFoodTests.scala:5)
-        |
-        |  expect(clue(x) == clue(y))
-        |
-        |  Clues {
-        |    x: Int = 1
-        |    y: Int = 2
-        |  }
-        |
-        """.stripMargin.trim
+        assertInlineSnapshot(
+          actual,
+          """- (failure) 0ms
+  assertion failed (src/main/DogFoodTests.scala:5)
 
-        expect.same(expected, actual)
+  expect(clue(x) == clue(y))
+
+  Clues {
+    x: Int = 1
+    y: Int = 2
+  }"""
+        )
     }
   }
 
   test("failures with nested clues are rendered correctly") {
-    _.runSuite(Meta.Clue).map {
+    _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(nested)")
-        val expected =
-          s"""
-        |- (nested) 0ms
-        |  assertion failed (src/main/DogFoodTests.scala:5)
-        |
-        |  expect(clue(List(clue(x), clue(y))) == List(x, x))
-        |
-        |  Clues {
-        |    x: Int = 1
-        |    y: Int = 2
-        |    List(clue(x), clue(y)): List[Int] = List(1, 2)
-        |  }
-        |
-        """.stripMargin.trim
+        assertInlineSnapshot(
+          actual,
+          """- (nested) 0ms
+  assertion failed (src/main/DogFoodTests.scala:5)
 
-        expect.same(expected, actual)
+  expect(clue(List(clue(x), clue(y))) == List(x, x))
+
+  Clues {
+    x: Int = 1
+    y: Int = 2
+    List(clue(x), clue(y)): List[Int] = List(1, 2)
+  }"""
+        )
     }
   }
 
   test("failures with identical clue expressions are rendered correctly") {
-    _.runSuite(Meta.Clue).map {
+    _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(map)")
 
-        val expected =
-          s"""
-        |- (map) 0ms
-        |  assertion failed (src/main/DogFoodTests.scala:5)
-        |
-        |  expect(List(x, y).map(v => clue(v)) == List(x, x))
-        |
-        |  Clues {
-        |    v: Int = 1
-        |    v: Int = 2
-        |  }
-        |
-        """.stripMargin.trim
+        assertInlineSnapshot(
+          actual,
+          """- (map) 0ms
+  assertion failed (src/main/DogFoodTests.scala:5)
 
-        expect.same(expected, actual)
+  expect(List(x, y).map(v => clue(v)) == List(x, x))
+
+  Clues {
+    v: Int = 1
+    v: Int = 2
+  }"""
+        )
     }
   }
   test("failures in expect.all are reported with their source code") {
-    _.runSuite(Meta.Clue).map {
+    _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(all)")
-        val expected =
-          s"""
-        |- (all) 0ms
-        | [0] assertion failed (src/main/DogFoodTests.scala:5)
-        | [0] 
-        | [0] clue(x) == clue(y)
-        | [0] 
-        | [0] Clues {
-        | [0]   x: Int = 1
-        | [0]   y: Int = 2
-        | [0] }
-        |
-        | [1] assertion failed (src/main/DogFoodTests.scala:5)
-        | [1] 
-        | [1] clue(y) == clue(z)
-        | [1] 
-        | [1] Clues {
-        | [1]   y: Int = 2
-        | [1]   z: Int = 3
-        | [1] }
-        """.stripMargin.trim
-        expect.same(expected, actual)
+        assertInlineSnapshot(
+          actual,
+          """- (all) 0ms
+ [0] assertion failed (src/main/DogFoodTests.scala:5)
+ [0] 
+ [0] clue(x) == clue(y)
+ [0] 
+ [0] Clues {
+ [0]   x: Int = 1
+ [0]   y: Int = 2
+ [0] }
+
+ [1] assertion failed (src/main/DogFoodTests.scala:5)
+ [1] 
+ [1] clue(y) == clue(z)
+ [1] 
+ [1] Clues {
+ [1]   y: Int = 2
+ [1]   z: Int = 3
+ [1] }"""
+        )
     }
   }
 
   test("values of clues are rendered with the given show") {
-    _.runSuite(Meta.Clue).map {
+    _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(show)")
+        assertInlineSnapshot(
+          actual,
+          """- (show) 0ms
+  assertion failed (src/main/DogFoodTests.scala:5)
 
-        val expected =
-          s"""
-        |- (show) 0ms
-        |  assertion failed (src/main/DogFoodTests.scala:5)
-        |
-        |  expect(clue(x) == clue(y))
-        |
-        |  Clues {
-        |    x: Int = int-1
-        |    y: Int = int-2
-        |  }
-        |
-        """.stripMargin.trim
+  expect(clue(x) == clue(y))
 
-        expect.same(expected, actual)
+  Clues {
+    x: Int = int-1
+    y: Int = int-2
+  }"""
+        )
     }
   }
 
   test("values of clues are rendered with show constructed from toString if no show is given") {
-    _.runSuite(Meta.Clue).map {
+    _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(show-from-to-string)")
+        assertInlineSnapshot(
+          actual,
+          """- (show-from-to-string) 0ms
+  assertion failed (src/main/DogFoodTests.scala:5)
 
-        val expected =
-          s"""
-        |- (show-from-to-string) 0ms
-        |  assertion failed (src/main/DogFoodTests.scala:5)
-        |
-        |  expect(clue(x) == clue(y))
-        |
-        |  Clues {
-        |    x: Foo = foo-1
-        |    y: Foo = foo-2
-        |  }
-        |
-        """.stripMargin.trim
+  expect(clue(x) == clue(y))
 
-        expect.same(expected, actual)
+  Clues {
+    x: Foo = foo-1
+    y: Foo = foo-2
+  }"""
+        )
     }
   }
   test("clue calls are replaced when using helper objects") {
-    _.runSuite(Meta.Clue).map {
+    _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(helpers)")
+        assertInlineSnapshot(
+          actual,
+          """- (helpers) 0ms
+  assertion failed (src/main/DogFoodTests.scala:5)
 
-        val expected =
-          s"""
-        |- (helpers) 0ms
-        |  assertion failed (src/main/DogFoodTests.scala:5)
-        |
-        |  expect(CustomHelpers.clue(x) == otherclue(y) || x == clue(z))
-        |
-        |  Clues {
-        |    x: Int = 1
-        |    y: Int = 2
-        |    z: Int = 3
-        |  }
-        |
-        """.stripMargin.trim
+  expect(CustomHelpers.clue(x) == otherclue(y) || x == clue(z))
 
-        expect.same(expected, actual)
+  Clues {
+    x: Int = 1
+    y: Int = 2
+    z: Int = 3
+  }"""
+        )
     }
   }
 
   test("expect.same source locations are rendered correctly") {
-    _.runSuite(Meta.SourceLocationSuite).map {
+    _.runSuite(Meta.SourceLocationSuite).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(expect-same)")
+        if (ScalaCompat.isScala3) {
+          assertInlineSnapshot(
+            actual,
+            """- (expect-same) 0ms
+  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:22)
 
-        val sourceCode = if (ScalaCompat.isScala3)
-          """|        expect.same(x, y)
-             |                        ^
-          """
-        else
-          """|        expect.same(x, y)
-             |                   ^
-          """
-        val expected =
-          s"""
-        |- (expect-same) 0ms
-        |  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:22)
-        |
-        |  => Diff (- obtained, + expected)
-        |  -2
-        |  +1
-        |
-        |  modules/framework-cats/shared/src/test/scala/Meta.scala:22
-        |${sourceCode.trim.stripMargin}
-        """.stripMargin.trim
+  => Diff (- obtained, + expected)
+  -2
+  +1
 
-        expect.same(expected, actual)
+  modules/framework-cats/shared/src/test/scala/Meta.scala:22
+        expect.same(x, y)
+                        ^"""
+          )
+        } else {
+          assertInlineSnapshot(
+            actual,
+            """- (expect-same) 0ms
+  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:22)
+
+  => Diff (- obtained, + expected)
+  -2
+  +1
+
+  modules/framework-cats/shared/src/test/scala/Meta.scala:22
+        expect.same(x, y)
+                   ^"""
+          )
+        }
     }
   }
 
   test("multiple expectations on the same source line are rendered correctly") {
-    _.runSuite(Meta.SourceLocationSuite).map {
+    _.runSuite(Meta.SourceLocationSuite).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(multiple)")
-        val firstFailureSourceCode = if (ScalaCompat.isScala3)
-          """| [0]       expect.same(x, y) && expect.same(y, z)
-             | [0]                       ^
-          """
-        else
-          """| [0]       expect.same(x, y) && expect.same(y, z)
-             | [0]                  ^
-          """
+        if (ScalaCompat.isScala3) {
+          assertInlineSnapshot(
+            actual,
+            """- (multiple) 0ms
+ [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+ [0] 
+ [0] => Diff (- obtained, + expected)
+ [0] -2
+ [0] +1
+ [0] 
+ [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+ [0]       expect.same(x, y) && expect.same(y, z)
+ [0]                       ^
 
-        val secondFailureSourceCode = if (ScalaCompat.isScala3)
-          """| [1]       expect.same(x, y) && expect.same(y, z)
-             | [1]                                            ^
-          """
-        else
-          """| [1]       expect.same(x, y) && expect.same(y, z)
-             | [1]                                       ^
-          """
-        val expected =
-          s"""
-        |- (multiple) 0ms
-        | [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
-        | [0] 
-        | [0] => Diff (- obtained, + expected)
-        | [0] -2
-        | [0] +1
-        | [0] 
-        | [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
-        |${firstFailureSourceCode.trim.stripMargin}
-        |
-        | [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
-        | [1] 
-        | [1] => Diff (- obtained, + expected)
-        | [1] -3
-        | [1] +2
-        | [1] 
-        | [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
-        |${secondFailureSourceCode.trim.stripMargin}
-        """.stripMargin.trim
+ [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+ [1] 
+ [1] => Diff (- obtained, + expected)
+ [1] -3
+ [1] +2
+ [1] 
+ [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+ [1]       expect.same(x, y) && expect.same(y, z)
+ [1]                                            ^"""
+          )
+        } else {
+          assertInlineSnapshot(
+            actual,
+            """- (multiple) 0ms
+ [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+ [0] 
+ [0] => Diff (- obtained, + expected)
+ [0] -2
+ [0] +1
+ [0] 
+ [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+ [0]       expect.same(x, y) && expect.same(y, z)
+ [0]                  ^
 
-        expect.same(expected, actual)
+ [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
+ [1] 
+ [1] => Diff (- obtained, + expected)
+ [1] -3
+ [1] +2
+ [1] 
+ [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
+ [1]       expect.same(x, y) && expect.same(y, z)
+ [1]                                       ^"""
+          )
+        }
     }
   }
 
   test("traced source locations are rendered correctly") {
-    _.runSuite(Meta.SourceLocationSuite).map {
+    _.runSuite(Meta.SourceLocationSuite).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(traced)")
-        val trace = if (ScalaCompat.isScala3)
-          """|  modules/framework-cats/shared/src/test/scala/Meta.scala:33
-             |        helper
-             |             ^
-             |  modules/framework-cats/shared/src/test/scala/Meta.scala:40
-             |        expect.same(1, 2).traced(here)
-             |                                    ^
-             |  modules/framework-cats/shared/src/test/scala/Meta.scala:37
-             |        nestedHelper.traced(here)
-             |                               ^
-          """
-        else
-          """|  modules/framework-cats/shared/src/test/scala/Meta.scala:33
-             |        helper
-             |        ^
-             |  modules/framework-cats/shared/src/test/scala/Meta.scala:40
-             |        expect.same(1, 2).traced(here)
-             |                                 ^
-             |  modules/framework-cats/shared/src/test/scala/Meta.scala:37
-             |        nestedHelper.traced(here)
-             |                            ^
-          """
+        if (ScalaCompat.isScala3) {
+          assertInlineSnapshot(
+            actual,
+            """- (traced) 0ms
+  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:33)
+ (modules/framework-cats/shared/src/test/scala/Meta.scala:40)
+ (modules/framework-cats/shared/src/test/scala/Meta.scala:37)
 
-        val expected =
-          s"""
-        |- (traced) 0ms
-        |  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:33)
-        | (modules/framework-cats/shared/src/test/scala/Meta.scala:40)
-        | (modules/framework-cats/shared/src/test/scala/Meta.scala:37)
-        |
-        |  => Diff (- obtained, + expected)
-        |  -2
-        |  +1
-        |
-        |${trace.trim.stripMargin}
-        """.stripMargin.trim
+  => Diff (- obtained, + expected)
+  -2
+  +1
 
-        expect.same(expected, actual)
+  modules/framework-cats/shared/src/test/scala/Meta.scala:33
+        helper
+             ^
+  modules/framework-cats/shared/src/test/scala/Meta.scala:40
+        expect.same(1, 2).traced(here)
+                                    ^
+  modules/framework-cats/shared/src/test/scala/Meta.scala:37
+        nestedHelper.traced(here)
+                               ^"""
+          )
+        } else {
+          assertInlineSnapshot(
+            actual,
+            """- (traced) 0ms
+  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:33)
+ (modules/framework-cats/shared/src/test/scala/Meta.scala:40)
+ (modules/framework-cats/shared/src/test/scala/Meta.scala:37)
+
+  => Diff (- obtained, + expected)
+  -2
+  +1
+
+  modules/framework-cats/shared/src/test/scala/Meta.scala:33
+        helper
+        ^
+  modules/framework-cats/shared/src/test/scala/Meta.scala:40
+        expect.same(1, 2).traced(here)
+                                 ^
+  modules/framework-cats/shared/src/test/scala/Meta.scala:37
+        nestedHelper.traced(here)
+                            ^"""
+          )
+        }
     }
   }
 
   test("source locations with interpolators are rendered without warnings") {
-    _.runSuite(Meta.SourceLocationSuite).map {
+    _.runSuite(Meta.SourceLocationSuite).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(interpolator)")
-        val trace = if (ScalaCompat.isScala3)
-          """|  modules/framework-cats/shared/src/test/scala/Meta.scala:44
-             |        forEach(Option(s"$x"))(x => expect(x == "2"))
-             |                                                   ^
-          """
-        else
-          """|  modules/framework-cats/shared/src/test/scala/Meta.scala:44
-             |        forEach(Option(s"$x"))(x => expect(x == "2"))
-             |                                          ^
-          """
+        if (ScalaCompat.isScala3) {
+          assertInlineSnapshot(
+            actual,
+            """- (interpolator) 0ms
+  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:44)
 
-        val expected =
-          s"""
-        |- (interpolator) 0ms
-        |  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:44)
-        |
-        |  expect(x == "2")
-        |
-        |  Use the `clue` function to troubleshoot
-        |
-        |${trace.trim.stripMargin}
-        """.stripMargin.trim
+  expect(x == "2")
 
-        expect.same(expected, actual)
+  Use the `clue` function to troubleshoot
+
+  modules/framework-cats/shared/src/test/scala/Meta.scala:44
+        forEach(Option(s"$x"))(x => expect(x == "2"))
+                                                   ^"""
+          )
+        } else {
+          assertInlineSnapshot(
+            actual,
+            """- (interpolator) 0ms
+  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala:44)
+
+  expect(x == "2")
+
+  Use the `clue` function to troubleshoot
+
+  modules/framework-cats/shared/src/test/scala/Meta.scala:44
+        forEach(Option(s"$x"))(x => expect(x == "2"))
+                                          ^"""
+          )
+        }
     }
   }
 
