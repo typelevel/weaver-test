@@ -57,7 +57,7 @@ object Result {
             )
         }
 
-        Some(descriptions.toList.mkString(DOUBLE_EOL))
+        Some(descriptions.toList.mkString("", DOUBLE_EOL, DOUBLE_EOL))
       }
   }
 
