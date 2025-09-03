@@ -6,7 +6,7 @@ private[weaver] sealed abstract class WeaverTestException(
     message: String
 ) extends RuntimeException(message)
 
-private[weaver] final class AssertionException(
+final class AssertionException private[weaver] (
     private[weaver] val message: String,
     private[weaver] val locations: NonEmptyList[SourceLocation])
     extends WeaverTestException(message) {
