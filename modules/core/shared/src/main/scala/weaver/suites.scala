@@ -33,12 +33,6 @@ trait EffectSuite[F[_]] extends Suite[F] with EffectSuiteAux with SourceLocation
   implicit final protected def effect: Async[F] = effectCompat.effect
 
   /**
-   * Raise an error that leads to the running test being tagged as "cancelled".
-   */
-  def cancel(reason: String)(implicit pos: SourceLocation): F[Nothing] =
-    effect.raiseError(new CanceledException(reason, pos))
-
-  /**
    * Raises an error that leads to the running test being tagged as "ignored"
    */
   def ignore(reason: String)(implicit pos: SourceLocation): F[Nothing] =

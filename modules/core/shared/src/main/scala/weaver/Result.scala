@@ -32,17 +32,6 @@ private[weaver] object Result {
     }
   }
 
-  final case class Cancelled(reason: String, location: SourceLocation)
-      extends Result {
-
-    def formatted: Option[String] = {
-      Some(formatDescription(reason,
-                             List(location),
-                             Console.YELLOW,
-                             TAB2.prefix))
-    }
-  }
-
   final case class Failures(failures: NonEmptyList[Failures.Failure])
       extends Result {
 
@@ -122,8 +111,6 @@ private[weaver] object Result {
           ex.locations)))
       case ex: IgnoredException =>
         Ignored(ex.reason, ex.location)
-      case ex: CanceledException =>
-        Cancelled(ex.reason, ex.location)
       case other =>
         Exception(other)
     }

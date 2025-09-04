@@ -46,8 +46,6 @@ object Formatter {
       case Success => withPrefix(green("+ "))
       case OnlyTagNotAllowedInCI(_) | Failures(_) | Exception(_) =>
         withPrefix(red("- "))
-      case Cancelled(_, _) =>
-        withPrefix(yellow("- ")) + yellow(" !!! CANCELLED !!!")
       case Ignored(_, _) =>
         withPrefix(yellow("- ")) + yellow(" !!! IGNORED !!!")
     }

@@ -35,9 +35,8 @@ object TestOutcome {
       extends TestOutcome {
 
     def status: TestStatus = result match {
-      case Result.Success         => TestStatus.Success
-      case Result.Cancelled(_, _) => TestStatus.Cancelled
-      case Result.Ignored(_, _)   => TestStatus.Ignored
+      case Result.Success       => TestStatus.Success
+      case Result.Ignored(_, _) => TestStatus.Ignored
       case Result.OnlyTagNotAllowedInCI(_) | Result.Failures(_) =>
         TestStatus.Failure
       case Result.Exception(_) => TestStatus.Exception
@@ -46,9 +45,9 @@ object TestOutcome {
     def cause: Option[Throwable] = result match {
       case Result.Exception(cause)   => Some(cause)
       case Result.Failures(failures) => Some(failures.head.source)
-      case Result.OnlyTagNotAllowedInCI(_) | Result.Cancelled(
+      case Result.OnlyTagNotAllowedInCI(_) | Result.Ignored(
             _,
-            _) | Result.Ignored(_, _) | Result.Success => None
+            _) | Result.Success => None
     }
 
     def formatted(mode: Mode): String =

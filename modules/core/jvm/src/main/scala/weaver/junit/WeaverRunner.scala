@@ -53,8 +53,6 @@ class WeaverRunner(cls: Class[_], @unused dummy: Boolean)
       case weaver.TestStatus.Exception =>
         notifier.fireTestStarted(description)
         notifier.fireTestFailure(failure(outcome))
-      case Cancelled =>
-        notifier.fireTestIgnored(description)
       case Ignored =>
         notifier.fireTestIgnored(description)
     }
