@@ -32,12 +32,6 @@ trait EffectSuite[F[_]] extends Suite[F] with EffectSuiteAux with SourceLocation
   implicit protected def effectCompat: EffectCompat[F]
   implicit final protected def effect: Async[F] = effectCompat.effect
 
-  /**
-   * Raises an error that leads to the running test being tagged as "ignored"
-   */
-  def ignore(reason: String)(implicit pos: SourceLocation): F[Nothing] =
-    effect.raiseError(new IgnoredException(reason, pos))
-
   override def name : String = self.getClass.getName.replace("$", "")
 
   protected def adaptRunError: PartialFunction[Throwable, Throwable] = PartialFunction.empty

@@ -279,6 +279,13 @@ object Expectations {
       case Invalid(_) => success
     }
 
+    /**
+     * Raises an error that leads to the running test being tagged as "ignored"
+     */
+    def ignore[F[_]: Sync](reason: String)(implicit
+        pos: SourceLocation): F[Nothing] =
+      Sync[F].raiseError(new IgnoredException(reason, pos))
+
     implicit class StringOps(str: String) {
       def ignore(implicit loc: SourceLocation): TestName =
         new TestName(str, loc, Set.empty).ignore
