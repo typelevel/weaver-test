@@ -13,13 +13,16 @@ import sbt.testing.{ Event => _, Status => _, Task => _, _ }
 
 import Platform._
 
-object DogFood extends DogFoodCompanion {
+private[weaver] object DogFood {
   type State = (Chain[LoggedEvent], Chain[sbt.testing.Event])
+
+  def make[F[_]](framework: WeaverFramework[F]): Resource[F, DogFood[F]] = {
+    Resource.pure(new DogFood(framework))
+  }
 }
 
 // Functionality to test how the frameworks react to successful and failing tests/suites
-abstract class DogFood[F[_]](
-    val framework: WeaverFramework[F])
+private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
     extends DogFoodCompat[F] {
   import framework.unsafeRun._
   import DogFood.State
@@ -89,7 +92,7 @@ abstract class DogFood[F[_]](
                     Array(new SuiteSelector))
       }
 
-      blocker.block(runner -> runner.tasks(taskDefs))
+      effect.blocking(runner -> runner.tasks(taskDefs))
     }
   }
 
@@ -169,8 +172,8 @@ abstract class DogFood[F[_]](
 
 }
 
-sealed trait LoggedEvent
-object LoggedEvent {
+private[weaver] sealed trait LoggedEvent
+private[weaver] object LoggedEvent {
   final case class Error(msg: String)  extends LoggedEvent
   final case class Warn(msg: String)   extends LoggedEvent
   final case class Info(msg: String)   extends LoggedEvent
