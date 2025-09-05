@@ -104,30 +104,27 @@ object Runner {
   case class Outcome(
       successes: Int,
       ignored: Int,
-      cancelled: Int,
       failures: Int) { self =>
 
-    def total = successes + ignored + cancelled + failures
+    def total = successes + ignored + failures
 
     def formatted: String =
-      s"Total $total, Failed $failures, Passed $successes, Ignored $ignored, Cancelled $cancelled"
+      s"Total $total, Failed $failures, Passed $successes, Ignored $ignored"
 
   }
 
   object Outcome {
-    val empty = Outcome(0, 0, 0, 0)
+    val empty = Outcome(0, 0, 0)
 
     def fromEvent(event: TestOutcome): Outcome = event.status match {
       case TestStatus.Exception =>
-        Outcome(0, 0, 0, failures = 1)
+        Outcome(0, 0, failures = 1)
       case TestStatus.Failure =>
-        Outcome(0, 0, 0, failures = 1)
+        Outcome(0, 0, failures = 1)
       case TestStatus.Success =>
-        Outcome(successes = 1, 0, 0, 0)
+        Outcome(successes = 1, 0, 0)
       case TestStatus.Ignored =>
-        Outcome(0, ignored = 1, 0, 0)
-      case TestStatus.Cancelled =>
-        Outcome(0, 0, cancelled = 1, 0)
+        Outcome(0, ignored = 1, 0)
     }
 
     implicit val monoid: Monoid[Outcome] = new Monoid[Outcome] {
@@ -136,7 +133,6 @@ object Runner {
       override def combine(left: Outcome, right: Outcome) = Outcome(
         left.successes + right.successes,
         left.ignored + right.ignored,
-        left.cancelled + right.cancelled,
         left.failures + right.failures
       )
     }

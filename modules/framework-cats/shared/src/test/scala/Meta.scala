@@ -73,10 +73,6 @@ object Meta {
       ignore("Ignore me")
     }
 
-    test("lots\nof\nmultiline\n(cancelled)") {
-      cancel("I was cancelled :(")
-    }
-
     import cats.Show
     case class Foo(s: String, i: Int)
     object Foo {

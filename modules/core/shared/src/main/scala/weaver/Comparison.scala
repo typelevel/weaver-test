@@ -9,9 +9,9 @@ import munit.diff.Diffs
  * A type class used to compare two instances of the same type and construct an
  * informative report.
  *
- * If the comparison succeeds with [[Result.Success]] then no report is printed.
- * If the comparison fails with [[Result.Failure]], then the report is printed
- * with the test failure.
+ * If the comparison succeeds with [[Comparison.Result.Success]] then no report
+ * is printed. If the comparison fails with [[Comparison.Result.Failure]], then
+ * the report is printed with the test failure.
  *
  * The report is generally a diff of the `expected` and `found` values. It may
  * use ANSI escape codes to add color.

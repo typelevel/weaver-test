@@ -245,27 +245,6 @@ object DogFoodTests extends IOSuite {
   }
 
   test(
-    "cancelled tests with multi-line test name are rendered correctly") {
-    _.runSuite(Meta.Rendering).map {
-      case (logs, _) =>
-        val actual =
-          extractLogEventBeforeFailures(logs) {
-            case LoggedEvent.Info(msg) if msg.contains("(cancelled)") => msg
-          }.get
-
-        val expected = """
-        |- lots 0ms
-        |  of
-        |  multiline
-        |  (cancelled) !!! CANCELLED !!!
-        |  I was cancelled :( (src/main/DogFoodTests.scala:5)
-        """.stripMargin.trim
-
-        expect.same(actual, expected)
-    }
-  }
-
-  test(
     "expect.eql delegates to Comparison show when an instance is found") {
     _.runSuite(Meta.Rendering).map {
       case (logs, _) =>

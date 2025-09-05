@@ -6,7 +6,7 @@ import cats.data.{ NonEmptyList, Validated, ValidatedNel }
 import cats.effect.Sync
 import cats.syntax.all._
 
-case class Expectations(run: ValidatedNel[AssertionException, Unit]) {
+case class Expectations(run: ValidatedNel[ExpectationFailed, Unit]) {
   self =>
 
   /**
@@ -108,7 +108,7 @@ case class Expectations(run: ValidatedNel[AssertionException, Unit]) {
    */
   def traced(loc: SourceLocation): Expectations =
     Expectations(run.leftMap(_.map(e =>
-      e.copy(locations = e.locations.append(loc)))))
+      e.withLocation(loc))))
 
 }
 
@@ -147,8 +147,8 @@ object Expectations {
       override def empty: Additive =
         Additive(
           Expectations(
-            Validated.invalidNel(new AssertionException("empty",
-                                                        NonEmptyList.of(loc)))))
+            Validated.invalidNel(new ExpectationFailed("empty",
+                                                       NonEmptyList.of(loc)))))
 
       override def combine(x: Additive, y: Additive): Additive =
         Additive(
@@ -167,7 +167,7 @@ object Expectations {
     val success: Expectations = Monoid[Expectations].empty
 
     def failure(hint: String)(implicit pos: SourceLocation): Expectations =
-      Expectations(Validated.invalidNel(new AssertionException(
+      Expectations(Validated.invalidNel(new ExpectationFailed(
         hint,
         NonEmptyList.of(pos))))
 
@@ -278,6 +278,13 @@ object Expectations {
       case Valid(_)   => failure("Assertion was true")
       case Invalid(_) => success
     }
+
+    /**
+     * Raises an error that leads to the running test being tagged as "ignored"
+     */
+    def ignore[F[_]: Sync](reason: String)(implicit
+        pos: SourceLocation): F[Nothing] =
+      Sync[F].raiseError(new IgnoredException(reason, pos))
 
     implicit class StringOps(str: String) {
       def ignore(implicit loc: SourceLocation): TestName =

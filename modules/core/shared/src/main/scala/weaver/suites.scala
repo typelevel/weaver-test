@@ -32,18 +32,6 @@ trait EffectSuite[F[_]] extends Suite[F] with EffectSuiteAux with SourceLocation
   implicit protected def effectCompat: EffectCompat[F]
   implicit final protected def effect: Async[F] = effectCompat.effect
 
-  /**
-   * Raise an error that leads to the running test being tagged as "cancelled".
-   */
-  def cancel(reason: String)(implicit pos: SourceLocation): F[Nothing] =
-    effect.raiseError(new CanceledException(Some(reason), pos))
-
-  /**
-   * Raises an error that leads to the running test being tagged as "ignored"
-   */
-  def ignore(reason: String)(implicit pos: SourceLocation): F[Nothing] =
-    effect.raiseError(new IgnoredException(Some(reason), pos))
-
   override def name : String = self.getClass.getName.replace("$", "")
 
   protected def adaptRunError: PartialFunction[Throwable, Throwable] = PartialFunction.empty
@@ -95,11 +83,7 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
 
 
   private[this] def onlyNotOnCiFailure(test: TestName): TestOutcome = {
-    val result = Result.Failure(
-      msg = "'Only' tag is not allowed when `isCI=true`",
-      source = None,
-      location = List(test.location)
-    )
+    val result = Result.OnlyTagNotAllowedInCI(location = test.location)
     TestOutcome(
       name = test.name,
       duration = FiniteDuration(0, "ns"),
