@@ -40,14 +40,14 @@ ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.6")
 ThisBuild / scalaVersion       := scala213 // the default Scala
 
 val Version = new {
-  val catsEffect             = "3.6.3"
-  val catsLaws               = "2.11.0"
-  val discipline             = "1.5.1"
-  val fs2                    = "3.12.0"
+  val catsEffect             = "3.7.0-RC1"
+  val catsLaws               = "2.13.0"
+  val discipline             = "1.7.0"
+  val fs2                    = "3.13.0-M7"
   val junit                  = "4.13.2"
   val portableReflect        = "1.1.3"
   val scalaJavaTime          = "2.4.0"
-  val scalacheck             = "1.17.1"
+  val scalacheck             = "1.19.0"
   val scalajsMacroTask       = "1.1.1"
   val scalajsStubs           = "1.1.0"
   val testInterface          = "1.0"
@@ -176,8 +176,10 @@ lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name           := "weaver-discipline",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "discipline-core" % Version.discipline,
-      "org.typelevel" %%% "cats-laws"       % Version.catsLaws % Test
+      "org.typelevel"  %%% "discipline-core" % Version.discipline,
+      // discipline depends on an old version of scalacheck. This silences the warning
+      "org.scalacheck" %%% "scalacheck"      % Version.scalacheck,
+      "org.typelevel"  %%% "cats-laws"       % Version.catsLaws % Test
     )
   )
 
