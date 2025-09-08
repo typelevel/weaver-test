@@ -176,10 +176,10 @@ lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name           := "weaver-discipline",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
     libraryDependencies ++= Seq(
-      "org.typelevel"  %%% "discipline-core" % Version.discipline,
+      "org.typelevel" %%% "discipline-core" % Version.discipline,
       // discipline depends on an old version of scalacheck. This silences the warning
-      "org.scalacheck" %%% "scalacheck"      % Version.scalacheck,
-      "org.typelevel"  %%% "cats-laws"       % Version.catsLaws % Test
+      "org.scalacheck" %%% "scalacheck" % Version.scalacheck,
+      "org.typelevel"  %%% "cats-laws"  % Version.catsLaws % Test
     )
   )
 
