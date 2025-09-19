@@ -9,6 +9,7 @@ import weaver.framework._
 
 import org.scalacheck.Gen
 import org.scalacheck.rng.Seed
+import cats.data.Chain
 
 object PropertyDogFoodTest extends IOSuite {
 
@@ -19,36 +20,61 @@ object PropertyDogFoodTest extends IOSuite {
   test("Failed property tests get reported properly") { dogfood =>
     for {
       results <- dogfood.runSuite(Meta.FailedChecks)
-      logs = results._1
+      log     <- extractErrorMessage("(pure)", results._1)
     } yield {
-      val errorLogs = logs.collect {
-        case LoggedEvent.Error(msg) => msg
-      }
-      exists(errorLogs) { log =>
-        val seed = Meta.FailedChecks.initialSeed.toBase64
-        // Go into software engineering they say
-        // Learn how to make amazing algorithms
-        // Build robust and deterministic software
-        val (attempt, value) =
-          if (ScalaCompat.isScala3) {
-            ("4", "-2147483648")
-          } else {
-            ("2", "0")
-          }
+      val seed    = Meta.FailedChecks.initialSeed.toBase64
+      val attempt = Meta.FailedChecks.failedAttempt
+      val value   = Meta.FailedChecks.failedValue
 
-        val actualLines = log.split(System.lineSeparator()).toList
-        val expectedLines = s"""foobar
+      val expected = s"""(pure)
+          |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+          |You can reproduce this by adding the following override to your suite:
+          |
+          |override def checkConfig = super.checkConfig.withInitialSeed(Seed.fromBase64("$seed").toOption)"""
+        .stripMargin
+      expectMessageContains(expected, log)
+    }
+  }
+  test("Property tests using failFast get reported properly") { dogfood =>
+    for {
+      results  <- dogfood.runSuite(Meta.FailedChecks)
+      errorLog <- extractErrorMessage("(failFast)", results._1)
+    } yield {
+      {
+        val seed    = Meta.FailedChecks.initialSeed.toBase64
+        val attempt = Meta.FailedChecks.failedAttempt
+        val value   = Meta.FailedChecks.failedValue
+
+        val expected = s"""(failFast)
           |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
           |You can reproduce this by adding the following override to your suite:
           |
           |override def checkConfig = super.checkConfig.withInitialSeed(Seed.fromBase64("$seed").toOption)"""
           .stripMargin
-          .linesIterator.toList
-
-        forEach(actualLines.zip(expectedLines))({ case (actual, expected) =>
-          expect(actual.contains(expected))
-        })
+        expectMessageContains(expected, errorLog)
       }
+    }
+  }
+
+  test("Property tests that raise errors get reported properly.") { dogfood =>
+    for {
+      results  <- dogfood.runSuite(Meta.FailedChecks)
+      errorLog <- extractErrorMessage("(error)", results._1)
+    } yield {
+      val seed    = Meta.FailedChecks.initialSeed.toBase64
+      val attempt = Meta.FailedChecks.failedAttempt
+      val value   = Meta.FailedChecks.failedValue
+
+      val expected = s"""(error)
+          |PropertyTestError: Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+          |You can reproduce this by adding the following override to your suite:
+          |
+          |override def checkConfig = super.checkConfig.withInitialSeed(Seed.fromBase64("$seed").toOption)
+          |
+          |
+          | Caused by: weaver.scalacheck.Meta$$Boom$$: Boom"""
+        .stripMargin
+      expectMessageContains(expected, errorLog)
     }
   }
 
@@ -81,6 +107,24 @@ object PropertyDogFoodTest extends IOSuite {
       expectNoErrorMessage(dogfood.runSuite(Meta.NoDiscardsChecks))
   }
 
+  def extractErrorMessage(
+      name: String,
+      logs: Chain[LoggedEvent]
+  )(implicit loc: SourceLocation): IO[String] = {
+    val errorLogs = logs.collect {
+      case LoggedEvent.Error(msg) if msg.contains(name) => msg
+    }.toList
+    matches(
+      errorLogs.toList) { case List(_) => success }.failFast.as(errorLogs.head)
+  }
+
+  private def expectMessageContains(expected: String, actual: String)(implicit
+      loc: SourceLocation): Expectations =
+    forEach(actual.linesIterator.toList.zip(expected.linesIterator.toList))({
+      case (actualLine, expectedLine) =>
+        expect(clue(actualLine).contains(clue(expectedLine)))
+    })
+
   def expectErrorMessage(
       msg: String,
       state: IO[DogFood.State]): IO[Expectations] =
@@ -103,6 +147,7 @@ object PropertyDogFoodTest extends IOSuite {
 }
 
 object Meta {
+  object Boom extends Error("Boom") with scala.util.control.NoStackTrace
 
   trait MetaSuite extends SimpleIOSuite with Checkers {
     def partiallyAppliedForall: PartiallyAppliedForall
@@ -130,16 +175,42 @@ object Meta {
   object FailedChecks extends SimpleIOSuite with Checkers {
 
     val initialSeed = Seed(5L)
+
+    // Assuming all tests assert x > 0, they will all fail on the 4th attempt.
+    //
+    // Go into software engineering they say
+    // Learn how to make amazing algorithms
+    // Build robust and deterministic software
+    val (failedAttempt, failedValue) =
+      if (ScalaCompat.isScala3) {
+        ("4", "-2147483648")
+      } else {
+        ("2", "0")
+      }
+
     override def checkConfig: CheckConfig =
       super.checkConfig
         .withPerPropertyParallelism(1)
         .withInitialSeed(Some(initialSeed))
 
-    test("foobar") {
+    test("(pure)") {
       forall { (x: Int) =>
         expect(x > 0)
       }
     }
+
+    test("(failFast)") {
+      forall { (x: Int) =>
+        expect(x > 0).failFast.as(success)
+      }
+    }
+
+    test("(error)") {
+      forall { (x: Int) =>
+        if (x <= 0) IO.raiseError(Boom) else IO(success)
+      }
+    }
+
   }
 
   trait SucceededChecks extends MetaSuite {
