@@ -3,9 +3,10 @@ package scalacheck
 
 import cats.syntax.all._
 import cats.{ Applicative, Defer, Show }
-
+import scala.util.control.NoStackTrace
 import org.scalacheck.rng.Seed
 import org.scalacheck.{ Arbitrary, Gen }
+import cats.data.Validated
 
 trait Checkers {
   self: EffectSuiteAux =>
@@ -111,12 +112,16 @@ trait Checkers {
       val initialSeed = config.initialSeed.getOrElse(Seed.random())
       seedStream(initialSeed)
         .parEvalMap(config.perPropertyParallelism)(testOne(gen, f)(params, _))
-        .scan(Status.start[A]) { case (oldStatus, testResult) =>
+        .evalScan(Status.start[A]) { case (oldStatus, testResult) =>
           testResult match {
-            case TestResult.Success => oldStatus.addSuccess
-            case TestResult.Discard => oldStatus.addDiscard
+            case TestResult.Success => oldStatus.addSuccess.pure
+            case TestResult.Discard => oldStatus.addDiscard.pure
             case TestResult.Failure(input, exp) =>
-              oldStatus.addFailure(input, initialSeed, exp)
+              oldStatus.addFailure(input, initialSeed, exp).pure
+            case TestResult.Exception(input, error) =>
+              val ith  = oldStatus.succeeded + oldStatus.discarded + 1
+              val seed = initialSeed
+              (new PropertyTestError(ith, seed, input, error)).raiseError
           }
         }
         .takeWhile(_.shouldContinue(config), takeFailure = true)
@@ -140,12 +145,16 @@ trait Checkers {
       seed: Seed): F[TestResult] = {
     Defer[F](self.effect).defer {
       gen(params, seed)
-        .traverse(x => f(x).map(x -> _))
-        .map { (x: Option[(T, Expectations)]) =>
+        .traverse(x => f(x).attempt.map(x -> _))
+        .map { (x: Option[(T, Either[Throwable, Expectations])]) =>
           x match {
-            case Some((_, ex)) if ex.run.isValid => TestResult.Success
-            case Some((t, ex)) => TestResult.Failure(t.show, ex)
-            case None          => TestResult.Discard
+            case Some((_, Right(ex))) if ex.run.isValid => TestResult.Success
+            case Some((t, Right(ex))) => TestResult.Failure(t.show, ex)
+            case Some((t, Left(exception: ExpectationFailed))) =>
+              TestResult.Failure(t.show,
+                                 Expectations(Validated.invalidNel(exception)))
+            case Some((t, Left(other))) => TestResult.Exception(t.show, other)
+            case None                   => TestResult.Discard
           }
         }
     }
@@ -163,13 +172,10 @@ trait Checkers {
     def addFailure(input: String, seed: Seed, exp: Expectations): Status[T] =
       if (failure.isEmpty) {
         val ith = succeeded + discarded + 1
-        val failure = Expectations.Helpers
-          .failure(
-            s"""Property test failed on try $ith with seed $seed and input $input.
-                |You can reproduce this by adding the following override to your suite:
-                |
-                |override def checkConfig = super.checkConfig.withInitialSeed($seed.toOption)""".stripMargin)
-          .and(exp)
+        val failure = Expectations.Helpers.failure(failureMessage(
+          ith,
+          seed,
+          input)).and(exp)
         copy(failure = Some(failure))
       } else this
 
@@ -220,5 +226,20 @@ object Checkers {
     case object Discard extends TestResult
     case class Failure(input: String, exp: Expectations)
         extends TestResult
+    case class Exception(input: String, error: Throwable) extends TestResult
   }
+
+  private def failureMessage(ith: Int, seed: Seed, input: String): String =
+    s"""Property test failed on try $ith with seed ${seed} and input $input.
+                |You can reproduce this by adding the following override to your suite:
+                |
+                |override def checkConfig = super.checkConfig.withInitialSeed($seed.toOption)""".stripMargin
+
+  private class PropertyTestError(
+      ith: Int,
+      seed: Seed,
+      input: String,
+      cause: Throwable)
+      extends RuntimeException(failureMessage(ith, seed, input), cause)
+      with NoStackTrace
 }
