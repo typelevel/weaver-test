@@ -58,7 +58,7 @@ val Version = new {
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
-  val munitDiff              = "1.1.0"
+  val munitDiff              = "1.2.0"
 }
 
 lazy val root = tlCrossRootProject.aggregate(core,
