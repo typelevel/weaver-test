@@ -51,6 +51,12 @@ object DisciplineFSuiteIntegrationTest extends SimpleIOSuite {
     }
   }
 
+  test("Respects ignored tests") {
+    MetaIgnore.spec(Nil).compile.toList.map { outcomes =>
+      expect.eql(outcomes.map(_.name).toSet, Set.empty[String])
+    }
+  }
+
   object MetaSuccess extends DisciplineFSuite[IO] with BaseIOSuite {
     override type Res = String
     override def sharedResource: Resource[IO, String] =
@@ -82,6 +88,14 @@ object DisciplineFSuiteIntegrationTest extends SimpleIOSuite {
       Resource.eval(IO.raiseError(resourceStart))
 
     checkAll("Int").pure(_ => RickrollTests[Int].all)
+  }
+
+  object MetaIgnore extends DisciplineFSuite[IO] with BaseIOSuite {
+    override type Res = String
+    override def sharedResource: Resource[IO, String] =
+      Resource.pure("resource")
+
+    checkAll("Boolean".ignore).pure(_ => RickrollTests[Boolean].all)
   }
 
 }

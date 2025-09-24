@@ -5,6 +5,7 @@ import scala.collection.mutable
 import scala.util.control.NoStackTrace
 
 import cats.data.Kleisli
+import cats.data.NonEmptyList
 import cats.effect.Resource
 import cats.implicits._
 
@@ -32,7 +33,7 @@ trait Discipline { self: FunSuiteAux =>
 
 }
 
-trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
+abstract class DisciplineFSuite[F[_]] extends RunnableSuite[F] {
 
   type Res
   def sharedResource: Resource[F, Res]
@@ -49,10 +50,11 @@ trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
    */
   def maxRuleSetParallelism: Int = 10000
 
-  protected def registerTest(tests: Res => F[List[F[TestOutcome]]]): Unit =
+  protected def registerTest(name: TestName)(
+      tests: Res => F[List[F[TestOutcome]]]): Unit =
     registeredTests.synchronized {
       if (isInitialized) throw initError()
-      registeredTests += tests
+      registeredTests += ((name, tests))
       ()
     }
 
@@ -66,7 +68,7 @@ trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
       parameters: Parameters => Parameters) {
     def apply(run: => F[Laws#RuleSet]): Unit = apply(_ => run)
     def apply(run: Res => F[Laws#RuleSet]): Unit = {
-      registerTest(
+      registerTest(name)(
         Kleisli(run).map(_.all.properties.toList.map {
           case (id, prop) =>
             val propTestName = s"${name.name}: $id"
@@ -87,29 +89,33 @@ trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
     def pure(run: Res => Laws#RuleSet): Unit = apply(run.andThen(_.pure[F]))
   }
 
-  override def spec(args: List[String]): Stream[F, TestOutcome] =
+  override def eval(testNames: NonEmptyList[TestName]): Stream[F, TestOutcome] =
     registeredTests.synchronized {
       if (!isInitialized) isInitialized = true
+      val allTests           = registeredTests.toMap
       val suiteParallelism   = math.max(1, maxSuiteParallelism)
       val ruleSetParallelism = math.max(1, maxRuleSetParallelism)
       Stream.resource(sharedResource).flatMap { resource =>
-        Stream.emits(registeredTests).covary[F]
-          .parEvalMap(suiteParallelism)(_.apply(resource))
-          .map { ruleSet =>
-            Stream.emits(ruleSet).covary[F]
-              .parEvalMap(ruleSetParallelism)(identity)
+        Stream.emits(testNames.toList).covary[F]
+          .parEvalMap(suiteParallelism) { name =>
+            allTests(name)(resource)
+          }.map { ruleSet =>
+            Stream.emits(
+              ruleSet).covary[F].parEvalMap(ruleSetParallelism)(identity)
           }
           .parJoin(suiteParallelism)
       }
     }
 
   override def plan: List[TestName] =
-    foundProps.synchronized { foundProps.toList }
+    registeredTests.map(_._1).toList ++ foundProps.synchronized {
+      foundProps.toList
+    }
 
   private[this] val foundProps = mutable.Buffer.empty[TestName]
 
   private[this] val registeredTests =
-    mutable.Buffer.empty[Res => F[List[F[TestOutcome]]]]
+    mutable.Buffer.empty[(TestName, Res => F[List[F[TestOutcome]]])]
 
   private[this] var isInitialized = false
 
