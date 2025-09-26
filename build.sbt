@@ -79,23 +79,30 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
         "org.scala-lang" % "scala-reflect" % scala213
       else
         "org.scala-lang" % "scala-reflect" % scalaVersion.value
-    ),
-    // Shades the scala-diff dependency.
-    shadedDependencies += "org.scalameta" %%% "munit-diff" % "<ignored>",
-    shadingRules += ShadingRule.moveUnder("munit.diff",
-                                          "weaver.internal.shaded"),
-    validNamespaces ++= Set("weaver", "org"),
-    mimaBinaryIssueFilters += ProblemFilters.exclude[MissingClassProblem](
-      "weaver.internal.shaded.*")
-  ).enablePlugins(ShadingPlugin)
+    )
+  )
+
+// Shades the munit-diff dependency.
+lazy val munitDiffShadingSettings = Seq(
+  shadedDependencies += "org.scalameta" %%% "munit-diff" % "<ignored>",
+  shadingRules += ShadingRule.moveUnder("munit.diff",
+                                        "weaver.internal.shaded"),
+  validNamespaces ++= Set("weaver", "org"),
+  mimaBinaryIssueFilters += ProblemFilters.exclude[MissingClassProblem](
+    "weaver.internal.shaded.*")
+)
 
 lazy val coreJVM = core.jvm
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-stubs" % Version.scalajsStubs % "provided" cross CrossVersion.for3Use2_13,
       "junit" % "junit" % Version.junit % Optional
-    )
-  )
+    ),
+    munitDiffShadingSettings
+  ).enablePlugins(ShadingPlugin)
+
+lazy val coreJS =
+  core.js.settings(munitDiffShadingSettings).enablePlugins(ShadingPlugin)
 
 lazy val framework = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/framework"))
