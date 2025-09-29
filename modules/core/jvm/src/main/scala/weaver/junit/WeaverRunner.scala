@@ -36,7 +36,7 @@ class WeaverRunner(cls: Class[_], @unused dummy: Boolean)
 
     notifier.fireTestSuiteStarted(desc)
     notifyIgnored(notifier)
-    suite.runUnsafe(List.empty)(notifiying(notifier))
+    suite.runUnsafe(notifiying(notifier))
     notifier.fireTestSuiteFinished(desc)
   }
 
