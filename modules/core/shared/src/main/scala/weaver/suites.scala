@@ -64,26 +64,50 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
   private[weaver] def analyze[A](
       testSeq: Seq[(TestName, A)],
       args: List[String]): TagAnalysisResult[A] = {
-    val testsNotIgnored: Seq[(TestName, A)] =
-      testSeq.filterNot(_._1.tags(TestName.Tags.ignore))
 
-    val testsTaggedOnly: Seq[(TestName, A)] =
-      testSeq.filter(_._1.tags(TestName.Tags.only))
+    val (testsTaggedOnly,   // "foo".only and "foo".only.ignore
+         testsNotTaggedOnly // "foo" and "foo".ignore
+    ) = testSeq.partition(_._1.tags(TestName.Tags.only))
+    val (testsTaggedOnlyAndIgnored, // "foo".only.ignore
+         onlyTestsNotIgnored        // "foo".only
+    ) = testsTaggedOnly.partition(_._1.tags(TestName.Tags.ignore))
 
-    val onlyTestsNotIgnored =
-      testsTaggedOnly.filter(taggedOnly => testsNotIgnored.contains(taggedOnly))
-
-    val filteredTests = if (onlyTestsNotIgnored.isEmpty) {
-      val argsFilter = Filters.filterTests(this.name)(args)
-      testsNotIgnored.collect {
-        case (name, test) if argsFilter(name) => test
-      }
-    } else onlyTestsNotIgnored.map(_._2)
+    val (testsNotTaggedOnlyAndIgnored,   // "foo".ignore
+         testsNotTaggedOnlyAndNotIgnored // "foo"
+    ) = testsNotTaggedOnly.partition(_._1.tags(TestName.Tags.ignore))
 
     if (testsTaggedOnly.nonEmpty && isCI) {
+      // We're running in a CI environment and some tests are tagged
+      // "foo".only. These tests should fail, and the rest should not
+      // be run.
       val failureOutcomes = testsTaggedOnly.map(_._1).map(onlyNotOnCiFailure)
-      TagAnalysisResult.Outcomes(failureOutcomes)
-    } else TagAnalysisResult.FilteredTests(filteredTests)
+      TagAnalysisResult.Outcomes(
+        testsNotTaggedOnly.map(_._1.name),
+        failureOutcomes)
+    } else if (onlyTestsNotIgnored.isEmpty) {
+      // No tests are tagged "foo".only, but tests may be tagged
+      // "foo".only.ignore. Use the argument filters to determine the
+      // tests to be run.
+
+      val argsFilter = Filters.filterTests(this.name)(args)
+
+      val testsIgnored =
+        testsTaggedOnlyAndIgnored ++ testsNotTaggedOnlyAndIgnored // "foo".only.ignore and "foo".ignore
+
+      val (filteredTests, filteredOutTests) =
+        testsNotTaggedOnlyAndNotIgnored.partition {
+          case (name, _) => argsFilter(name)
+        }
+      TagAnalysisResult.FilteredTests(
+        (testsIgnored ++ filteredOutTests).map(_._1.name),
+        filteredTests.map { case (name, test) => (name.name, test) })
+    } else {
+      // Some tests are tagged "foo".only. Run these tests.
+      TagAnalysisResult.FilteredTests(
+        (testsNotTaggedOnly ++ testsTaggedOnlyAndIgnored).map(_._1.name),
+        onlyTestsNotIgnored.map { case (name, test) => (name.name, test) }
+      )
+    }
   }
 
   private[this] def onlyNotOnCiFailure(test: TestName): TestOutcome = {
@@ -99,10 +123,13 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
 }
 
 private[weaver] sealed trait TagAnalysisResult[A]
-object TagAnalysisResult {
-  case class Outcomes[A](outcomes: Seq[TestOutcome])
+private[weaver] object TagAnalysisResult {
+  case class Outcomes[A](ignoredTests: Seq[String], outcomes: Seq[TestOutcome])
       extends TagAnalysisResult[A]
-  case class FilteredTests[A](tests: Seq[A]) extends TagAnalysisResult[A]
+  case class FilteredTests[A](
+      ignoredTests: Seq[String],
+      tests: Seq[(String, A)])
+      extends TagAnalysisResult[A]
 }
 
 abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
@@ -143,13 +170,14 @@ abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
       val parallelism = math.max(1, maxParallelism)
 
       analyze(testSeq, args) match {
-        case TagAnalysisResult.Outcomes(outcomes) => fs2.Stream.emits(outcomes)
-        case TagAnalysisResult.FilteredTests(filteredTests)
+        case TagAnalysisResult.Outcomes(_, outcomes) =>
+          fs2.Stream.emits(outcomes)
+        case TagAnalysisResult.FilteredTests(_, filteredTests)
             if filteredTests.isEmpty =>
           Stream.empty // no need to allocate resources
-        case TagAnalysisResult.FilteredTests(filteredTests) => for {
+        case TagAnalysisResult.FilteredTests(_, filteredTests) => for {
             resource <- Stream.resource(sharedResource)
-            tests      = filteredTests.map(_.apply(resource))
+            tests      = filteredTests.map(_._2.apply(resource))
             testStream = Stream.emits(tests).covary[F]
             result <- if (parallelism > 1)
               testStream.parEvalMap(parallelism)(identity)(effectCompat.effect)
@@ -189,9 +217,12 @@ abstract class FunSuiteF[F[_]] extends RunnableSuite[F] with FunSuiteAux {
     synchronized {
       if (!isInitialized) isInitialized = true
       analyze[Unit => TestOutcome](testSeq, args) match {
-        case TagAnalysisResult.Outcomes(outcomes) => fs2.Stream.emits(outcomes)
-        case TagAnalysisResult.FilteredTests(filteredTests) =>
-          fs2.Stream.emits(filteredTests.map(execute => execute(())))
+        case TagAnalysisResult.Outcomes(_, outcomes) =>
+          fs2.Stream.emits(outcomes)
+        case TagAnalysisResult.FilteredTests(_, filteredTests) =>
+          fs2.Stream.emits(filteredTests.map { case (_, execute) =>
+            execute(())
+          })
       }
     }
 
