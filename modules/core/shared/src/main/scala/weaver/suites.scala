@@ -61,13 +61,13 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
 
   def isCI: Boolean = System.getenv("CI") == "true"
 
-  private[weaver] def analyze[Res, F1[_]](
-      testSeq: Seq[(TestName, Res => F1[TestOutcome])],
-      args: List[String]): TagAnalysisResult[Res, F1] = {
-    val testsNotIgnored: Seq[(TestName, Res => F1[TestOutcome])] =
+  private[weaver] def analyze[A](
+      testSeq: Seq[(TestName, A)],
+      args: List[String]): TagAnalysisResult[A] = {
+    val testsNotIgnored: Seq[(TestName, A)] =
       testSeq.filterNot(_._1.tags(TestName.Tags.ignore))
 
-    val testsTaggedOnly: Seq[(TestName, Res => F1[TestOutcome])] =
+    val testsTaggedOnly: Seq[(TestName, A)] =
       testSeq.filter(_._1.tags(TestName.Tags.only))
 
     val onlyTestsNotIgnored =
@@ -98,12 +98,11 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
 
 }
 
-private[weaver] sealed trait TagAnalysisResult[Res, F[_]]
+private[weaver] sealed trait TagAnalysisResult[A]
 object TagAnalysisResult {
-  case class Outcomes[Res, F[_]](outcomes: Seq[TestOutcome])
-      extends TagAnalysisResult[Res, F]
-  case class FilteredTests[Res, F[_]](tests: Seq[Res => F[TestOutcome]])
-      extends TagAnalysisResult[Res, F]
+  case class Outcomes[A](outcomes: Seq[TestOutcome])
+      extends TagAnalysisResult[A]
+  case class FilteredTests[A](tests: Seq[A]) extends TagAnalysisResult[A]
 }
 
 abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
@@ -189,7 +188,7 @@ abstract class FunSuiteF[F[_]] extends RunnableSuite[F] with FunSuiteAux {
   private def pureSpec(args: List[String]): fs2.Stream[fs2.Pure, TestOutcome] =
     synchronized {
       if (!isInitialized) isInitialized = true
-      analyze[Unit, cats.Id](testSeq, args) match {
+      analyze[Unit => TestOutcome](testSeq, args) match {
         case TagAnalysisResult.Outcomes(outcomes) => fs2.Stream.emits(outcomes)
         case TagAnalysisResult.FilteredTests(filteredTests) =>
           fs2.Stream.emits(filteredTests.map(execute => execute(())))
