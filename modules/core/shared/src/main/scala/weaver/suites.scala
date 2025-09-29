@@ -25,25 +25,26 @@ protected[weaver] trait EffectSuiteAux {
   implicit protected def effect: Async[EffectType]
 }
 
-// format: off
-trait EffectSuite[F[_]] extends Suite[F] with EffectSuiteAux with SourceLocation.Here { self =>
+trait EffectSuite[F[_]] extends Suite[F] with EffectSuiteAux
+    with SourceLocation.Here { self =>
 
   final type EffectType[A] = F[A]
   implicit protected def effectCompat: EffectCompat[F]
   implicit final protected def effect: Async[F] = effectCompat.effect
 
-  override def name : String = self.getClass.getName.replace("$", "")
+  override def name: String = self.getClass.getName.replace("$", "")
 
-  protected def adaptRunError: PartialFunction[Throwable, Throwable] = PartialFunction.empty
+  protected def adaptRunError: PartialFunction[Throwable, Throwable] =
+    PartialFunction.empty
 
-  final def run(args : List[String])(report : TestOutcome => F[Unit]) : F[Unit] =
+  final def run(args: List[String])(report: TestOutcome => F[Unit]): F[Unit] =
     spec(args).evalMap(report).compile.drain.adaptErr(adaptRunError)
 }
 
 object EffectSuite {
 
-  trait Provider[F[_]]{
-    def getSuite : EffectSuite[F]
+  trait Provider[F[_]] {
+    def getSuite: EffectSuite[F]
   }
 
 }
@@ -52,13 +53,17 @@ object EffectSuite {
 abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
   implicit protected def effectCompat: UnsafeRun[EffectType]
   private[weaver] def getEffectCompat: UnsafeRun[EffectType] = effectCompat
-  def plan : List[TestName]
-  private[weaver] def runUnsafe(args: List[String])(report: TestOutcome => Unit) : Unit =
-    effectCompat.unsafeRunSync(run(args)(outcome => effectCompat.effect.delay(report(outcome))))
+  def plan: List[TestName]
+  private[weaver] def runUnsafe(args: List[String])(
+      report: TestOutcome => Unit): Unit =
+    effectCompat.unsafeRunSync(run(args)(outcome =>
+      effectCompat.effect.delay(report(outcome))))
 
   def isCI: Boolean = System.getenv("CI") == "true"
 
-  private[weaver] def analyze[Res, F1[_]](testSeq: Seq[(TestName, Res => F1[TestOutcome])], args: List[String]): TagAnalysisResult[Res, F1] = {
+  private[weaver] def analyze[Res, F1[_]](
+      testSeq: Seq[(TestName, Res => F1[TestOutcome])],
+      args: List[String]): TagAnalysisResult[Res, F1] = {
     val testsNotIgnored: Seq[(TestName, Res => F1[TestOutcome])] =
       testSeq.filterNot(_._1.tags(TestName.Tags.ignore))
 
@@ -81,7 +86,6 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
     } else TagAnalysisResult.FilteredTests(filteredTests)
   }
 
-
   private[this] def onlyNotOnCiFailure(test: TestName): TestOutcome = {
     val result = Result.OnlyTagNotAllowedInCI(location = test.location)
     TestOutcome(
@@ -96,17 +100,18 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
 
 private[weaver] sealed trait TagAnalysisResult[Res, F[_]]
 object TagAnalysisResult {
-  case class Outcomes[Res, F[_]](outcomes: Seq[TestOutcome]) extends TagAnalysisResult[Res, F]
-  case class FilteredTests[Res, F[_]](tests: Seq[Res => F[TestOutcome]]) extends TagAnalysisResult[Res, F]
+  case class Outcomes[Res, F[_]](outcomes: Seq[TestOutcome])
+      extends TagAnalysisResult[Res, F]
+  case class FilteredTests[Res, F[_]](tests: Seq[Res => F[TestOutcome]])
+      extends TagAnalysisResult[Res, F]
 }
 
-
-abstract class MutableFSuite[F[_]] extends RunnableSuite[F]  {
+abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
 
   type Res
-  def sharedResource : Resource[F, Res]
+  def sharedResource: Resource[F, Res]
 
-  def maxParallelism : Int = 10000
+  def maxParallelism: Int = 10000
 
   protected def registerTest(name: TestName)(f: Res => F[TestOutcome]): Unit =
     synchronized {
@@ -114,17 +119,23 @@ abstract class MutableFSuite[F[_]] extends RunnableSuite[F]  {
       testSeq = testSeq :+ (name -> f)
     }
 
-  def pureTest(name: TestName)(run : => Expectations) :  Unit = registerTest(name)(_ => Test(name.name, effectCompat.effect.delay(run)))
-  def loggedTest(name: TestName)(run: Log[F] => F[Expectations]) : Unit = registerTest(name)(_ => Test[F](name.name, log => run(log)))
-  def test(name: TestName) : PartiallyAppliedTest = new PartiallyAppliedTest(name)
+  def pureTest(name: TestName)(run: => Expectations): Unit =
+    registerTest(name)(_ => Test(name.name, effectCompat.effect.delay(run)))
+  def loggedTest(name: TestName)(run: Log[F] => F[Expectations]): Unit =
+    registerTest(name)(_ => Test[F](name.name, log => run(log)))
+  def test(name: TestName): PartiallyAppliedTest =
+    new PartiallyAppliedTest(name)
 
-  class PartiallyAppliedTest(name : TestName) {
-    def apply(run: => F[Expectations]) : Unit = registerTest(name)(_ => Test(name.name, run))
-    def apply(run : Res => F[Expectations]) : Unit = registerTest(name)(res => Test(name.name, run(res)))
-    def apply(run : (Res, Log[F]) => F[Expectations]) : Unit = registerTest(name)(res => Test[F](name.name, log => run(res, log)))
+  class PartiallyAppliedTest(name: TestName) {
+    def apply(run: => F[Expectations]): Unit =
+      registerTest(name)(_ => Test(name.name, run))
+    def apply(run: Res => F[Expectations]): Unit =
+      registerTest(name)(res => Test(name.name, run(res)))
+    def apply(run: (Res, Log[F]) => F[Expectations]): Unit =
+      registerTest(name)(res => Test[F](name.name, log => run(res, log)))
 
     // this alias helps using pattern matching on `Res`
-    def usingRes(run : Res => F[Expectations]) : Unit = apply(run)
+    def usingRes(run: Res => F[Expectations]): Unit = apply(run)
   }
 
   override def spec(args: List[String]): Stream[F, TestOutcome] =
@@ -165,31 +176,33 @@ trait FunSuiteAux {
   def test(name: TestName)(run: => Expectations): Unit
 }
 
-abstract class FunSuiteF[F[_]] extends RunnableSuite[F] with FunSuiteAux { self =>
+abstract class FunSuiteF[F[_]] extends RunnableSuite[F] with FunSuiteAux {
+  self =>
   override def test(name: TestName)(run: => Expectations): Unit = synchronized {
-    if(isInitialized) throw initError
-    testSeq = testSeq :+ (name -> ((_: Unit) => Test.pure(name.name)(() => run)))
+    if (isInitialized) throw initError
+    testSeq =
+      testSeq :+ (name -> ((_: Unit) => Test.pure(name.name)(() => run)))
   }
 
-  override def name : String = self.getClass.getName.replace("$", "")
+  override def name: String = self.getClass.getName.replace("$", "")
 
-  private def pureSpec(args: List[String]): fs2.Stream[fs2.Pure, TestOutcome] = synchronized {
-    if(!isInitialized) isInitialized = true
-    analyze[Unit, cats.Id](testSeq, args) match {
-      case TagAnalysisResult.Outcomes(outcomes) => fs2.Stream.emits(outcomes)
-      case TagAnalysisResult.FilteredTests(filteredTests) =>
-        fs2.Stream.emits(filteredTests.map(execute => execute(())))
+  private def pureSpec(args: List[String]): fs2.Stream[fs2.Pure, TestOutcome] =
+    synchronized {
+      if (!isInitialized) isInitialized = true
+      analyze[Unit, cats.Id](testSeq, args) match {
+        case TagAnalysisResult.Outcomes(outcomes) => fs2.Stream.emits(outcomes)
+        case TagAnalysisResult.FilteredTests(filteredTests) =>
+          fs2.Stream.emits(filteredTests.map(execute => execute(())))
+      }
     }
-  }
 
   override def spec(args: List[String]) = pureSpec(args).covary[F]
 
   override def runUnsafe(args: List[String])(report: TestOutcome => Unit) =
     pureSpec(args).compile.toVector.foreach(report)
 
-
   private[this] var testSeq = Seq.empty[(TestName, Unit => TestOutcome)]
-  def plan: List[TestName] = testSeq.map(_._1).toList
+  def plan: List[TestName]  = testSeq.map(_._1).toList
 
   private[this] var isInitialized = false
 }
