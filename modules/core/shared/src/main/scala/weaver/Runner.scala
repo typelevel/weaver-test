@@ -60,12 +60,13 @@ class Runner[F[_]: Async](
       printLine(event.formatted(mode))
     def handle(specEvent: SpecEvent): F[Outcome] = {
       val (successes, failures, outcome) =
-        // format: off
-        specEvent.events.foldMap[(List[TestOutcome],List[TestOutcome],Outcome)] {
-          case ev if ev.status.isFailed => (List.empty, List(ev), Outcome.fromEvent(ev))
+        specEvent.events.foldMap[(List[TestOutcome],
+                                  List[TestOutcome],
+                                  Outcome)] {
+          case ev if ev.status.isFailed =>
+            (List.empty, List(ev), Outcome.fromEvent(ev))
           case ev => (List(ev), List.empty, Outcome.fromEvent(ev))
         }
-        // format: on
 
       for {
         _ <- printLine(cyan(specEvent.name))
