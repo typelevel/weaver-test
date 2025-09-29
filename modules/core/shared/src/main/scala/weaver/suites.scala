@@ -161,7 +161,7 @@ abstract class SharedResourceSuite[F[_]] extends RunnableSuite[F]
 
   protected def registerTest(name: TestName)(f: Res => F[TestOutcome]): Unit =
     synchronized {
-      if (isInitialized) throw initError()
+      if (isInitialized) throw initError
       testSeq = testSeq :+ (name -> f)
     }
 
@@ -193,16 +193,10 @@ abstract class SharedResourceSuite[F[_]] extends RunnableSuite[F]
     WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
 
   private[this] var isInitialized = false
-
-  private[this] def initError() =
-    new AssertionError(
-      "Cannot define new tests after TestSuite was initialized"
-    )
-
 }
 abstract class MutableFSuite[F[_]] extends SharedResourceSuite[F] {
   def pureTest(name: TestName)(run: => Expectations): Unit =
-    registerTest(name)(_ => Test(name.name, effectCompat.effect.delay(run)))
+    registerTest(name)(_ => Test(name.name, effect.delay(run)))
   def loggedTest(name: TestName)(run: Log[F] => F[Expectations]): Unit =
     registerTest(name)(_ => Test[F](name.name, log => run(log)))
   def test(name: TestName): PartiallyAppliedTest =
