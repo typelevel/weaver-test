@@ -53,7 +53,7 @@ object EffectSuite {
 abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
   implicit protected def effectCompat: UnsafeRun[EffectType]
   private[weaver] def getEffectCompat: UnsafeRun[EffectType] = effectCompat
-  def plan: List[TestName]
+  private[weaver] def plan: WeaverRunnerPlan
   private[weaver] def runUnsafe(
       report: TestOutcome => Unit): Unit =
     effectCompat.unsafeRunSync(run(List.empty)(outcome =>
@@ -132,6 +132,18 @@ private[weaver] object TagAnalysisResult {
       extends TagAnalysisResult[A]
 }
 
+private[weaver] case class WeaverRunnerPlan(
+    ignoredTests: List[String],
+    filteredTests: List[String])
+private[weaver] object WeaverRunnerPlan {
+  def apply(result: TagAnalysisResult[_]): WeaverRunnerPlan = result match {
+    case TagAnalysisResult.Outcomes(ignored, outcomes) =>
+      WeaverRunnerPlan(ignored.toList, outcomes.map(_.name).toList)
+    case TagAnalysisResult.FilteredTests(ignored, tests) =>
+      WeaverRunnerPlan(ignored.toList, tests.map(_._1).toList)
+  }
+}
+
 abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
 
   type Res
@@ -188,7 +200,8 @@ abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
 
   private[this] var testSeq: Seq[(TestName, Res => F[TestOutcome])] = Seq.empty
 
-  def plan: List[TestName] = testSeq.map(_._1).toList
+  private[weaver] def plan: WeaverRunnerPlan =
+    WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
 
   private[this] var isInitialized = false
 
@@ -232,7 +245,9 @@ abstract class FunSuiteF[F[_]] extends RunnableSuite[F] with FunSuiteAux {
     pureSpec(List.empty).compile.toVector.foreach(report)
 
   private[this] var testSeq = Seq.empty[(TestName, Unit => TestOutcome)]
-  def plan: List[TestName]  = testSeq.map(_._1).toList
+
+  private[weaver] def plan: WeaverRunnerPlan =
+    WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
 
   private[this] var isInitialized = false
 }
