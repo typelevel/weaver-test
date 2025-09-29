@@ -159,13 +159,14 @@ abstract class SharedResourceSuite[F[_]] extends RunnableSuite[F]
 
   def maxParallelism: Int = 10000
 
-  protected def registerTest(name: TestName)(f: Res => F[TestOutcome]): Unit =
+  protected final def registerTest(name: TestName)(
+      f: Res => F[TestOutcome]): Unit =
     synchronized {
       if (isInitialized) throw initError
       testSeq = testSeq :+ (name -> f)
     }
 
-  override def spec(args: List[String]): Stream[F, TestOutcome] =
+  override final def spec(args: List[String]): Stream[F, TestOutcome] =
     synchronized {
       if (!isInitialized) isInitialized = true
       val parallelism = math.max(1, maxParallelism)
@@ -189,7 +190,7 @@ abstract class SharedResourceSuite[F[_]] extends RunnableSuite[F]
 
   private[this] var testSeq: Seq[(TestName, Res => F[TestOutcome])] = Seq.empty
 
-  private[weaver] def plan: WeaverRunnerPlan =
+  private[weaver] final def plan: WeaverRunnerPlan =
     WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
 
   private[this] var isInitialized = false
