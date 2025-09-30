@@ -144,39 +144,29 @@ private[weaver] object WeaverRunnerPlan {
   }
 }
 
-abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
+trait SharedResourceSuiteAux extends EffectSuiteAux {
+  type Res
+
+  protected def registerTest(name: TestName)(
+      f: Res => EffectType[TestOutcome]): Unit
+}
+
+abstract class SharedResourceSuite[F[_]] extends RunnableSuite[F]
+    with SharedResourceSuiteAux {
 
   type Res
   def sharedResource: Resource[F, Res]
 
   def maxParallelism: Int = 10000
 
-  protected def registerTest(name: TestName)(f: Res => F[TestOutcome]): Unit =
+  protected final def registerTest(name: TestName)(
+      f: Res => F[TestOutcome]): Unit =
     synchronized {
-      if (isInitialized) throw initError()
+      if (isInitialized) throw initError
       testSeq = testSeq :+ (name -> f)
     }
 
-  def pureTest(name: TestName)(run: => Expectations): Unit =
-    registerTest(name)(_ => Test(name.name, effectCompat.effect.delay(run)))
-  def loggedTest(name: TestName)(run: Log[F] => F[Expectations]): Unit =
-    registerTest(name)(_ => Test[F](name.name, log => run(log)))
-  def test(name: TestName): PartiallyAppliedTest =
-    new PartiallyAppliedTest(name)
-
-  class PartiallyAppliedTest(name: TestName) {
-    def apply(run: => F[Expectations]): Unit =
-      registerTest(name)(_ => Test(name.name, run))
-    def apply(run: Res => F[Expectations]): Unit =
-      registerTest(name)(res => Test(name.name, run(res)))
-    def apply(run: (Res, Log[F]) => F[Expectations]): Unit =
-      registerTest(name)(res => Test[F](name.name, log => run(res, log)))
-
-    // this alias helps using pattern matching on `Res`
-    def usingRes(run: Res => F[Expectations]): Unit = apply(run)
-  }
-
-  override def spec(args: List[String]): Stream[F, TestOutcome] =
+  override final def spec(args: List[String]): Stream[F, TestOutcome] =
     synchronized {
       if (!isInitialized) isInitialized = true
       val parallelism = math.max(1, maxParallelism)
@@ -200,56 +190,40 @@ abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
 
   private[this] var testSeq: Seq[(TestName, Res => F[TestOutcome])] = Seq.empty
 
-  private[weaver] def plan: WeaverRunnerPlan =
+  private[weaver] final def plan: WeaverRunnerPlan =
     WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
 
   private[this] var isInitialized = false
-
-  private[this] def initError() =
-    new AssertionError(
-      "Cannot define new tests after TestSuite was initialized"
-    )
-
 }
+abstract class MutableFSuite[F[_]] extends SharedResourceSuite[F] {
+  def pureTest(name: TestName)(run: => Expectations): Unit =
+    registerTest(name)(_ => Test(name.name, effect.delay(run)))
+  def loggedTest(name: TestName)(run: Log[F] => F[Expectations]): Unit =
+    registerTest(name)(_ => Test[F](name.name, log => run(log)))
+  def test(name: TestName): PartiallyAppliedTest =
+    new PartiallyAppliedTest(name)
 
-trait FunSuiteAux {
-  def test(name: TestName)(run: => Expectations): Unit
-}
+  class PartiallyAppliedTest(name: TestName) {
+    def apply(run: => F[Expectations]): Unit =
+      registerTest(name)(_ => Test(name.name, run))
+    def apply(run: Res => F[Expectations]): Unit =
+      registerTest(name)(res => Test(name.name, run(res)))
+    def apply(run: (Res, Log[F]) => F[Expectations]): Unit =
+      registerTest(name)(res => Test[F](name.name, log => run(res, log)))
 
-abstract class FunSuiteF[F[_]] extends RunnableSuite[F] with FunSuiteAux {
-  self =>
-  override def test(name: TestName)(run: => Expectations): Unit = synchronized {
-    if (isInitialized) throw initError
-    testSeq =
-      testSeq :+ (name -> ((_: Unit) => Test.pure(name.name)(() => run)))
+    // this alias helps using pattern matching on `Res`
+    def usingRes(run: Res => F[Expectations]): Unit = apply(run)
   }
+}
 
-  override def name: String = self.getClass.getName.replace("$", "")
+abstract class FunSuiteF[F[_]] extends SharedResourceSuite[F] {
+  type Res = Unit
+  final def sharedResource: Resource[F, Unit] = Resource.pure(())
+  override final def maxParallelism: Int      = 1
 
-  private def pureSpec(args: List[String]): fs2.Stream[fs2.Pure, TestOutcome] =
-    synchronized {
-      if (!isInitialized) isInitialized = true
-      analyze[Unit => TestOutcome](testSeq, args) match {
-        case TagAnalysisResult.Outcomes(_, outcomes) =>
-          fs2.Stream.emits(outcomes)
-        case TagAnalysisResult.FilteredTests(_, filteredTests) =>
-          fs2.Stream.emits(filteredTests.map { case (_, execute) =>
-            execute(())
-          })
-      }
-    }
+  def test(name: TestName)(run: => Expectations): Unit =
+    registerTest(name)(_ => effect.pure(Test.pure(name.name)(() => run)))
 
-  override def spec(args: List[String]) = pureSpec(args).covary[F]
-
-  override def runUnsafe(report: TestOutcome => Unit) =
-    pureSpec(List.empty).compile.toVector.foreach(report)
-
-  private[this] var testSeq = Seq.empty[(TestName, Unit => TestOutcome)]
-
-  private[weaver] def plan: WeaverRunnerPlan =
-    WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
-
-  private[this] var isInitialized = false
 }
 
 private[weaver] object initError extends AssertionError(

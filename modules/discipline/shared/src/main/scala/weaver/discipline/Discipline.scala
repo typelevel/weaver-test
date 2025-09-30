@@ -17,7 +17,7 @@ import org.typelevel.discipline.Laws
 
 import Discipline._
 
-trait Discipline { self: FunSuiteAux =>
+trait Discipline { self: SharedResourceSuiteAux =>
 
   def checkAll(
       name: TestName,
@@ -25,8 +25,10 @@ trait Discipline { self: FunSuiteAux =>
       parameters: Parameters => Parameters = identity): Unit =
     ruleSet.all.properties.toList.foreach {
       case (id, prop) =>
-        test(name.copy(s"${name.name}: $id")) {
-          executeProp(prop, name.location, parameters)
+        val testName = name.copy(s"${name.name}: $id")
+        registerTest(testName) { _ =>
+          effect.pure(Test.pure(testName.name)(() =>
+            executeProp(prop, name.location, parameters)))
         }
     }
 

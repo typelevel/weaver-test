@@ -28,4 +28,5 @@ abstract class SimpleMutableIOSuite extends MutableIOSuite {
   def sharedResource: Resource[IO, Unit] = Resource.pure[IO, Unit](())
 }
 
-trait FunSuiteIO extends BaseFunIOSuite with Expectations.Helpers
+trait FunSuiteIO extends FunSuiteF[IO] with BaseIOSuite
+    with Expectations.Helpers
