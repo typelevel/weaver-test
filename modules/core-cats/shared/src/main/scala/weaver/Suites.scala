@@ -4,20 +4,6 @@ import cats.effect.{ IO, Resource }
 
 trait BaseCatsSuite extends EffectSuite.Provider[IO]
 
-abstract class PureIOSuite
-    extends RunnableSuite[IO]
-    with BaseIOSuite
-    with Expectations.Helpers {
-
-  def pureTest(name: String)(run: => Expectations): IO[TestOutcome] =
-    Test[IO](name, IO(run))
-  def simpleTest(name: String)(run: IO[Expectations]): IO[TestOutcome] =
-    Test[IO](name, run)
-  def loggedTest(name: String)(
-      run: Log[IO] => IO[Expectations]): IO[TestOutcome] = Test[IO](name, run)
-
-}
-
 abstract class MutableIOSuite
     extends MutableFSuite[IO]
     with BaseIOSuite
