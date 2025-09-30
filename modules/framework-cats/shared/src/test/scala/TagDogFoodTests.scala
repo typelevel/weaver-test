@@ -53,9 +53,21 @@ object TagDogFoodTests extends IOSuite {
     }
   }
 
-  test("test runner arguments should be respected if no tests are tagged with 'only'") {
+  test("test runner -o argument should be respected if no tests are tagged with 'only'") {
     _.runSuite(Meta.TestRunnerArgs,
                Array("-o", "*matches-args*")).flatMap {
+      case (logs, _) =>
+        assertInlineSnapshot(
+          infoMessages(logs),
+          List("weaver.framework.test.TagDogFoodTests$Meta$TestRunnerArgs",
+               "+ (matches-args) 0ms")
+        )
+    }
+  }
+
+  test("test runner --only argument should be respected if no tests are tagged with 'only'") {
+    _.runSuite(Meta.TestRunnerArgs,
+               Array("--only", "*matches-args*")).flatMap {
       case (logs, _) =>
         assertInlineSnapshot(
           infoMessages(logs),
