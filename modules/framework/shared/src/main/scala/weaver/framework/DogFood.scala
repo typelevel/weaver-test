@@ -37,11 +37,12 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
 
   def runSuites(
       suites: Seq[Fingerprinted],
-      maxParallelism: Int = 512): F[State] =
+      maxParallelism: Int = 512,
+      args: Array[String] = Array.empty): F[State] =
     for {
       eventHandler <- effect.delay(new MemoryEventHandler())
       logger       <- effect.delay(new MemoryLogger())
-      _ <- getTasks(suites).use { case (runner, tasks) =>
+      _ <- getTasks(suites, args).use { case (runner, tasks) =>
         runTasks(runner, eventHandler, logger, maxParallelism)(tasks.toList)
       }
       _      <- patience.fold(effect.unit)(framework.unsafeRun.sleep)
@@ -60,8 +61,12 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
     runSuites(Fingerprinted.ModuleSuite(suiteName))
 
   // Method used to run a test-suite
-  def runSuite(suite: EffectSuite[F]): F[State] =
-    runSuite(suite.getClass.getName.dropRight(1))
+  def runSuite(
+      suite: EffectSuite[F],
+      args: Array[String] = Array.empty): F[State] =
+    runSuites(
+      Seq(Fingerprinted.ModuleSuite(suite.getClass.getName.dropRight(1))),
+      args = args)
 
   def isSuccess(event: sbt.testing.Event)(
       implicit loc: SourceLocation): Expectations = {
@@ -74,11 +79,12 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
   }
 
   private def getTasks(
-      suites: Seq[Fingerprinted]
+      suites: Seq[Fingerprinted],
+      args: Array[String]
   ): Resource[F, (WeaverRunner[F], Array[sbt.testing.Task])] = {
     val acquire = Sync[F].delay {
       val cl = PlatformCompat.getClassLoader(this.getClass())
-      framework.weaverRunner(Array(), Array(), cl, None)
+      framework.weaverRunner(args, Array(), cl, None)
     }
     val runner = Resource.make(acquire) { runner =>
       done(runner).void

@@ -103,8 +103,10 @@ trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
       }
     }
 
-  override def plan: List[TestName] =
-    foundProps.synchronized { foundProps.toList }
+  private[weaver] override def plan: WeaverRunnerPlan =
+    foundProps.synchronized {
+      WeaverRunnerPlan(Nil, foundProps.toList.map(_.name))
+    }
 
   private[this] val foundProps = mutable.Buffer.empty[TestName]
 

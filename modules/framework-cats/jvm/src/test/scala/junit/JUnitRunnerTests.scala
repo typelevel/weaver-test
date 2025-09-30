@@ -107,14 +107,14 @@ object JUnitRunnerTests extends SimpleIOSuite {
     run(Meta.IgnoreAndOnly).map { notifications =>
       val expected = List(
         TestSuiteStarted("weaver.junit.Meta$IgnoreAndOnly$"),
-        TestIgnored("only and ignored(weaver.junit.Meta$IgnoreAndOnly$)"),
-        TestIgnored("is ignored(weaver.junit.Meta$IgnoreAndOnly$)"),
         TestIgnored("not tagged(weaver.junit.Meta$IgnoreAndOnly$)"),
+        TestIgnored("is ignored(weaver.junit.Meta$IgnoreAndOnly$)"),
+        TestIgnored("only and ignored(weaver.junit.Meta$IgnoreAndOnly$)"),
         TestStarted("only(weaver.junit.Meta$IgnoreAndOnly$)"),
         TestFinished("only(weaver.junit.Meta$IgnoreAndOnly$)"),
         TestSuiteFinished("weaver.junit.Meta$IgnoreAndOnly$")
       )
-      expect.same(notifications, expected)
+      expect.same(expected, notifications)
     }
   }
 
@@ -181,8 +181,6 @@ object JUnitRunnerTests extends SimpleIOSuite {
 
       val expected = List(
         TestSuiteStarted("weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$"),
-        TestIgnored(
-          "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
         TestStarted(
           "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
         testFailure,
@@ -190,7 +188,7 @@ object JUnitRunnerTests extends SimpleIOSuite {
           "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
         TestSuiteFinished("weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$")
       )
-      expect.eql(expected, notifications)
+      expect.eql(notifications, expected)
     }
   }
 

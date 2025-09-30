@@ -53,37 +53,61 @@ object EffectSuite {
 abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
   implicit protected def effectCompat: UnsafeRun[EffectType]
   private[weaver] def getEffectCompat: UnsafeRun[EffectType] = effectCompat
-  def plan: List[TestName]
-  private[weaver] def runUnsafe(args: List[String])(
+  private[weaver] def plan: WeaverRunnerPlan
+  private[weaver] def runUnsafe(
       report: TestOutcome => Unit): Unit =
-    effectCompat.unsafeRunSync(run(args)(outcome =>
+    effectCompat.unsafeRunSync(run(List.empty)(outcome =>
       effectCompat.effect.delay(report(outcome))))
 
   def isCI: Boolean = System.getenv("CI") == "true"
 
-  private[weaver] def analyze[Res, F1[_]](
-      testSeq: Seq[(TestName, Res => F1[TestOutcome])],
-      args: List[String]): TagAnalysisResult[Res, F1] = {
-    val testsNotIgnored: Seq[(TestName, Res => F1[TestOutcome])] =
-      testSeq.filterNot(_._1.tags(TestName.Tags.ignore))
+  private[weaver] def analyze[A](
+      testSeq: Seq[(TestName, A)],
+      args: List[String]): TagAnalysisResult[A] = {
 
-    val testsTaggedOnly: Seq[(TestName, Res => F1[TestOutcome])] =
-      testSeq.filter(_._1.tags(TestName.Tags.only))
+    val (testsTaggedOnly,   // "foo".only and "foo".only.ignore
+         testsNotTaggedOnly // "foo" and "foo".ignore
+    ) = testSeq.partition(_._1.tags(TestName.Tags.only))
+    val (testsTaggedOnlyAndIgnored, // "foo".only.ignore
+         onlyTestsNotIgnored        // "foo".only
+    ) = testsTaggedOnly.partition(_._1.tags(TestName.Tags.ignore))
 
-    val onlyTestsNotIgnored =
-      testsTaggedOnly.filter(taggedOnly => testsNotIgnored.contains(taggedOnly))
-
-    val filteredTests = if (onlyTestsNotIgnored.isEmpty) {
-      val argsFilter = Filters.filterTests(this.name)(args)
-      testsNotIgnored.collect {
-        case (name, test) if argsFilter(name) => test
-      }
-    } else onlyTestsNotIgnored.map(_._2)
+    val (testsNotTaggedOnlyAndIgnored,   // "foo".ignore
+         testsNotTaggedOnlyAndNotIgnored // "foo"
+    ) = testsNotTaggedOnly.partition(_._1.tags(TestName.Tags.ignore))
 
     if (testsTaggedOnly.nonEmpty && isCI) {
+      // We're running in a CI environment and some tests are tagged
+      // "foo".only. These tests should fail, and the rest should not
+      // be run.
       val failureOutcomes = testsTaggedOnly.map(_._1).map(onlyNotOnCiFailure)
-      TagAnalysisResult.Outcomes(failureOutcomes)
-    } else TagAnalysisResult.FilteredTests(filteredTests)
+      TagAnalysisResult.Outcomes(
+        testsNotTaggedOnly.map(_._1.name),
+        failureOutcomes)
+    } else if (onlyTestsNotIgnored.isEmpty) {
+      // No tests are tagged "foo".only, but tests may be tagged
+      // "foo".only.ignore. Use the argument filters to determine the
+      // tests to be run.
+
+      val argsFilter = Filters.filterTests(this.name)(args)
+
+      val testsIgnored =
+        testsTaggedOnlyAndIgnored ++ testsNotTaggedOnlyAndIgnored // "foo".only.ignore and "foo".ignore
+
+      val (filteredTests, filteredOutTests) =
+        testsNotTaggedOnlyAndNotIgnored.partition {
+          case (name, _) => argsFilter(name)
+        }
+      TagAnalysisResult.FilteredTests(
+        (testsIgnored ++ filteredOutTests).map(_._1.name),
+        filteredTests.map { case (name, test) => (name.name, test) })
+    } else {
+      // Some tests are tagged "foo".only. Run these tests.
+      TagAnalysisResult.FilteredTests(
+        (testsNotTaggedOnly ++ testsTaggedOnlyAndIgnored).map(_._1.name),
+        onlyTestsNotIgnored.map { case (name, test) => (name.name, test) }
+      )
+    }
   }
 
   private[this] def onlyNotOnCiFailure(test: TestName): TestOutcome = {
@@ -98,12 +122,26 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
 
 }
 
-private[weaver] sealed trait TagAnalysisResult[Res, F[_]]
-object TagAnalysisResult {
-  case class Outcomes[Res, F[_]](outcomes: Seq[TestOutcome])
-      extends TagAnalysisResult[Res, F]
-  case class FilteredTests[Res, F[_]](tests: Seq[Res => F[TestOutcome]])
-      extends TagAnalysisResult[Res, F]
+private[weaver] sealed trait TagAnalysisResult[A]
+private[weaver] object TagAnalysisResult {
+  case class Outcomes[A](ignoredTests: Seq[String], outcomes: Seq[TestOutcome])
+      extends TagAnalysisResult[A]
+  case class FilteredTests[A](
+      ignoredTests: Seq[String],
+      tests: Seq[(String, A)])
+      extends TagAnalysisResult[A]
+}
+
+private[weaver] case class WeaverRunnerPlan(
+    ignoredTests: List[String],
+    filteredTests: List[String])
+private[weaver] object WeaverRunnerPlan {
+  def apply(result: TagAnalysisResult[_]): WeaverRunnerPlan = result match {
+    case TagAnalysisResult.Outcomes(ignored, outcomes) =>
+      WeaverRunnerPlan(ignored.toList, outcomes.map(_.name).toList)
+    case TagAnalysisResult.FilteredTests(ignored, tests) =>
+      WeaverRunnerPlan(ignored.toList, tests.map(_._1).toList)
+  }
 }
 
 abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
@@ -144,13 +182,14 @@ abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
       val parallelism = math.max(1, maxParallelism)
 
       analyze(testSeq, args) match {
-        case TagAnalysisResult.Outcomes(outcomes) => fs2.Stream.emits(outcomes)
-        case TagAnalysisResult.FilteredTests(filteredTests)
+        case TagAnalysisResult.Outcomes(_, outcomes) =>
+          fs2.Stream.emits(outcomes)
+        case TagAnalysisResult.FilteredTests(_, filteredTests)
             if filteredTests.isEmpty =>
           Stream.empty // no need to allocate resources
-        case TagAnalysisResult.FilteredTests(filteredTests) => for {
+        case TagAnalysisResult.FilteredTests(_, filteredTests) => for {
             resource <- Stream.resource(sharedResource)
-            tests      = filteredTests.map(_.apply(resource))
+            tests      = filteredTests.map(_._2.apply(resource))
             testStream = Stream.emits(tests).covary[F]
             result <- if (parallelism > 1)
               testStream.parEvalMap(parallelism)(identity)(effectCompat.effect)
@@ -161,7 +200,8 @@ abstract class MutableFSuite[F[_]] extends RunnableSuite[F] {
 
   private[this] var testSeq: Seq[(TestName, Res => F[TestOutcome])] = Seq.empty
 
-  def plan: List[TestName] = testSeq.map(_._1).toList
+  private[weaver] def plan: WeaverRunnerPlan =
+    WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
 
   private[this] var isInitialized = false
 
@@ -189,20 +229,25 @@ abstract class FunSuiteF[F[_]] extends RunnableSuite[F] with FunSuiteAux {
   private def pureSpec(args: List[String]): fs2.Stream[fs2.Pure, TestOutcome] =
     synchronized {
       if (!isInitialized) isInitialized = true
-      analyze[Unit, cats.Id](testSeq, args) match {
-        case TagAnalysisResult.Outcomes(outcomes) => fs2.Stream.emits(outcomes)
-        case TagAnalysisResult.FilteredTests(filteredTests) =>
-          fs2.Stream.emits(filteredTests.map(execute => execute(())))
+      analyze[Unit => TestOutcome](testSeq, args) match {
+        case TagAnalysisResult.Outcomes(_, outcomes) =>
+          fs2.Stream.emits(outcomes)
+        case TagAnalysisResult.FilteredTests(_, filteredTests) =>
+          fs2.Stream.emits(filteredTests.map { case (_, execute) =>
+            execute(())
+          })
       }
     }
 
   override def spec(args: List[String]) = pureSpec(args).covary[F]
 
-  override def runUnsafe(args: List[String])(report: TestOutcome => Unit) =
-    pureSpec(args).compile.toVector.foreach(report)
+  override def runUnsafe(report: TestOutcome => Unit) =
+    pureSpec(List.empty).compile.toVector.foreach(report)
 
   private[this] var testSeq = Seq.empty[(TestName, Unit => TestOutcome)]
-  def plan: List[TestName]  = testSeq.map(_._1).toList
+
+  private[weaver] def plan: WeaverRunnerPlan =
+    WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
 
   private[this] var isInitialized = false
 }
