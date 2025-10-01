@@ -47,10 +47,10 @@ private[weaver] object Filters {
     }
 
     import scala.util.Try
+    def indexOfOption(opt: String): Option[Int] =
+      Option(args.indexOf(opt)).filter(_ >= 0)
     val maybePattern = for {
-      index <- Option(args.indexOf("-o"))
-        .orElse(Option(args.indexOf("--only")))
-        .filter(_ >= 0)
+      index  <- indexOfOption("-o").orElse(indexOfOption("--only"))
       filter <- Try(args(index + 1)).toOption
     } yield toPredicate(filter)
     testId => maybePattern.forall(_.apply(testId))
