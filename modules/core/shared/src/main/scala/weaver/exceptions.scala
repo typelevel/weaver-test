@@ -2,11 +2,11 @@ package weaver
 
 import cats.data.NonEmptyList
 
-private[weaver] sealed abstract class WeaverTestException(
+sealed abstract class WeaverTestException private[weaver] (
     message: String
 ) extends RuntimeException(message)
 
-final class ExpectationFailed private[weaver] (
+final class ExpectationFailed(
     private[weaver] val message: String,
     private[weaver] val locations: NonEmptyList[SourceLocation])
     extends WeaverTestException(message) {
@@ -15,7 +15,7 @@ final class ExpectationFailed private[weaver] (
     new ExpectationFailed(message, locations.append(location))
 }
 
-private[weaver] final class IgnoredException(
+final class IgnoredException private[weaver] (
     private[weaver] val reason: String,
     private[weaver] val location: SourceLocation)
     extends WeaverTestException(reason)
