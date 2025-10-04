@@ -112,6 +112,18 @@ val list = List(1)
   } yield expect(y.contains(x))
   ```
 
+- Similarly `matchOrFailFast` can be used assert an expression matches a given pattern, and return it if so
+
+  ```scala mdoc:compile-only
+  for {
+    b <- IO(Some(4))
+    s <- matchOrFailFast[IO](b) {
+      case Some(v) => v.toString    
+    }
+    c <- IO("4")
+  } yield expect.eql(s, c)
+  ```
+
 ## Example suite 
 
 ```scala mdoc
@@ -220,6 +232,19 @@ object ExpectationsSuite extends SimpleIOSuite {
       h <- IO.pure("hello")
       _ <- expect(clue(h).isEmpty).failFast
     } yield success
+  }
+
+  test("Failing fast match") {
+    for {
+      h <- IO.pure(Some(4))
+      x <- matchOrFailFast[IO](h) {
+        case Some(v) => v
+      }
+      g <- IO.pure(Option.empty[Int])
+      y <- matchOrFailFast[IO](g) {
+        case Some(v) => v
+      }
+    } yield expect.eql(x, y)
   }
 }
 ```
