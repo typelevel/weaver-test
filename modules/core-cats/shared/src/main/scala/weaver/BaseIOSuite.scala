@@ -4,5 +4,4 @@ import cats.effect.IO
 
 trait BaseIOSuite extends RunnableSuite[IO] with BaseCatsSuite {
   implicit protected def effectCompat: UnsafeRun[IO] = CatsUnsafeRun
-  def getSuite: EffectSuite[IO]                      = this
 }

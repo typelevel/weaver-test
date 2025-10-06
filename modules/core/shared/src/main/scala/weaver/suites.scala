@@ -41,14 +41,6 @@ trait EffectSuite[F[_]] extends Suite[F] with EffectSuiteAux
     spec(args).evalMap(report).compile.drain.adaptErr(adaptRunError)
 }
 
-object EffectSuite {
-
-  trait Provider[F[_]] {
-    def getSuite: EffectSuite[F]
-  }
-
-}
-
 @RunWith(classOf[weaver.junit.WeaverRunner])
 abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
   implicit protected def effectCompat: UnsafeRun[EffectType]
