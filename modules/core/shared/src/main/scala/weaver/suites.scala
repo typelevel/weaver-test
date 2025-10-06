@@ -14,31 +14,28 @@ import org.junit.runner.RunWith
 @EnableReflectiveInstantiation
 trait BaseSuiteClass {}
 
-trait Suite[F[_]] extends BaseSuiteClass {
-  def name: String
-  def spec(args: List[String]): Stream[F, TestOutcome]
-}
-
 // A version of EffectSuite that has a type member instead of a type parameter.
 protected[weaver] trait EffectSuiteAux {
   type EffectType[A]
   implicit protected def effect: Async[EffectType]
 }
 
-trait EffectSuite[F[_]] extends Suite[F] with EffectSuiteAux
+trait EffectSuite[F[_]] extends BaseSuiteClass with EffectSuiteAux
     with SourceLocation.Here { self =>
 
   final type EffectType[A] = F[A]
   implicit protected def effectCompat: EffectCompat[F]
   implicit final protected def effect: Async[F] = effectCompat.effect
 
-  override def name: String = self.getClass.getName.replace("$", "")
+  def name: String = self.getClass.getName.replace("$", "")
 
   protected def adaptRunError: PartialFunction[Throwable, Throwable] =
     PartialFunction.empty
 
   final def run(args: List[String])(report: TestOutcome => F[Unit]): F[Unit] =
     spec(args).evalMap(report).compile.drain.adaptErr(adaptRunError)
+
+  def spec(args: List[String]): Stream[F, TestOutcome]
 }
 
 @RunWith(classOf[weaver.junit.WeaverRunner])
