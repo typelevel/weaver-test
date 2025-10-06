@@ -169,7 +169,8 @@ trait Checkers {
       if (failure.isEmpty) copy(succeeded = succeeded + 1) else this
     def addDiscard: Status[T] =
       if (failure.isEmpty) copy(discarded = discarded + 1) else this
-    def addFailure(input: String, seed: Seed, exp: Expectations): Status[T] =
+    def addFailure(input: String, seed: Seed, exp: Expectations)(implicit
+        loc: SourceLocation): Status[T] =
       if (failure.isEmpty) {
         val ith     = succeeded + discarded + 1
         val failure = Expectations.Helpers.failure(failureMessage(
