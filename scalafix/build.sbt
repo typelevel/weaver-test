@@ -13,7 +13,8 @@ inThisBuild(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
     semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision
+    semanticdbVersion := scalafixSemanticdb.revision,
+    resolvers += "Sonatype central snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
   )
 )
 
@@ -54,7 +55,7 @@ lazy val v0_9_0_tests = makeTests("v0_9_0", v0_9_0_input, v0_9_0_output)
 lazy val v0_10_1_input =
   makeInput("v0_10_1", "org.typelevel" %% "weaver-cats" % "0.10.1")
 lazy val v0_10_1_output =
-  makeOutput("v0_10_1", "org.typelevel" %% "weaver-cats" % "0.10.1")
+  makeOutput("v0_10_1", "org.typelevel" %% "weaver-cats" % "0.11-799b8e6-SNAPSHOT")
 lazy val v0_10_1_tests = makeTests("v0_10_1", v0_10_1_input, v0_10_1_output)
 
 lazy val testsAggregate = Project("tests", file("target/testsAggregate"))

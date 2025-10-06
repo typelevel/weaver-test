@@ -15,7 +15,7 @@ object RenameAssertionExceptionToExpectationFailed extends SimpleIOSuite {
   test("match") {
     val program: IO[Unit] = IO.unit
     program.attemptTap {
-      case Left(ex: AssertionException) => IO.println(ex.message)
+      case Left(ex: AssertionException) => IO.println(ex)
       case _ => IO.unit
     }.as(success)
   }
