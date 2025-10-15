@@ -18,7 +18,6 @@ object TagExprParser {
     tagChar.rep.string
   }
 
-  // Keywords
   private val andKeyword: P[Unit] =
     P.string("and").surroundedBy(whitespaces0)
 
@@ -28,7 +27,6 @@ object TagExprParser {
   private val notKeyword: P[Unit] =
     P.string("not") <* whitespaces1
 
-  // Parentheses
   private val leftParen: P[Unit] =
     P.char('(').surroundedBy(whitespaces0)
 
@@ -70,7 +68,6 @@ object TagExprParser {
     orExpr.surroundedBy(whitespaces0)
   }
 
-  // Main parse function
   def parse(input: String): Either[String, TagExpr] = {
 
     expression.parseAll(input) match {

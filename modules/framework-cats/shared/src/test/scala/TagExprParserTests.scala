@@ -40,39 +40,4 @@ object TagExprParserTests extends SimpleIOSuite {
       expect.same(expected, result)
     }
   }
-
-  // pureTest("'foo' should be parsed to Atom('foo')") {
-  //   val result = TagExprParser.parse("foo")
-  //   expect.same(Right(TagExpr.Atom("foo")), result)
-  // }
-
-  // pureTest("'(foo)' should be parsed to Atom('foo')") {
-  //   val result = TagExprParser.parse("(foo)")
-  //   expect.same(Right(TagExpr.Atom("foo")), result)
-  // }
-
-  // pureTest("'not foo' should be parsed to Not(Atom('foo'))") {
-  //   val result = TagExprParser.parse("not foo")
-  //   expect.same(Right(TagExpr.Not(TagExpr.Atom("foo"))), result)
-  // }
-
-  // pureTest("'not (foo)' should be parsed to Not(Atom('foo'))") {
-  //   val result = TagExprParser.parse("not (foo)")
-  //   expect.same(Right(TagExpr.Not(TagExpr.Atom("foo"))), result)
-  // }
-
-  // pureTest("'(not foo)' should be parsed to Not(Atom('foo'))") {
-  //   val result = TagExprParser.parse("not foo")
-  //   expect.same(Right(TagExpr.Not(TagExpr.Atom("foo"))), result)
-  // }
-
-  // pureTest("'(not (foo))' should be parsed to Not(Atom('foo'))") {
-  //   val result = TagExprParser.parse("not foo")
-  //   expect.same(Right(TagExpr.Not(TagExpr.Atom("foo"))), result)
-  // }
-
-  // pureTest("'not not foo' should be parsed to Not(Not(Atom('foo')))") {
-  //   val result = TagExprParser.parse("not not foo")
-  //   expect.same(Right(TagExpr.Not(TagExpr.Not(TagExpr.Atom("foo")))), result)
-  // }
 }
