@@ -42,6 +42,7 @@ ThisBuild / scalaVersion       := scala213 // the default Scala
 val Version = new {
   val catsEffect             = "3.6.3"
   val catsLaws               = "2.11.0"
+  val catsParse              = "0.3.10"
   val discipline             = "1.5.1"
   val fs2                    = "3.12.2"
   val junit                  = "4.13.2"
@@ -71,6 +72,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     libraryDependencies ++= Seq(
       "co.fs2"        %%% "fs2-core"    % Version.fs2,
       "org.typelevel" %%% "cats-effect" % Version.catsEffect,
+      "org.typelevel" %%% "cats-parse"  % Version.catsParse,
       // https://github.com/portable-scala/portable-scala-reflect/issues/23
       "org.portable-scala" %%% "portable-scala-reflect" % Version.portableReflect cross CrossVersion.for3Use2_13,
       "org.typelevel" %% "scalac-compat-annotation" % Version.scalacCompatAnnotation,

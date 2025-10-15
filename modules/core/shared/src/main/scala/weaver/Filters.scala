@@ -1,6 +1,7 @@
 package weaver
 
 import java.util.regex.Pattern
+import weaver.internals.TagExprParser
 
 private[weaver] object Filters {
 
@@ -29,6 +30,17 @@ private[weaver] object Filters {
     }
   }
 
+  private def createTagFilter(expr: String): TestName => Boolean = {
+    TagExprParser.parse(expr) match {
+      case Right(tagExpr) =>
+        testName => tagExpr.eval(testName.tags)
+      case Left(error) =>
+        throw new IllegalArgumentException(
+          s"Invalid tag expression '$expr': $error"
+        )
+    }
+  }
+
   private[weaver] def filterTests(suiteName: String)(
       args: List[String]): TestName => Boolean = {
 
@@ -49,11 +61,22 @@ private[weaver] object Filters {
     import scala.util.Try
     def indexOfOption(opt: String): Option[Int] =
       Option(args.indexOf(opt)).filter(_ >= 0)
-    val maybePattern = for {
+
+    // Tag-based filtering
+    val maybeTagFilter = for {
+      index <- indexOfOption("-t").orElse(indexOfOption("--tags"))
+      expr  <- Try(args(index + 1)).toOption
+    } yield createTagFilter(expr)
+
+    // Keep existing pattern-based filtering for backwards compatibility
+    val maybePatternFilter = for {
       index  <- indexOfOption("-o").orElse(indexOfOption("--only"))
       filter <- Try(args(index + 1)).toOption
     } yield toPredicate(filter)
-    testId => maybePattern.forall(_.apply(testId))
-  }
 
+    testName => {
+      maybeTagFilter.forall(_.apply(testName)) &&
+      maybePatternFilter.forall(_.apply(testName))
+    }
+  }
 }
