@@ -18,6 +18,12 @@ object TagExprParser {
     tagChar.rep.string
   }
 
+  private val leftParen: P[Unit] =
+    P.char('(').surroundedBy(whitespaces0)
+
+  private val rightParen: P[Unit] =
+    P.char(')').surroundedBy(whitespaces0)
+
   private val andKeyword: P[Unit] =
     P.string("and").surroundedBy(whitespaces0)
 
@@ -26,12 +32,6 @@ object TagExprParser {
 
   private val notKeyword: P[Unit] =
     P.string("not") <* whitespaces1
-
-  private val leftParen: P[Unit] =
-    P.char('(').surroundedBy(whitespaces0)
-
-  private val rightParen: P[Unit] =
-    P.char(')').surroundedBy(whitespaces0)
 
   // Forward declaration for recursive grammar
   private def expression: P[TagExpr] = P.recursive[TagExpr] { recurse =>
@@ -45,8 +45,7 @@ object TagExprParser {
 
     // Not expression (highest precedence)
     val notExpr: P[TagExpr] = P.recursive[TagExpr] { recurseNot =>
-      val not = (notKeyword *> recurseNot).map(Not.apply)
-      not.backtrack | atom // Need backtrack here!
+      (notKeyword *> recurseNot).map(Not.apply).backtrack | atom
     }.withContext("notExpr")
 
     // And expression (medium precedence)

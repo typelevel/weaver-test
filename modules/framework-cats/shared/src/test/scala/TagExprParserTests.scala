@@ -2,9 +2,7 @@ package weaver
 package framework
 package test
 
-import scala.concurrent.duration._
 import weaver.internals.TagExprParser
-import weaver.internals.TagExpr
 import weaver.internals.TagExpr.*
 
 object TagExprParserTests extends SimpleIOSuite {
@@ -13,8 +11,11 @@ object TagExprParserTests extends SimpleIOSuite {
     "foo"       -> Right(Atom("foo")),
     "(foo)"     -> Right(Atom("foo")),
     "not foo"   -> Right(Not(Atom("foo"))),
+    "notfoo"    -> Right(Atom("notfoo")),
     "not (foo)" -> Right(Not(Atom("foo"))),
-    // "not(foo)"           -> Right(Not(Atom("foo"))), TODO Add ( as stopword
+    "not(foo)" -> Right(
+      Not(Atom("foo"))
+    ), // FIXME This require a bit of fiddling
     "not not foo"        -> Right(Not(Not(Atom("foo")))),
     "foo or bar"         -> Right(Or(Atom("foo"), Atom("bar"))),
     "foo and bar"        -> Right(And(Atom("foo"), Atom("bar"))),
