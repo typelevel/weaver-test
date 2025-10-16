@@ -14,27 +14,48 @@ object TagExpr {
   }
 
   object Wildcard {
+    /* The complexity here comes from the fact that * at the beginning or in the middle needs to
+     * know the next expected parser to know when to stop consuming */
     val parser = {
       val validCharP = P.charIn('a' to 'z') |
         P.charIn('A' to 'Z') |
         P.charIn('0' to '9') |
         P.charIn("_-:")
-      val literalP: P[P[String]] = validCharP.rep.map { cs =>
-        val str = cs.mkString_("")
-        P.string(str).as(str)
-      }
-      val questionMarkP: P[P[String]] = P.char('?').map { _ =>
-        validCharP.map(_.toString)
-      }
-      val starP: P[P0[String]] = P.char('*').map { _ =>
-        validCharP.rep0.string
+
+      sealed trait Token
+      case class Literal(str: String) extends Token
+      case object Star                extends Token
+      case object Question            extends Token
+
+      val literalP: P[Token] =
+        validCharP.rep.map(cs => Literal(cs.toList.mkString))
+      val starP: P[Token]     = P.char('*').as(Star)
+      val questionP: P[Token] = P.char('?').as(Question)
+
+      val tokenP: P[Token]        = starP | questionP | literalP
+      val tokensP: P[List[Token]] = tokenP.rep.map(_.toList)
+
+      def loop(tokens: List[Token]): P0[Unit] = tokens match {
+        case Nil =>
+          P.unit
+
+        case Literal(str) :: rest =>
+          (P.string(str) ~ loop(rest)).void
+
+        case Question :: rest =>
+          (validCharP ~ loop(rest)).void
+
+        case Star :: Nil =>
+          // Star at the end - consume everything
+          validCharP.rep0.void
+
+        case Star :: rest =>
+          // Star followed by something we need to use repUntil0 to stop before the next parser
+          val afterStar = loop(rest)
+          (validCharP.repUntil0(afterStar) ~ afterStar).void
       }
 
-      (starP | questionMarkP | literalP).rep.map { parts =>
-        parts.reduceLeft { (acc, next) =>
-          (acc, next).mapN(_ + _)
-        }
-      }
+      tokensP.map(loop)
     }.withString.map { case (parser, pattern) =>
       Wildcard(pattern, parser)
     }
@@ -49,7 +70,7 @@ object TagExpr {
       }.fold(throw _, identity)
   }
 
-  case class Wildcard private (patternStr: String, parser: P0[String])
+  case class Wildcard private (patternStr: String, parser: P0[Unit])
       extends TagExpr {
     def eval(tags: Set[String]): Boolean = {
       tags.exists(tag => parser.parseAll(tag).isRight)

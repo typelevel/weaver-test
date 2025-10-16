@@ -3,7 +3,6 @@ package framework
 package test
 
 import weaver.internals.TagExpr.*
-import cats.parse.{ Parser => P, Parser0 => P0 }
 
 object TagExprTests extends SimpleIOSuite {
 
@@ -17,21 +16,6 @@ object TagExprTests extends SimpleIOSuite {
     val expr = Atom("foo")
     val tags = Set("bar", "baz")
     expect(!expr.eval(tags))
-  }
-
-  // Wildcard fiddling tests
-  pureTest("Wildcard fiddling 1".only) {
-    val validCharP: P[Char] =
-      P.charIn('a' to 'z') |
-        P.charIn('A' to 'Z') |
-        P.charIn('0' to '9') |
-        P.charIn("_-:")
-
-    val bugP: P0[String]  = P.string("bug").as("bug")
-    val starP: P0[String] = validCharP.rep0.string
-
-    val parser = starP.backtrack ~ bugP
-    expect(clue(parser.parseAll("foobar")).isRight)
   }
 
   // Wildcard pattern parsing tests
