@@ -62,13 +62,11 @@ private[weaver] object Filters {
     def indexOfOption(opt: String): Option[Int] =
       Option(args.indexOf(opt)).filter(_ >= 0)
 
-    // Tag-based filtering
     val maybeTagFilter = for {
       index <- indexOfOption("-t").orElse(indexOfOption("--tags"))
       expr  <- Try(args(index + 1)).toOption
     } yield createTagFilter(expr)
 
-    // Keep existing pattern-based filtering for backwards compatibility
     val maybePatternFilter = for {
       index  <- indexOfOption("-o").orElse(indexOfOption("--only"))
       filter <- Try(args(index + 1)).toOption

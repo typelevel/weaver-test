@@ -1,70 +1,86 @@
 package weaver.internals
 
 import cats.parse.{ Parser => P, Parser0 => P0 }
-import cats.syntax.show.*
+import cats.syntax.all.*
 
 object TagExprParser {
   import TagExpr._
 
-  private val whitespace: P[Unit]    = P.charIn(" \t\r\n").void
-  private val whitespaces0: P0[Unit] = whitespace.rep0.void
-  private val whitespaces1: P[Unit]  = whitespace.rep.void
+  // In GitHub syntax, space is significant (it's the AND operator)
+  // So we only skip tabs, \r, \n for optional whitespace, NOT spaces
+  private val nonSpaceWhitespace: P[Unit]    = P.charIn("\t\r\n").void
+  private val nonSpaceWhitespaces0: P0[Unit] = nonSpaceWhitespace.rep0.void
 
-  private val tagName: P[String] = {
-    val tagChar = P.charIn('a' to 'z') |
-      P.charIn('A' to 'Z') |
-      P.charIn('0' to '9') |
-      P.charIn("_-")
-    tagChar.rep.string
+  // Valid characters in a tag name (including colon, but not wildcards)
+  private val tagChar: P[Char] = P.charIn('a' to 'z') |
+    P.charIn('A' to 'Z') |
+    P.charIn('0' to '9') |
+    P.charIn("_-:")
+
+  // A tag pattern can contain wildcards (* and ?) or regular characters
+  private val tagPattern: P[String] = {
+    val wildcardOrChar = P.charIn("*?") | tagChar
+    wildcardOrChar.rep.string
   }
 
   private val leftParen: P[Unit] =
-    P.char('(').surroundedBy(whitespaces0)
+    P.char('(').surroundedBy(nonSpaceWhitespaces0)
 
   private val rightParen: P[Unit] =
-    P.char(')').surroundedBy(whitespaces0)
+    P.char(')').surroundedBy(nonSpaceWhitespaces0)
 
-  private val andKeyword: P[Unit] =
-    P.string("and").surroundedBy(whitespaces0)
+  // GitHub syntax operators
+  private val andOperator: P[Unit] =
+    P.char(' ').surroundedBy(nonSpaceWhitespaces0)
 
-  private val orKeyword: P[Unit] =
-    P.string("or").surroundedBy(whitespaces0)
+  private val orOperator: P[Unit] =
+    P.char(',').surroundedBy(nonSpaceWhitespaces0)
 
-  private val notKeyword: P[Unit] =
-    P.string("not") <* whitespaces1
+  private val notOperator: P[Unit] =
+    P.char('!').surroundedBy(nonSpaceWhitespaces0)
 
   // Forward declaration for recursive grammar
   private def expression: P[TagExpr] = P.recursive[TagExpr] { recurse =>
-    // Atom: either a tag name or parenthesized expression
+    // Atom: either a tag name (with optional wildcards) or parenthesized expression
     def atom: P[TagExpr] = {
-      val tag    = tagName.map(Atom.apply)
+      val tag = tagPattern.flatMap { pattern =>
+        // If pattern contains wildcards, create a Wildcard node
+        if (pattern.contains('*') || pattern.contains('?')) {
+          Wildcard.parser
+        } else {
+          P.pure(Atom(pattern))
+        }
+      }
       val parens = recurse.between(leftParen, rightParen)
 
-      (parens | tag).surroundedBy(whitespaces0)
+      (parens | tag).surroundedBy(nonSpaceWhitespaces0)
     }.withContext("atom")
 
     // Not expression (highest precedence)
+    // In GitHub syntax: !foo or !(expr)
     val notExpr: P[TagExpr] = P.recursive[TagExpr] { recurseNot =>
-      (notKeyword *> recurseNot).map(Not.apply).backtrack | atom
+      (notOperator *> recurseNot).map(Not.apply).backtrack | atom
     }.withContext("notExpr")
 
     // And expression (medium precedence)
+    // In GitHub syntax: space is AND operator
     val andExpr: P[TagExpr] = {
       // Use rep.sep for left-associative 'and' chains
-      P.repSep(notExpr, min = 1, sep = andKeyword).map { exprs =>
+      P.repSep(notExpr, min = 1, sep = andOperator).map { exprs =>
         exprs.reduceLeft(And.apply)
       }
     }.withContext("andExpr")
 
     // Or expression (lowest precedence)
+    // In GitHub syntax: comma is OR operator
     val orExpr: P[TagExpr] = {
       // Use rep.sep for left-associative 'or' chains
-      P.repSep(andExpr, min = 1, sep = orKeyword).map { exprs =>
+      P.repSep(andExpr, min = 1, sep = orOperator).map { exprs =>
         exprs.reduceLeft(Or.apply)
       }
     }.withContext("orExpr")
 
-    orExpr.surroundedBy(whitespaces0)
+    orExpr.surroundedBy(nonSpaceWhitespaces0)
   }
 
   def parse(input: String): Either[String, TagExpr] = {
@@ -80,8 +96,4 @@ object TagExprParser {
     }
   }
 
-  // Helper function to validate tag names (optional)
-  def isValidTagName(tag: String): Boolean = {
-    tagName.parseAll(tag).isRight
-  }
 }
