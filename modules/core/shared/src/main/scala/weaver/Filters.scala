@@ -33,7 +33,7 @@ private[weaver] object Filters {
   private def createTagFilter(expr: String): TestName => Boolean = {
     TagExprParser.parse(expr) match {
       case Right(tagExpr) =>
-        testName => tagExpr.eval(testName.tags)
+        testName => tagExpr.matches(testName.tags)
       case Left(error) =>
         throw new IllegalArgumentException(
           s"Invalid tag expression '$expr': $error"

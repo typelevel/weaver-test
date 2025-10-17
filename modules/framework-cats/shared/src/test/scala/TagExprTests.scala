@@ -9,13 +9,13 @@ object TagExprTests extends SimpleIOSuite {
   pureTest("Atom matches exact tag") {
     val expr = Wildcard.unsafeFromPattern("foo")
     val tags = Set("foo", "bar", "baz")
-    expect(expr.eval(tags))
+    expect(expr.matches(tags))
   }
 
   pureTest("Atom does not match different tag") {
     val expr = Wildcard.unsafeFromPattern("foo")
     val tags = Set("bar", "baz")
-    expect(!expr.eval(tags))
+    expect(!expr.matches(tags))
   }
 
   // Wildcard pattern parsing tests
@@ -193,140 +193,140 @@ object TagExprTests extends SimpleIOSuite {
   pureTest("Wildcard: bug* matches bug") {
     whenSuccess(Wildcard.fromPattern("bug*")) { wildcard =>
       val tags = Set("bug")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: bug* matches bug-123") {
     whenSuccess(Wildcard.fromPattern("bug*")) { wildcard =>
       val tags = Set("bug-123")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: bug* matches bugfix") {
     whenSuccess(Wildcard.fromPattern("bug*")) { wildcard =>
       val tags = Set("bugfix")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: bug* does not match foo") {
     whenSuccess(Wildcard.fromPattern("bug*")) { wildcard =>
       val tags = Set("foo")
-      expect(!clue(wildcard).eval(tags))
+      expect(!clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: *bug matches bug") {
     whenSuccess(Wildcard.fromPattern("*bug")) { wildcard =>
       val tags = Set("bug")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: *bug matches critical-bug") {
     whenSuccess(Wildcard.fromPattern("*bug")) { wildcard =>
       val tags = Set("critical-bug")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: *bug does not match bugfix") {
     whenSuccess(Wildcard.fromPattern("*bug")) { wildcard =>
       val tags = Set("bugfix")
-      expect(!clue(wildcard).eval(tags))
+      expect(!clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: bug? matches bug1") {
     whenSuccess(Wildcard.fromPattern("bug?")) { wildcard =>
       val tags = Set("bug1")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: bug? matches buga") {
     whenSuccess(Wildcard.fromPattern("bug?")) { wildcard =>
       val tags = Set("buga")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: bug? does not match bug") {
     whenSuccess(Wildcard.fromPattern("bug?")) { wildcard =>
       val tags = Set("bug")
-      expect(!clue(wildcard).eval(tags))
+      expect(!clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: bug? does not match bug12") {
     whenSuccess(Wildcard.fromPattern("bug?")) { wildcard =>
       val tags = Set("bug12")
-      expect(!clue(wildcard).eval(tags))
+      expect(!clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: ?bug matches abug") {
     whenSuccess(Wildcard.fromPattern("?bug")) { wildcard =>
       val tags = Set("abug")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: ?bug does not match bug") {
     whenSuccess(Wildcard.fromPattern("?bug")) { wildcard =>
       val tags = Set("bug")
-      expect(!clue(wildcard).eval(tags))
+      expect(!clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: first*bug matches firstbug") {
     whenSuccess(Wildcard.fromPattern("first*bug")) { wildcard =>
       val tags = Set("firstbug")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: first*bug matches first-critical-bug") {
     whenSuccess(Wildcard.fromPattern("first*bug")) { wildcard =>
       val tags = Set("first-critical-bug")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: first*bug does not match firstbugfix") {
     whenSuccess(Wildcard.fromPattern("first*bug")) { wildcard =>
       val tags = Set("firstbugfix")
-      expect(!clue(wildcard).eval(tags))
+      expect(!clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: a?c matches abc") {
     whenSuccess(Wildcard.fromPattern("a?c")) { wildcard =>
       val tags = Set("abc")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: a?c matches a1c") {
     whenSuccess(Wildcard.fromPattern("a?c")) { wildcard =>
       val tags = Set("a1c")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: a?c does not match ac") {
     whenSuccess(Wildcard.fromPattern("a?c")) { wildcard =>
       val tags = Set("ac")
-      expect(!clue(wildcard).eval(tags))
+      expect(!clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: a?c does not match abcd") {
     whenSuccess(Wildcard.fromPattern("a?c")) { wildcard =>
       val tags = Set("abcd")
-      expect(!clue(wildcard).eval(tags))
+      expect(!clue(wildcard).matches(tags))
     }
   }
 
@@ -334,14 +334,14 @@ object TagExprTests extends SimpleIOSuite {
   pureTest("Wildcard: test:* matches test:unit") {
     whenSuccess(Wildcard.fromPattern("test:*")) { wildcard =>
       val tags = Set("test:unit")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
   pureTest("Wildcard: *:prod matches env:prod") {
     whenSuccess(Wildcard.fromPattern("*:prod")) { wildcard =>
       val tags = Set("env:prod")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 
@@ -349,7 +349,7 @@ object TagExprTests extends SimpleIOSuite {
   pureTest("Wildcard: foo matches foo exactly") {
     whenSuccess(Wildcard.fromPattern("foo")) { wildcard =>
       val tags = Set("foo", "foobar")
-      expect(clue(wildcard).eval(tags))
+      expect(clue(wildcard).matches(tags))
     }
   }
 }

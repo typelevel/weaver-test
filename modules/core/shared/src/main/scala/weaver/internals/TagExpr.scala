@@ -4,7 +4,7 @@ import cats.parse.{ Parser0, Parser }
 import cats.syntax.all.*
 
 private[weaver] sealed trait TagExpr {
-  def eval(tags: Set[String]): Boolean
+  def matches(tags: Set[String]): Boolean
 }
 
 private[weaver] object TagExpr {
@@ -70,7 +70,7 @@ private[weaver] object TagExpr {
       patternStr: String,
       parser: Parser0[Unit])
       extends TagExpr {
-    def eval(tags: Set[String]): Boolean = {
+    def matches(tags: Set[String]): Boolean = {
       tags.exists(tag => parser.parseAll(tag).isRight)
     }
 
@@ -86,18 +86,18 @@ private[weaver] object TagExpr {
   }
 
   private[weaver] case class Not(expr: TagExpr) extends TagExpr {
-    def eval(tags: Set[String]): Boolean = !expr.eval(tags)
+    def matches(tags: Set[String]): Boolean = !expr.matches(tags)
   }
 
   private[weaver] case class And(left: TagExpr, right: TagExpr)
       extends TagExpr {
-    def eval(tags: Set[String]): Boolean =
-      left.eval(tags) && right.eval(tags)
+    def matches(tags: Set[String]): Boolean =
+      left.matches(tags) && right.matches(tags)
   }
 
   private[weaver] case class Or(left: TagExpr, right: TagExpr) extends TagExpr {
-    def eval(tags: Set[String]): Boolean =
-      left.eval(tags) || right.eval(tags)
+    def matches(tags: Set[String]): Boolean =
+      left.matches(tags) || right.matches(tags)
   }
 
 }
