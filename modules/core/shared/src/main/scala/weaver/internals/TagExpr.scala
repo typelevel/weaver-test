@@ -9,10 +9,6 @@ sealed trait TagExpr {
 
 object TagExpr {
 
-  case class Atom(name: String) extends TagExpr {
-    def eval(tags: Set[String]): Boolean = tags.contains(name)
-  }
-
   object Wildcard {
     /* The complexity here comes from the fact that * at the beginning or in the middle needs to
      * know the next expected parser to know when to stop consuming */

@@ -7,13 +7,13 @@ import weaver.internals.TagExpr.*
 object TagExprTests extends SimpleIOSuite {
 
   pureTest("Atom matches exact tag") {
-    val expr = Atom("foo")
+    val expr = Wildcard.unsafeFromPattern("foo")
     val tags = Set("foo", "bar", "baz")
     expect(expr.eval(tags))
   }
 
   pureTest("Atom does not match different tag") {
-    val expr = Atom("foo")
+    val expr = Wildcard.unsafeFromPattern("foo")
     val tags = Set("bar", "baz")
     expect(!expr.eval(tags))
   }

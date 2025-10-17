@@ -9,62 +9,75 @@ object TagExprParserTests extends SimpleIOSuite {
 
   List(
     // Basic atom
-    "foo"   -> Right(Atom("foo")),
-    "(foo)" -> Right(Atom("foo")),
+    "foo"   -> Right(Wildcard.unsafeFromPattern("foo")),
+    "(foo)" -> Right(Wildcard.unsafeFromPattern("foo")),
 
     // NOT expressions
-    "!foo"   -> Right(Not(Atom("foo"))),
-    "!(foo)" -> Right(Not(Atom("foo"))),
-    "!!foo"  -> Right(Not(Not(Atom("foo")))),
+    "!foo"   -> Right(Not(Wildcard.unsafeFromPattern("foo"))),
+    "!(foo)" -> Right(Not(Wildcard.unsafeFromPattern("foo"))),
+    "!!foo"  -> Right(Not(Not(Wildcard.unsafeFromPattern("foo")))),
 
     // OR expressions
-    "foo,bar" -> Right(Or(Atom("foo"), Atom("bar"))),
+    "foo,bar" -> Right(Or(Wildcard.unsafeFromPattern("foo"),
+                          Wildcard.unsafeFromPattern("bar"))),
 
     // AND expressions
-    "foo bar" -> Right(And(Atom("foo"), Atom("bar"))),
+    "foo bar" -> Right(And(Wildcard.unsafeFromPattern("foo"),
+                           Wildcard.unsafeFromPattern("bar"))),
 
     // Combined expressions
-    "foo,!bar"  -> Right(Or(Atom("foo"), Not(Atom("bar")))),
-    "!foo,bar"  -> Right(Or(Not(Atom("foo")), Atom("bar"))),
-    "!foo,!bar" -> Right(Or(Not(Atom("foo")), Not(Atom("bar")))),
+    "foo,!bar" -> Right(Or(Wildcard.unsafeFromPattern("foo"),
+                           Not(Wildcard.unsafeFromPattern("bar")))),
+    "!foo,bar" -> Right(Or(Not(Wildcard.unsafeFromPattern("foo")),
+                           Wildcard.unsafeFromPattern("bar"))),
+    "!foo,!bar" -> Right(Or(Not(Wildcard.unsafeFromPattern("foo")),
+                            Not(Wildcard.unsafeFromPattern("bar")))),
 
     // Complex precedence: OR has lower precedence than AND
     "foo,bar baz" -> Right(
-      Or(Atom("foo"), And(Atom("bar"), Atom("baz")))
+      Or(Wildcard.unsafeFromPattern("foo"),
+         And(Wildcard.unsafeFromPattern("bar"),
+             Wildcard.unsafeFromPattern("baz")))
     ),
     "foo,bar baz,qux" -> Right(
       Or(
-        Or(Atom("foo"),
-           And(Atom("bar"), Atom("baz"))),
-        Atom("qux")
+        Or(Wildcard.unsafeFromPattern("foo"),
+           And(Wildcard.unsafeFromPattern("bar"),
+               Wildcard.unsafeFromPattern("baz"))),
+        Wildcard.unsafeFromPattern("qux")
       )
     ),
 
     // Parentheses change precedence
     "(foo,bar) (baz,qux)" -> Right(
       And(
-        Or(Atom("foo"), Atom("bar")),
-        Or(Atom("baz"), Atom("qux"))
+        Or(Wildcard.unsafeFromPattern("foo"),
+           Wildcard.unsafeFromPattern("bar")),
+        Or(Wildcard.unsafeFromPattern("baz"), Wildcard.unsafeFromPattern("qux"))
       )
     ),
 
     // Example: (x y)
-    "(x y)" -> Right(And(Atom("x"), Atom("y"))),
+    "(x y)" -> Right(And(Wildcard.unsafeFromPattern("x"),
+                         Wildcard.unsafeFromPattern("y"))),
 
     // Example: !(z,t)
-    "!(z,t)" -> Right(Not(Or(Atom("z"), Atom("t")))),
+    "!(z,t)" -> Right(Not(Or(Wildcard.unsafeFromPattern("z"),
+                             Wildcard.unsafeFromPattern("t")))),
 
     // Full example: foo,bar !baz,(x y),!(z,t)
     "foo,bar !baz,(x y),!(z,t)" -> Right(
       Or(
         Or(
           Or(
-            Atom("foo"),
-            And(Atom("bar"), Not(Atom("baz")))
+            Wildcard.unsafeFromPattern("foo"),
+            And(Wildcard.unsafeFromPattern("bar"),
+                Not(Wildcard.unsafeFromPattern("baz")))
           ),
-          And(Atom("x"), Atom("y"))
+          And(Wildcard.unsafeFromPattern("x"), Wildcard.unsafeFromPattern("y"))
         ),
-        Not(Or(Atom("z"), Atom("t")))
+        Not(Or(Wildcard.unsafeFromPattern("z"),
+               Wildcard.unsafeFromPattern("t")))
       )
     ),
 
@@ -84,7 +97,7 @@ object TagExprParserTests extends SimpleIOSuite {
     "bug*,feature*" -> Right(Or(Wildcard.unsafeFromPattern("bug*"),
                                 Wildcard.unsafeFromPattern("feature*"))),
     "test* prod" -> Right(And(Wildcard.unsafeFromPattern("test*"),
-                              Atom("prod"))),
+                              Wildcard.unsafeFromPattern("prod"))),
     "!bug*" -> Right(Not(Wildcard.unsafeFromPattern("bug*")))
   ).map { case (expr, expected) =>
     pureTest(s"'$expr' should be parsed to $expected") {
