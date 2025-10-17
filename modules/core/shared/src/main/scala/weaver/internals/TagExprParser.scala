@@ -27,7 +27,7 @@ object TagExprParser {
     P.char('!').surroundedBy(nonSpaceWhitespaces0)
 
   // Forward declaration for recursive grammar
-  private def expression: P[TagExpr] = P.recursive[TagExpr] { recurse =>
+  private val expression: P[TagExpr] = P.recursive[TagExpr] { recurse =>
     // either a tag name (with optional wildcards) or parenthesized expression
     val wildcardP: P[TagExpr] = {
       val parens = recurse.between(leftParen, rightParen)
