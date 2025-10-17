@@ -13,17 +13,17 @@ import weaver._
 object TaggedSuite extends SimpleIOSuite {
 
   // Test with a single tag
-  test("bug fix".tagged("bug")) {
+  pureTest("bug fix".tagged("bug")) {
     expect(1 + 1 == 2)
   }
 
   // Test with multiple tags (chain .tagged() calls)
-  test("integration test".tagged("integration").tagged("slow").tagged("database")) {
+  pureTest("integration test".tagged("integration").tagged("slow").tagged("database")) {
     expect(true)
   }
 
   // Test without tags
-  test("simple unit test") {
+  pureTest("simple unit test") {
     expect(42 == 42)
   }
 }
@@ -43,11 +43,11 @@ import weaver._
 object IgnoreSuite extends SimpleIOSuite {
 
   // These two are equivalent
-  test("skipped test".ignore) {
+  pureTest("skipped test".ignore) {
     expect(1 + 1 == 2)
   }
 
-  test("also skipped".tagged("ignore")) {
+  pureTest("also skipped".tagged("ignore")) {
     expect(1 + 1 == 2)
   }
 }
@@ -63,15 +63,15 @@ import weaver._
 object OnlySuite extends SimpleIOSuite {
 
   // These two are equivalent
-  test("run only this".only) {
+  pureTest("run only this".only) {
     expect(1 + 1 == 2)
   }
 
-  test("run only this too".tagged("only")) {
+  pureTest("run only this too".tagged("only")) {
     expect(1 + 1 == 2)
   }
 
-  test("this will be skipped") {
+  pureTest("this will be skipped") {
     expect(42 == 42)
   }
 }
@@ -83,8 +83,19 @@ When any test in a suite is tagged with `only`, only those tests will run.
 
 Tags should consist of alphanumeric characters, hyphens, underscores, and colons:
 
-- Valid characters: `a-z`, `A-Z`, `0-9`, `_`, `-`, `:`
-- Examples: `bug`, `bug-123`, `test_case`, `env:prod`
+- **Valid characters**: `a-z`, `A-Z`, `0-9`, `_`, `-`, `:`
+- **Examples**: `bug`, `bug-123`, `test_case`, `env:prod`
+
+**Important**: While you *can* create tags with spaces (e.g., `.tagged("foo bar")`), these tags **cannot be used with tag filtering expressions** because spaces are used as the AND operator in the filter syntax. Tags with spaces can only be matched by exact string matching, not through the `-t`/`--tags` filter. It's strongly recommended to use hyphens or underscores instead of spaces.
+
+```scala
+// ✅ Recommended: use hyphens or underscores
+test("test".tagged("foo-bar"))
+test("test".tagged("foo_bar"))
+
+// ❌ Not recommended: spaces prevent filtering
+test("test".tagged("foo bar"))  // Cannot filter with: -t "foo bar"
+```
 
 Common tagging strategies:
 
