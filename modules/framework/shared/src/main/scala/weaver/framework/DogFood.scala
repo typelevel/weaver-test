@@ -42,7 +42,7 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
     for {
       eventHandler <- effect.delay(new MemoryEventHandler())
       logger       <- effect.delay(new MemoryLogger())
-      _ <- getTasks(suites, args).use { case (runner, tasks) =>
+      _            <- getTasks(suites, args).use { case (runner, tasks) =>
         runTasks(runner, eventHandler, logger, maxParallelism)(tasks.toList)
       }
       _      <- patience.fold(effect.unit)(framework.unsafeRun.sleep)
@@ -72,7 +72,7 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
       implicit loc: SourceLocation): Expectations = {
     event.status() match {
       case sbt.testing.Status.Success => Expectations.Helpers.success
-      case status =>
+      case status                     =>
         Expectations.Helpers.failure(
           s"${event.fullyQualifiedName()}:${event.selector()} failed with $status")
     }

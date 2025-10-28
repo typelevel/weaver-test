@@ -25,7 +25,7 @@ object SnapshotExpectations extends SnapshotAssertions[IO[Expectations]] {
       type Assertion = IO[Expectations]
       def apply(result: () => Result[A]): Assertion =
         IO(result()).map({
-          case _: Result.Success[?] => Expectations.Helpers.success
+          case _: Result.Success[?]     => Expectations.Helpers.success
           case _: Result.NonExistent[?] =>
             Expectations.Helpers.failure(nonExistentMessage)(loc)
           case Result.Failure(found, snapshot) =>

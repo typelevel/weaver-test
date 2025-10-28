@@ -16,10 +16,14 @@ class AddClueToExpect extends SemanticRule("AddClueToExpect") {
         if (clues.isEmpty) {
           tree match {
             case q"expect($lhs $op $rhs)" =>
-              Patch.replaceTree(tree, s"expect(${makeClue(lhs)} $op ${makeClue(rhs)})")
+              Patch.replaceTree(
+                tree,
+                s"expect(${makeClue(lhs)} $op ${makeClue(rhs)})")
             case q"expect($lhs.$op(...$exprss))" =>
               val clues = exprss.map(_.map(makeClue))
-              Patch.replaceTree(tree, q"expect(${makeClue(lhs)}.$op(...$clues))".toString)
+              Patch.replaceTree(
+                tree,
+                q"expect(${makeClue(lhs)}.$op(...$clues))".toString)
             case q"expect($op(...$exprss))" =>
               val clues = exprss.map(_.map(makeClue))
               Patch.replaceTree(tree, q"expect($op(...$clues))".toString)
@@ -37,10 +41,10 @@ class AddClueToExpect extends SemanticRule("AddClueToExpect") {
 
   private def makeClue(expr: Term)(implicit doc: SemanticDocument): Term = {
     expr match {
-      case _: Lit  => expr
-      case _: Term.Function => expr
+      case _: Lit                    => expr
+      case _: Term.Function          => expr
       case _: Term.AnonymousFunction => expr
-      case _ => q"clue($expr)"
+      case _                         => q"clue($expr)"
     }
   }
 }

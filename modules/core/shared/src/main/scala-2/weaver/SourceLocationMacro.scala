@@ -36,7 +36,7 @@ object macros {
       val p            = c.enclosingPosition.source.path
       val abstractFile = c.enclosingPosition.source.file
       val line         = c.enclosingPosition.line
-      val lineContent = SourceCode.sanitize(c)(
+      val lineContent  = SourceCode.sanitize(c)(
         c.enclosingPosition.source.lineToString(line - 1))
       val column         = c.enclosingPosition.column
       val lineSourceExpr = q"Some(($lineContent, $column))"

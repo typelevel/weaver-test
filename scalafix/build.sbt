@@ -9,7 +9,7 @@ inThisBuild(
   List(
     organization := "typelevel",
     homepage     := Some(url("https://github.com/typelevel/weaver-test")),
-    licenses := List(
+    licenses     := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
     semanticdbEnabled := true,
@@ -57,10 +57,15 @@ lazy val testsAggregate = Project("tests", file("target/testsAggregate"))
     publish / skip := true
   )
 
-def makeOutput(name: String, weaver: ModuleID): ProjectMatrix = makeInputOrOutput(name, weaver, "output")
-def makeInput(name: String, weaver: ModuleID): ProjectMatrix = makeInputOrOutput(name, weaver, "input")
+def makeOutput(name: String, weaver: ModuleID): ProjectMatrix =
+  makeInputOrOutput(name, weaver, "output")
+def makeInput(name: String, weaver: ModuleID): ProjectMatrix =
+  makeInputOrOutput(name, weaver, "input")
 
-def makeInputOrOutput(name: String, weaver: ModuleID, inputOrOutput: String): ProjectMatrix = ProjectMatrix(
+def makeInputOrOutput(
+    name: String,
+    weaver: ModuleID,
+    inputOrOutput: String): ProjectMatrix = ProjectMatrix(
   s"${name}_$inputOrOutput",
   file(s"$name/$inputOrOutput")
 ).settings(
@@ -77,7 +82,7 @@ def makeTests(
   file(s"$name/tests")
 )
   .settings(
-    publish / skip := true,
+    publish / skip                         := true,
     scalafixTestkitOutputSourceDirectories :=
       TargetAxis
         .resolve(output, Compile / unmanagedSourceDirectories)

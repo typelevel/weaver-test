@@ -67,7 +67,7 @@ object Clues {
       val header = "assertion failed" + message.fold("")(msg => s": $msg")
       val sourceCodeMessage = sourceCode.fold("")(msg => s"\n\n$msg")
       val clueList          = clues.getClues
-      val cluesMessage = if (clueList.nonEmpty) {
+      val cluesMessage      = if (clueList.nonEmpty) {
         val lines = clueList.map(clue => s"  ${clue.prettyPrint}")
         lines.mkString("Clues {\n", "\n", "\n}")
       } else "Use the `clue` function to troubleshoot"

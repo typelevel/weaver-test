@@ -87,7 +87,7 @@ object CheckersConcurrencyTest extends SimpleIOSuite {
 
   private def runSuite(suite: SimpleIOSuite) = for {
     ref <- Ref.of(List.empty[TestOutcome])
-    _ <- suite.run(Nil)(result =>
+    _   <- suite.run(Nil)(result =>
       ref.update(result :: _))
     results <- ref.get
   } yield results

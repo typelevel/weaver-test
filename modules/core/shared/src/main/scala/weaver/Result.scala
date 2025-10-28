@@ -11,7 +11,7 @@ private[weaver] object Result {
   import Formatter._
 
   def fromAssertion(assertion: Expectations): Result = assertion.run match {
-    case Valid(_) => Success
+    case Valid(_)        => Success
     case Invalid(failed) =>
       Failures(failed.map(ex =>
         Failures.Failure(ex.message, ex, ex.locations)))
@@ -37,7 +37,7 @@ private[weaver] object Result {
 
     def formatted: Option[String] =
       if (failures.size == 1) {
-        val failure = failures.head
+        val failure          = failures.head
         val formattedMessage = formatDescription(
           failure.msg,
           failure.locations.toList,
@@ -128,7 +128,7 @@ private[weaver] object Result {
         }
       }
 
-      val causes = traverseCauses(source)
+      val causes               = traverseCauses(source)
       val causeStackTraceLines = causes.flatMap { cause =>
         Vector(EOL + "Caused by: " + cause.toString + EOL) ++
           TestErrorFormatter.formatStackTrace(cause, None)

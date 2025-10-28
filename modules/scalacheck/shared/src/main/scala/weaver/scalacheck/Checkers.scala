@@ -114,8 +114,8 @@ trait Checkers {
         .parEvalMap(config.perPropertyParallelism)(testOne(gen, f)(params, _))
         .evalScan(Status.start[A]) { case (oldStatus, testResult) =>
           testResult match {
-            case TestResult.Success => oldStatus.addSuccess.pure
-            case TestResult.Discard => oldStatus.addDiscard.pure
+            case TestResult.Success             => oldStatus.addSuccess.pure
+            case TestResult.Discard             => oldStatus.addDiscard.pure
             case TestResult.Failure(input, exp) =>
               oldStatus.addFailure(input, initialSeed, exp).pure
             case TestResult.Exception(input, error) =>
@@ -171,7 +171,7 @@ trait Checkers {
       if (failure.isEmpty) copy(discarded = discarded + 1) else this
     def addFailure(input: String, seed: Seed, exp: Expectations): Status[T] =
       if (failure.isEmpty) {
-        val ith = succeeded + discarded + 1
+        val ith     = succeeded + discarded + 1
         val failure = Expectations.Helpers.failure(failureMessage(
           ith,
           seed,

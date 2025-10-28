@@ -24,10 +24,10 @@ private class MemoisedResource[F[_]: Concurrent, A] {
       val initialise: F[A] = for {
         valuePromise     <- Deferred[F, Either[Throwable, A]]
         finaliserPromise <- Deferred[F, F[Unit]]
-        compute <- ref.modify {
+        compute          <- ref.modify {
           case Uninitialised =>
             val newState = InUse(valuePromise, finaliserPromise.get.flatten, 1)
-            val compute = Concurrent[F].attempt(resource.allocated).flatMap {
+            val compute  = Concurrent[F].attempt(resource.allocated).flatMap {
               case Right((a, fin)) => for {
                   _ <- valuePromise.complete(Right(a))
                   _ <- finaliserPromise.complete(fin)
