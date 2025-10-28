@@ -17,7 +17,7 @@ object Test {
     for {
       ref   <- Ref[F].of(Chain.empty[Log.Entry])
       start <- F.realTimeMillis
-      res <- Defer[F]
+      res   <- Defer[F]
         .defer(f(Log.collected[F, Chain](ref, F.realTimeMillis)))
         .map(Result.fromAssertion)
         .handleError(ex => Result.from(ex))

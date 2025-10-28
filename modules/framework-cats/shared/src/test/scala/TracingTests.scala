@@ -8,7 +8,7 @@ object TracingTests extends SimpleIOSuite {
 
   // Accommodate bloop
   def standardise(path: String): String = {
-    val start = ("", 0)
+    val start       = ("", 0)
     val (result, _) = path.split("/").foldLeft(start) {
       case ((path, count), "..")             => (path, count + 1)
       case ((path, count), _) if (count > 0) => (path, count - 1)

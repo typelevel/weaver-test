@@ -38,7 +38,7 @@ private[weaver] object ClueMacro {
     }
     val source    = Literal(Constant(text.trim))
     val valueType = Literal(Constant(simplifyType(value.tpe).toString()))
-    val clueTpe = c.internal.typeRef(
+    val clueTpe   = c.internal.typeRef(
       NoPrefix,
       c.mirror.staticClass(classOf[Clue[_]].getName()),
       List(value.tpe.widen)

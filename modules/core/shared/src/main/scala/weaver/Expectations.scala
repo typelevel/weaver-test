@@ -304,7 +304,7 @@ object Expectations {
     def loop(index: Int, acc: String): String =
       if (index >= values.length) acc
       else {
-        val value = String.valueOf(values(index))
+        val value  = String.valueOf(values(index))
         val newStr =
           acc.replaceAll(s"[{]$index[}]",
                          java.util.regex.Matcher.quoteReplacement(value))

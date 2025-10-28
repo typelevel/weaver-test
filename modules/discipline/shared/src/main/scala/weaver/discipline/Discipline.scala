@@ -66,13 +66,13 @@ trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
   class PartiallyAppliedCheckAll(
       name: TestName,
       parameters: Parameters => Parameters) {
-    def apply(run: => F[Laws#RuleSet]): Unit = apply(_ => run)
+    def apply(run: => F[Laws#RuleSet]): Unit     = apply(_ => run)
     def apply(run: Res => F[Laws#RuleSet]): Unit = {
       registerTest(
         Kleisli(run).map(_.all.properties.toList.map {
           case (id, prop) =>
             val propTestName = s"${name.name}: $id"
-            val runProp = effectCompat.effect.delay(
+            val runProp      = effectCompat.effect.delay(
               executeProp(prop, name.location, parameters)
             )
             foundProps.synchronized {
@@ -142,7 +142,7 @@ object Discipline {
     ScalaCheckTest.check(prop)(parameters).status match {
       case Passed | Proved(_) => success
       case Exhausted          => failure("Property exhausted")(location)
-      case Failed(input, _) =>
+      case Failed(input, _)   =>
         failure(s"Property violated \n" + printArgs(input))(location)
       case PropException(input, cause, _) =>
         throw PropertyException(input, cause)

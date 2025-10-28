@@ -24,7 +24,7 @@ object macros {
 
     val pwd = java.nio.file.Paths.get("").toAbsolutePath
 
-    val position = Position.ofMacroExpansion
+    val position   = Position.ofMacroExpansion
     val lineSource = position.sourceFile.content.map { content =>
       val lineContentBefore =
         content.slice(0, position.end).split("\\r?\\n").last

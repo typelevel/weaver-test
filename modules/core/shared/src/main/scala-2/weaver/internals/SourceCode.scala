@@ -12,7 +12,7 @@ private[weaver] object SourceCode {
     val N = source.length - 1
     source.indexOf('$') match {
       case -1 | N => q"$source"
-      case _ =>
+      case _      =>
         val parts = source.split('$').toList
         q"""${parts}.mkString("$$")"""
     }

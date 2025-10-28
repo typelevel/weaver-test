@@ -75,7 +75,7 @@ object DisciplineFSuiteIntegrationTest extends SimpleIOSuite {
     checkAll("String").pure(_ => RickrollTests[String].all)
   }
 
-  object resourceStart extends Exception
+  object resourceStart   extends Exception
   object FailingResource extends DisciplineFSuite[IO] with BaseIOSuite {
     override type Res = String
     override def sharedResource: Resource[IO, String] =
