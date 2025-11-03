@@ -242,10 +242,10 @@ object DogFoodTests extends IOSuite {
           """- (eql Comparison) 0ms
   Values not equal: (src/main/DogFoodTests.scala:5)
 
-  => Diff (- obtained, + expected)
+  in expect.eql(- expected, + found)
      s: foo
-  -  i: 2
-  +  i: 1
+  -  i: 1
+  +  i: 2
    }"""
         )
     }
@@ -261,10 +261,10 @@ object DogFoodTests extends IOSuite {
           """- (same Comparison) 0ms
   Values not equal: (src/main/DogFoodTests.scala:5)
 
-  => Diff (- obtained, + expected)
+  in expect.same(- expected, + found)
      s: foo
-  -  i: 2
-  +  i: 1
+  -  i: 1
+  +  i: 2
    }"""
         )
     }
@@ -279,108 +279,10 @@ object DogFoodTests extends IOSuite {
           """- (eql Show) 0ms
   Values not equal: (src/main/DogFoodTests.scala:5)
 
+  in expect.eql(- expected, + found)
   Values have the same string representation. Consider modifying their Show instance.
   foo"""
         )
-    }
-  }
-
-  test(
-    "expect.same delegates to default multi-line show when no instance is found") {
-    _.runSuite(Meta.Rendering).flatMap {
-      case (logs, _) =>
-        val actual =
-          extractFailureMessageForTest(logs, "(same with default show)")
-        if (ScalaCompat.isScala2_12) {
-          assertInlineSnapshot(
-            actual,
-            """- (same with default show) 0ms
-  Values not equal: (src/main/DogFoodTests.scala:5)
-
-  => Diff (- obtained, + expected)
-    "bar",
-  - 2
-  + 1
-    ),
-    "bar",
-  - 2
-  - ),
-  - Bar(
-  - "bar",
-  - 2
-  + 1
-    )"""
-          )
-        } else {
-          assertInlineSnapshot(
-            actual,
-            """- (same with default show) 0ms
-  Values not equal: (src/main/DogFoodTests.scala:5)
-
-  => Diff (- obtained, + expected)
-    s = "bar",
-  - i = 2
-  + i = 1
-    ),
-    s = "bar",
-  - i = 2
-  - ),
-  - Bar(
-  - s = "bar",
-  - i = 2
-  + i = 1
-    )"""
-          )
-        }
-    }
-  }
-  test(
-    "expect.eql delegates to default multi-line show when no instance is found") {
-    _.runSuite(Meta.Rendering).flatMap {
-      case (logs, _) =>
-        val actual =
-          extractFailureMessageForTest(logs, "(eql with default show)")
-        if (ScalaCompat.isScala2_12) {
-          assertInlineSnapshot(
-            actual,
-            """- (eql with default show) 0ms
-  Values not equal: (src/main/DogFoodTests.scala:5)
-
-  => Diff (- obtained, + expected)
-    "bar",
-  - 2
-  + 1
-    ),
-    "bar",
-  - 2
-  - ),
-  - Bar(
-  - "bar",
-  - 2
-  + 1
-    )"""
-          )
-        } else {
-          assertInlineSnapshot(
-            actual,
-            """- (eql with default show) 0ms
-  Values not equal: (src/main/DogFoodTests.scala:5)
-
-  => Diff (- obtained, + expected)
-    s = "bar",
-  - i = 2
-  + i = 1
-    ),
-    s = "bar",
-  - i = 2
-  - ),
-  - Bar(
-  - s = "bar",
-  - i = 2
-  + i = 1
-    )"""
-          )
-        }
     }
   }
 
@@ -559,35 +461,34 @@ object DogFoodTests extends IOSuite {
     _.runSuite(Meta.SourceLocationSuite).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(expect-same)")
-        if (ScalaCompat.isScala3) {
+        if (ScalaCompat.isScala3)
           assertInlineSnapshot(
             actual,
             """- (expect-same) 0ms
   Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:22)
 
-  => Diff (- obtained, + expected)
-  -2
-  +1
+  in expect.same(- expected, + found)
+  -1
+  +2
 
   modules/framework-cats/shared/src/test/scala/Meta.scala:22
         expect.same(x, y)
                         ^"""
           )
-        } else {
+        else
           assertInlineSnapshot(
             actual,
             """- (expect-same) 0ms
   Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:22)
 
-  => Diff (- obtained, + expected)
-  -2
-  +1
+  in expect.same(- expected, + found)
+  -1
+  +2
 
   modules/framework-cats/shared/src/test/scala/Meta.scala:22
         expect.same(x, y)
                    ^"""
           )
-        }
     }
   }
 
@@ -595,15 +496,15 @@ object DogFoodTests extends IOSuite {
     _.runSuite(Meta.SourceLocationSuite).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(multiple)")
-        if (ScalaCompat.isScala3) {
+        if (ScalaCompat.isScala3)
           assertInlineSnapshot(
             actual,
             """- (multiple) 0ms
  [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
  [0] 
- [0] => Diff (- obtained, + expected)
- [0] -2
- [0] +1
+ [0] in expect.same(- expected, + found)
+ [0] -1
+ [0] +2
  [0] 
  [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
  [0]       expect.same(x, y) && expect.same(y, z)
@@ -611,23 +512,23 @@ object DogFoodTests extends IOSuite {
 
  [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
  [1] 
- [1] => Diff (- obtained, + expected)
- [1] -3
- [1] +2
+ [1] in expect.same(- expected, + found)
+ [1] -2
+ [1] +3
  [1] 
  [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
  [1]       expect.same(x, y) && expect.same(y, z)
  [1]                                            ^"""
           )
-        } else {
+        else
           assertInlineSnapshot(
             actual,
             """- (multiple) 0ms
  [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
  [0] 
- [0] => Diff (- obtained, + expected)
- [0] -2
- [0] +1
+ [0] in expect.same(- expected, + found)
+ [0] -1
+ [0] +2
  [0] 
  [0] modules/framework-cats/shared/src/test/scala/Meta.scala:29
  [0]       expect.same(x, y) && expect.same(y, z)
@@ -635,15 +536,14 @@ object DogFoodTests extends IOSuite {
 
  [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala:29)
  [1] 
- [1] => Diff (- obtained, + expected)
- [1] -3
- [1] +2
+ [1] in expect.same(- expected, + found)
+ [1] -2
+ [1] +3
  [1] 
  [1] modules/framework-cats/shared/src/test/scala/Meta.scala:29
  [1]       expect.same(x, y) && expect.same(y, z)
  [1]                                       ^"""
           )
-        }
     }
   }
 
@@ -651,7 +551,7 @@ object DogFoodTests extends IOSuite {
     _.runSuite(Meta.SourceLocationSuite).flatMap {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(traced)")
-        if (ScalaCompat.isScala3) {
+        if (ScalaCompat.isScala3)
           assertInlineSnapshot(
             actual,
             """- (traced) 0ms
@@ -659,9 +559,9 @@ object DogFoodTests extends IOSuite {
  (modules/framework-cats/shared/src/test/scala/Meta.scala:40)
  (modules/framework-cats/shared/src/test/scala/Meta.scala:37)
 
-  => Diff (- obtained, + expected)
-  -2
-  +1
+  in expect.same(- expected, + found)
+  -1
+  +2
 
   modules/framework-cats/shared/src/test/scala/Meta.scala:33
         helper
@@ -673,7 +573,7 @@ object DogFoodTests extends IOSuite {
         nestedHelper.traced(here)
                                ^"""
           )
-        } else {
+        else
           assertInlineSnapshot(
             actual,
             """- (traced) 0ms
@@ -681,9 +581,9 @@ object DogFoodTests extends IOSuite {
  (modules/framework-cats/shared/src/test/scala/Meta.scala:40)
  (modules/framework-cats/shared/src/test/scala/Meta.scala:37)
 
-  => Diff (- obtained, + expected)
-  -2
-  +1
+  in expect.same(- expected, + found)
+  -1
+  +2
 
   modules/framework-cats/shared/src/test/scala/Meta.scala:33
         helper
@@ -695,7 +595,6 @@ object DogFoodTests extends IOSuite {
         nestedHelper.traced(here)
                             ^"""
           )
-        }
     }
   }
 
