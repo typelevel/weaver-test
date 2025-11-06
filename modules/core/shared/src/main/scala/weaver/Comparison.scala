@@ -4,6 +4,7 @@ import cats.Eq
 import cats.Show
 import scala.annotation.implicitNotFound
 import munit.diff.Diffs
+import weaver.internals.MultiLineShow
 
 /**
  * A type class used to compare two instances of the same type and construct an
@@ -37,7 +38,7 @@ object Comparison {
    */
   implicit def fromEq[A](
       implicit eqv: Eq[A],
-      showA: Show[A] = Show.fromToString[A]
+      showA: Show[A] = MultiLineShow.show[A]
   ): Comparison[A] = {
     new Comparison[A] {
       def diff(expected: A, found: A): Result = {

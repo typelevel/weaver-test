@@ -101,6 +101,18 @@ object Meta {
       expect.eql("FOO", "foo")
     }
 
+    case class Bar(s: String, i: Int)
+    object Bar {
+      implicit val barEq: cats.Eq[Bar] = cats.Eq.fromUniversalEquals
+    }
+
+    pureTest("(same with default show)") {
+      expect.same(List.fill(2)(Bar("bar", 1)), List.fill(3)(Bar("bar", 2)))
+    }
+    pureTest("(eql with default show)") {
+      expect.eql(List.fill(2)(Bar("bar", 1)), List.fill(3)(Bar("bar", 2)))
+    }
+
     pureTest("(interpolator)") {
       val x = 1
       // The following code should not raise a "possible missing interpolator" warning
