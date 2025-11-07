@@ -300,6 +300,105 @@ object DogFoodTests extends IOSuite {
     }
   }
 
+  test(
+    "expect.same delegates to default multi-line show when no instance is found") {
+    _.runSuite(Meta.Rendering).flatMap {
+      case (logs, _) =>
+        val actual =
+          extractFailureMessageForTest(logs, "(same with default show)")
+        if (ScalaCompat.isScala2_12) {
+          assertInlineSnapshot(
+            actual,
+            """- (same with default show) 0ms
+  Values not equal: (src/main/DogFoodTests.scala:5)
+
+  => Diff (- obtained, + expected)
+    "bar",
+  - 2
+  + 1
+    ),
+    "bar",
+  - 2
+  - ),
+  - Bar(
+  - "bar",
+  - 2
+  + 1
+    )"""
+          )
+        } else {
+          assertInlineSnapshot(
+            actual,
+            """- (same with default show) 0ms
+  Values not equal: (src/main/DogFoodTests.scala:5)
+
+  => Diff (- obtained, + expected)
+    s = "bar",
+  - i = 2
+  + i = 1
+    ),
+    s = "bar",
+  - i = 2
+  - ),
+  - Bar(
+  - s = "bar",
+  - i = 2
+  + i = 1
+    )"""
+          )
+        }
+    }
+  }
+  test(
+    "expect.eql delegates to default multi-line show when no instance is found") {
+    _.runSuite(Meta.Rendering).flatMap {
+      case (logs, _) =>
+        val actual =
+          extractFailureMessageForTest(logs, "(eql with default show)")
+        if (ScalaCompat.isScala2_12) {
+          assertInlineSnapshot(
+            actual,
+            """- (eql with default show) 0ms
+  Values not equal: (src/main/DogFoodTests.scala:5)
+
+  => Diff (- obtained, + expected)
+    "bar",
+  - 2
+  + 1
+    ),
+    "bar",
+  - 2
+  - ),
+  - Bar(
+  - "bar",
+  - 2
+  + 1
+    )"""
+          )
+        } else {
+          assertInlineSnapshot(
+            actual,
+            """- (eql with default show) 0ms
+  Values not equal: (src/main/DogFoodTests.scala:5)
+
+  => Diff (- obtained, + expected)
+    s = "bar",
+  - i = 2
+  + i = 1
+    ),
+    s = "bar",
+  - i = 2
+  - ),
+  - Bar(
+  - s = "bar",
+  - i = 2
+  + i = 1
+    )"""
+          )
+        }
+    }
+  }
+
   test("expect statements with interpolators are rendered without warnings") {
     _.runSuite(Meta.Rendering).map {
       case (logs, _) =>

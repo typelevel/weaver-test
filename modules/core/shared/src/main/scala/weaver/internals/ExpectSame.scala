@@ -1,7 +1,6 @@
 package weaver
 package internals
 
-import cats.Show
 import cats.data.{ NonEmptyList, Validated }
 import cats.kernel.Eq
 
@@ -30,7 +29,7 @@ private[weaver] trait ExpectSame {
       expected: A,
       found: A)(
       implicit comparisonA: Comparison[A] =
-        Comparison.fromEq[A](Eq.fromUniversalEquals, Show.fromToString),
+        Comparison.fromEq[A](Eq.fromUniversalEquals, MultiLineShow.show),
       loc: SourceLocation): Expectations =
     eql(expected, found)(comparisonA, loc)
 }
