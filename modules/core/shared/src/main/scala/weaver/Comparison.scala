@@ -4,6 +4,7 @@ import cats.Eq
 import cats.Show
 import scala.annotation.implicitNotFound
 import munit.diff.Diffs
+import munit.diff.console.AnsiColors
 import weaver.internals.MultiLineShow
 
 /**
@@ -49,13 +50,16 @@ object Comparison {
           val expectedStr = showA.show(expected)
           if (foundStr == expectedStr) {
             Result.Failure(
-              s"Values have the same string representation. Consider modifying their Show instance.\n${foundStr}")
+              s"(expected, found)\nValues have the same string representation. Consider modifying their Show instance.\n${foundStr}")
           } else {
+            val expectedHeader = AnsiColors.c("- expected", AnsiColors.LightRed)
+            val foundHeader    = AnsiColors.c("+ found", AnsiColors.LightGreen)
+            val header         = s"($expectedHeader, $foundHeader)"
             // Newer versions of munit-diff (1.1.0+) will reverse the order of `expected` and `found` arguments.
             // When we upgrade to munit-diff `1.1.0`, we should switch the order to `found` then `expected`.
             val report =
               Diffs.unifiedDiff(showA.show(expected), showA.show(found))
-            Result.Failure(report)
+            Result.Failure(header + "\n" + report)
           }
         }
       }

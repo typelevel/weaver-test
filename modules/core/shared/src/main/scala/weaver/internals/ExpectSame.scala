@@ -3,7 +3,6 @@ package internals
 
 import cats.data.{ NonEmptyList, Validated }
 import cats.kernel.Eq
-import munit.diff.console.AnsiColors
 
 private[weaver] trait ExpectSame {
 
@@ -35,16 +34,12 @@ private[weaver] trait ExpectSame {
     comparisonA.diff(expected, found) match {
       case Comparison.Result.Success => Expectations(Validated.validNel(()))
       case Comparison.Result.Failure(report) =>
-        // Use the same colours as munit-diff's output.
-        val expectedHeader = AnsiColors.c("- expected", AnsiColors.LightRed)
-        val obtainedHeader = AnsiColors.c("+ found", AnsiColors.LightGreen)
-        val header =
-          s"Values not equal:\n\nin expect.$functionName($expectedHeader, $obtainedHeader)"
+        val header     = s"Values not equal:\n\nin expect.$functionName"
         val sourceLocs = NonEmptyList.of(loc)
         Expectations(
           Validated.invalidNel[ExpectationFailed, Unit](
             new ExpectationFailed(
-              header + "\n" + report,
+              header + report,
               sourceLocs)))
     }
   }

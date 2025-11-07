@@ -279,7 +279,7 @@ object DogFoodTests extends IOSuite {
           """- (eql Show) 0ms
   Values not equal: (src/main/DogFoodTests.scala:5)
 
-  in expect.eql(- expected, + found)
+  in expect.eql(expected, found)
   Values have the same string representation. Consider modifying their Show instance.
   foo"""
         )
