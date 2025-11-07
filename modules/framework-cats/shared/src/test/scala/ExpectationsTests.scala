@@ -67,7 +67,8 @@ object ExpectationsTests extends SimpleIOSuite {
   }
 
   pureTest("expect.eql respects weaver.Comparison") {
-    implicit val comparison: Comparison[Int] = Comparison.fromEq(Eq.allEqual)
+    implicit val comparison: Comparison[Int] =
+      Comparison.fromEq(Eq.allEqual, implicitly[cats.Show[Int]])
     expect.eql(0, 1)
   }
 
