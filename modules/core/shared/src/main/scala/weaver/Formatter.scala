@@ -31,7 +31,7 @@ object Formatter {
 
     def withPrefix(newPrefix: String): String = {
       tabulatedTestLines match {
-        case (_, firstLine) :: Nil => newPrefix + withDuration(firstLine)
+        case (_, firstLine) :: Nil        => newPrefix + withDuration(firstLine)
         case (_, firstLine) :: extraLines =>
           newPrefix + withDuration(firstLine) + EOL + extraLines
             .map(l => l._1.prefix + l._2)
@@ -74,7 +74,7 @@ object Formatter {
     if (status.isFailed && mode == Verbose) {
       val hasDebugOrError =
         log.exists(e => List(debug, error).contains(e.level))
-      val shortLevelPadder = if (hasDebugOrError) "  " else " "
+      val shortLevelPadder                 = if (hasDebugOrError) "  " else " "
       val levelPadder: Log.Level => String = {
         case `info` | `warn`   => shortLevelPadder
         case `debug` | `error` => " "

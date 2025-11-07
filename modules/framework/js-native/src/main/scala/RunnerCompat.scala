@@ -114,7 +114,7 @@ trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
 
         failedF.flatMap {
           case c if c.isEmpty => effect.unit
-          case failed => {
+          case failed         => {
             val ots: Chain[TestOutcomeNative] =
               failed.map { case (SuiteName(name), to) =>
                 TestOutcomeNative.from(name)(to)
@@ -138,7 +138,7 @@ trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
       }
 
       val action = loader match {
-        case None => effect.unit
+        case None         => effect.unit
         case Some(loader) => for {
             outcomes <- Ref.of(Chain.empty[TestOutcome])
             loadAndRun = loader.suite.flatMap(runSuite(fqn, _, outcomes))

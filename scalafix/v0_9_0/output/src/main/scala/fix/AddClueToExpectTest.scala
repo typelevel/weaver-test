@@ -8,7 +8,8 @@ object AddClueToExpectTest extends SimpleIOSuite {
   val c: Int = 3
 
   pureTest("multiple") {
-    expect(clue(a) == clue(b)) and expect(clue(b) == clue(c)) && not(expect(clue(c) == clue(a)))
+    expect(clue(a) == clue(b)) and expect(clue(b) == clue(c)) && not(
+      expect(clue(c) == clue(a)))
   }
 
   pureTest("infix") {

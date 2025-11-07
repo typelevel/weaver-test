@@ -20,7 +20,7 @@ object TestErrorFormatter {
     val newStackTrace = groupStackTraceElements(traceElements)
 
     newStackTrace match {
-      case Nil => Vector()
+      case Nil    => Vector()
       case h :: t =>
         renderGroupedStackTrace(NonEmptyVector.of(h, t: _*), truncated)
     }

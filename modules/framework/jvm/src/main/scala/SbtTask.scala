@@ -35,7 +35,7 @@ private[framework] class SbtTask(
 
         nextEvent.foreach {
           case s @ SuiteStarted(_) => log(s)
-          case SuiteFinished(_) =>
+          case SuiteFinished(_)    =>
             finished = true
             if (stillRunning.decrementAndGet == 0) {
               waitForResourcesShutdown.acquire()

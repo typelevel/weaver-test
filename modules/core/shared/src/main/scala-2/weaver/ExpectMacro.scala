@@ -44,9 +44,9 @@ private[weaver] object ExpectMacro {
       loc: c.Tree): c.Tree = {
     import c.universe._
     val clueMethodSymbol = getClueMethodSymbol(c)
-    val allExpectations = values.toList.map { value =>
+    val allExpectations  = values.toList.map { value =>
       val (cluesName, cluesValDef) = makeClues(c)
-      val transformedValue =
+      val transformedValue         =
         replaceClueMethodCalls(c)(clueMethodSymbol, cluesName, value)
       val sourceCode =
         new String(value.pos.source.content.slice(value.pos.start,
@@ -71,7 +71,7 @@ private[weaver] object ExpectMacro {
       value: c.Tree,
       message: c.Tree)(loc: c.Tree): c.Tree = {
     import c.universe._
-    val sourcePos = c.enclosingPosition
+    val sourcePos  = c.enclosingPosition
     val sourceCode =
       new String(sourcePos.source.content.slice(sourcePos.start, sourcePos.end))
     val (cluesName, cluesValDef) = makeClues(c)
@@ -104,7 +104,7 @@ private[weaver] object ExpectMacro {
       loc: c.Tree): c.Tree = {
 
     import c.universe._
-    val sourcePos = c.enclosingPosition
+    val sourcePos  = c.enclosingPosition
     val sourceCode =
       new String(sourcePos.source.content.slice(sourcePos.start, sourcePos.end))
 
@@ -131,7 +131,7 @@ private[weaver] object ExpectMacro {
       message: c.Tree): c.Tree = {
     import c.universe._
     val sanitizedSourceCode = SourceCode.sanitize(c)(sourceCode)
-    val block =
+    val block               =
       q"$cluesValDef; _root_.weaver.internals.Clues.toExpectations($loc, Some($sanitizedSourceCode), $message, $cluesName, $value)"
     val untyped = c.untypecheck(block)
     val retyped = c.typecheck(untyped, pt = c.typeOf[Expectations])
@@ -147,7 +147,7 @@ private[weaver] object ExpectMacro {
   /** Construct a [[Clues]] collection local to the `expect` call. */
   private def makeClues(c: blackbox.Context): (c.TermName, c.Tree) = {
     import c.universe._
-    val cluesName = TermName(c.freshName("clues$"))
+    val cluesName   = TermName(c.freshName("clues$"))
     val cluesValDef =
       q"val $cluesName: _root_.weaver.internals.Clues = new _root_.weaver.internals.Clues()"
     (cluesName, cluesValDef)

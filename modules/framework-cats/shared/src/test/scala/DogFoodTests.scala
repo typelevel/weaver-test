@@ -340,7 +340,7 @@ object DogFoodTests extends IOSuite {
   test("failures with clues are rendered correctly") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractFailureMessageForTest(logs, "(failure)")
+        val actual   = extractFailureMessageForTest(logs, "(failure)")
         val expected =
           s"""
         |- (failure) 0ms
@@ -362,7 +362,7 @@ object DogFoodTests extends IOSuite {
   test("failures with nested clues are rendered correctly") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractFailureMessageForTest(logs, "(nested)")
+        val actual   = extractFailureMessageForTest(logs, "(nested)")
         val expected =
           s"""
         |- (nested) 0ms
@@ -407,7 +407,7 @@ object DogFoodTests extends IOSuite {
   test("failures in expect.all are reported with their source code") {
     _.runSuite(Meta.Clue).map {
       case (logs, _) =>
-        val actual = extractFailureMessageForTest(logs, "(all)")
+        val actual   = extractFailureMessageForTest(logs, "(all)")
         val expected =
           s"""
         |- (all) 0ms
@@ -583,7 +583,7 @@ object DogFoodTests extends IOSuite {
     _.runSuite(Meta.SourceLocationSuite).map {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(traced)")
-        val trace = if (ScalaCompat.isScala3)
+        val trace  = if (ScalaCompat.isScala3)
           """|  modules/framework-cats/shared/src/test/scala/Meta.scala:33
              |        helper
              |             ^
@@ -628,7 +628,7 @@ object DogFoodTests extends IOSuite {
     _.runSuite(Meta.SourceLocationSuite).map {
       case (logs, _) =>
         val actual = extractFailureMessageForTest(logs, "(interpolator)")
-        val trace = if (ScalaCompat.isScala3)
+        val trace  = if (ScalaCompat.isScala3)
           """|  modules/framework-cats/shared/src/test/scala/Meta.scala:44
              |        forEach(Option(s"$x"))(x => expect(x == "2"))
              |                                                   ^
