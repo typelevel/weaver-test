@@ -19,7 +19,6 @@ trait SourceLocationMacro {
 
 object macros {
   def fromContextImpl(using ctx: Quotes): Expr[SourceLocation] = {
-    import ctx.reflect.Position._
     import ctx.reflect._
 
     val pwd = java.nio.file.Paths.get("").toAbsolutePath
