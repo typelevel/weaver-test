@@ -6,10 +6,12 @@ package weaver
  * The implicit conversion from String is used as a mean for IDEs to detect the
  * location of individual tests.
  */
-case class TestName(name: String, location: SourceLocation, tags: Set[String]) {
-  def tagged(str: String): TestName = this.copy(tags = tags + str)
-  def only: TestName                = tagged(TestName.Tags.only)
-  def ignore: TestName              = tagged(TestName.Tags.ignore)
+case class TestName(
+    name: String,
+    location: SourceLocation,
+    tags: Set[TestName.Tag]) {
+  def only: TestName   = this.copy(tags = tags + TestName.Tag.Only)
+  def ignore: TestName = this.copy(tags = tags + TestName.Tag.Ignore)
 }
 
 object TestName {
@@ -17,8 +19,9 @@ object TestName {
       implicit location: SourceLocation): TestName =
     TestName(s, location, Set.empty)
 
-  object Tags {
-    val only   = "only"
-    val ignore = "ignore"
+  sealed trait Tag
+  private[weaver] object Tag {
+    private[weaver] case object Only   extends Tag
+    private[weaver] case object Ignore extends Tag
   }
 }
