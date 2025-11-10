@@ -169,7 +169,8 @@ trait Checkers {
       if (failure.isEmpty) copy(succeeded = succeeded + 1) else this
     def addDiscard: Status[T] =
       if (failure.isEmpty) copy(discarded = discarded + 1) else this
-    def addFailure(input: String, seed: Seed, exp: Expectations): Status[T] =
+    def addFailure(input: String, seed: Seed, exp: Expectations)(implicit
+        loc: SourceLocation): Status[T] =
       if (failure.isEmpty) {
         val ith     = succeeded + discarded + 1
         val failure = Expectations.Helpers.failure(failureMessage(
@@ -231,9 +232,9 @@ object Checkers {
 
   private def failureMessage(ith: Int, seed: Seed, input: String): String =
     s"""Property test failed on try $ith with seed ${seed} and input $input.
-                |You can reproduce this by adding the following override to your suite:
+                |You can reproduce this by adding the following configuration to your test:
                 |
-                |override def checkConfig = super.checkConfig.withInitialSeed($seed.toOption)""".stripMargin
+                |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.$seed.toOption))""".stripMargin
 
   private class PropertyTestError(
       ith: Int,
