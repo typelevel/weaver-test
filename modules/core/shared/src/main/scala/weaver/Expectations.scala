@@ -264,11 +264,13 @@ object Expectations {
           "unexpected error case encountered after error handling"))((z, x) =>
           z || x)
 
+    @deprecated("Use `expect` with `clue` instead", since = "0.11.0")
     def verify(condition: Boolean, hint: String)(
         implicit pos: SourceLocation): Expectations =
       if (condition) success
       else failure(hint)
 
+    @deprecated("Use `expect` with `clue` instead", since = "0.11.0")
     def verify(condition: Boolean)(
         implicit pos: SourceLocation): Expectations =
       verify(condition, "assertion failed!")

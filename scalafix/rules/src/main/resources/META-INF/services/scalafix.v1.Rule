@@ -3,3 +3,4 @@ fix.RenameExpectToExpectSame
 fix.AddClueToExpect
 fix.RenameCancelToIgnore
 fix.RenameAssertionExceptionToExpectationFailed
+fix.RenameVerifyToExpect
