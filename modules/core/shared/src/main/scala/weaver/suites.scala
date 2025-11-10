@@ -67,14 +67,14 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
 
     val (testsTaggedOnly,   // "foo".only and "foo".only.ignore
          testsNotTaggedOnly // "foo" and "foo".ignore
-    ) = testSeq.partition(_._1.tags(TestName.Tags.only))
+    ) = testSeq.partition(_._1.tags(TestName.Tag.Only))
     val (testsTaggedOnlyAndIgnored, // "foo".only.ignore
          onlyTestsNotIgnored        // "foo".only
-    ) = testsTaggedOnly.partition(_._1.tags(TestName.Tags.ignore))
+    ) = testsTaggedOnly.partition(_._1.tags(TestName.Tag.Ignore))
 
     val (testsNotTaggedOnlyAndIgnored,   // "foo".ignore
          testsNotTaggedOnlyAndNotIgnored // "foo"
-    ) = testsNotTaggedOnly.partition(_._1.tags(TestName.Tags.ignore))
+    ) = testsNotTaggedOnly.partition(_._1.tags(TestName.Tag.Ignore))
 
     if (testsTaggedOnly.nonEmpty && isCI) {
       // We're running in a CI environment and some tests are tagged
