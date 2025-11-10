@@ -22,24 +22,24 @@ private[weaver] object MultiLineShow extends MultiLineShowCompat {
   private val indentStep    = 1
 
   private[weaver] def show[A]: Show[A] = (a: A) => {
-    val out = new StringBuilder()
+    val out                             = new StringBuilder()
     def loop(a: Any, indent: Int): Unit = {
       val nextIndent = indent + indentStep
       a match {
-        case null => out.append("null")
+        case null    => out.append("null")
         case x: Char =>
           out.append('\'')
           if (x == '\'') out.append("\\'") else printChar(x, out)
           out.append('\'')
-        case x: Byte   => out.append(x.toString())
-        case x: Short  => out.append(x.toString())
-        case x: Int    => out.append(x.toString())
-        case x: Long   => out.append(x.toString())
-        case x: Float  => out.append(x.toString())
-        case x: Double => out.append(x.toString())
-        case x: String => printString(filterAnsi(x), out)
-        case None      => out.append("None")
-        case Nil       => out.append("Nil")
+        case x: Byte      => out.append(x.toString())
+        case x: Short     => out.append(x.toString())
+        case x: Int       => out.append(x.toString())
+        case x: Long      => out.append(x.toString())
+        case x: Float     => out.append(x.toString())
+        case x: Double    => out.append(x.toString())
+        case x: String    => printString(filterAnsi(x), out)
+        case None         => out.append("None")
+        case Nil          => out.append("Nil")
         case x: Map[_, _] =>
           printApply(
             collectionClassName(x),
@@ -66,7 +66,7 @@ private[weaver] object MultiLineShow extends MultiLineShowCompat {
           if (it.isEmpty) out.append("empty iterator")
           else out.append("non-empty iterator")
         case p: Product =>
-          val elementNames = productElementNames(p)
+          val elementNames         = productElementNames(p)
           val infiniteElementNames = Iterator
             .continually(if (elementNames.hasNext) elementNames.next() else "")
           printApply(
@@ -150,7 +150,7 @@ private[weaver] object MultiLineShow extends MultiLineShowCompat {
     case '\r'     => sb.append("\\r")
     case '\t'     => sb.append("\\t")
     case '\u001B' => ()
-    case c =>
+    case c        =>
       val isNonReadableAscii = c < ' ' || c > '~'
       if (isNonReadableAscii && !Character.isLetter(c)) sb
         .append("\\u%04x".format(c.toInt))
