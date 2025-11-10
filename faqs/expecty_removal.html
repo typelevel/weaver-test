@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="Typelevel Laika + Helium Theme" />
-  <title>Failures</title>
+  <title>Why are my error messages worse ?</title>
   
   <meta name="author" content="Olivier Mélois"/>
   
@@ -107,14 +107,14 @@
     <li class="level2 nav-leaf"><a href="../features/filtering.html">Filtering tests</a></li>
     <li class="level2 nav-leaf"><a href="../features/specs2.html">specs2 (discontinued)</a></li>
     <li class="level1 nav-header">Sample reports</li>
-    <li class="level2 nav-leaf"><a href="multiple_suites_success.html">Successes</a></li>
-    <li class="level2 active nav-leaf"><a href="#">Failures</a></li>
-    <li class="level2 nav-leaf"><a href="multiple_suites_logging.html">Logging</a></li>
+    <li class="level2 nav-leaf"><a href="../samples/multiple_suites_success.html">Successes</a></li>
+    <li class="level2 nav-leaf"><a href="../samples/multiple_suites_failures.html">Failures</a></li>
+    <li class="level2 nav-leaf"><a href="../samples/multiple_suites_logging.html">Logging</a></li>
     <li class="level1 nav-header">Frequently Asked Questions</li>
-    <li class="level2 nav-leaf"><a href="../faqs/ide_faqs.html">IDE Support?</a></li>
-    <li class="level2 nav-leaf"><a href="../faqs/other_effects.html">What happened to other effect types ?</a></li>
-    <li class="level2 nav-leaf"><a href="../faqs/expecty_removal.html">Why are my error messages worse ?</a></li>
-    <li class="level2 nav-leaf"><a href="../faqs/typelevel-stewardship.html">Why has the organization changed?</a></li>
+    <li class="level2 nav-leaf"><a href="ide_faqs.html">IDE Support?</a></li>
+    <li class="level2 nav-leaf"><a href="other_effects.html">What happened to other effect types ?</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Why are my error messages worse ?</a></li>
+    <li class="level2 nav-leaf"><a href="typelevel-stewardship.html">Why has the organization changed?</a></li>
   </ul>
 
 </nav>
@@ -123,9 +123,10 @@
 
       
 <nav id="page-nav">
-  <p class="header"><a href="#">Failures</a></p>
+  <p class="header"><a href="#">Why are my error messages worse ?</a></p>
 
   <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#how-can-i-improve-my-error-messages">How can I improve my error messages?</a></li>
   </ul>
 
   <p class="footer"></p>
@@ -134,49 +135,20 @@
 
       <main class="content">
 
-        <h1 id="failures" class="title">Failures</h1>
-        <p>Weaver aggregates failures from all tests to output them after all the tests have finished</p>
-        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">weaver</span><span>.</span><span class="identifier">_</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="identifier">_</span><span>
-
-</span><span class="keyword">object</span><span> </span><span class="type-name">MySuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">SimpleIOSuite</span><span> {
-  </span><span class="keyword">val</span><span> </span><span class="identifier">randomUUID</span><span> = </span><span class="type-name">IO</span><span>(</span><span class="identifier">java</span><span>.</span><span class="identifier">util</span><span>.</span><span class="type-name">UUID</span><span>.</span><span class="identifier">randomUUID</span><span>())
-
-  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;failing test 1&quot;</span><span>) {
-    </span><span class="identifier">expect</span><span>(</span><span class="number-literal">1</span><span> &gt;= </span><span class="number-literal">2</span><span>)
-  }
-}
-
-</span><span class="keyword">object</span><span> </span><span class="type-name">MyAnotherSuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">SimpleIOSuite</span><span> {
-  </span><span class="keyword">import</span><span> </span><span class="identifier">scala</span><span>.</span><span class="identifier">util</span><span>.</span><span class="type-name">Random</span><span>.</span><span class="identifier">alphanumeric</span><span>
-
-  </span><span class="keyword">val</span><span> </span><span class="identifier">randomString</span><span> = </span><span class="type-name">IO</span><span>(</span><span class="identifier">alphanumeric</span><span>.</span><span class="identifier">take</span><span>(</span><span class="number-literal">10</span><span>).</span><span class="identifier">mkString</span><span>(</span><span class="string-literal">&quot;&quot;</span><span>))
-
-  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;failing test 2&quot;</span><span>) {
-    </span><span class="keyword">for</span><span> {
-      </span><span class="identifier">x</span><span> &lt;- </span><span class="identifier">randomString</span><span>
-    } </span><span class="keyword">yield</span><span> </span><span class="identifier">check</span><span>(</span><span class="identifier">x</span><span>).</span><span class="identifier">traced</span><span>(</span><span class="identifier">here</span><span>)
-  }
-
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">check</span><span>(</span><span class="identifier">x</span><span> : </span><span class="type-name">String</span><span>) = </span><span class="identifier">expect</span><span>(</span><span class="identifier">clue</span><span>(</span><span class="identifier">clue</span><span>(</span><span class="identifier">x</span><span>).</span><span class="identifier">length</span><span>) &gt; </span><span class="number-literal">10</span><span>)
-}</span></code></pre>
-        <p>The report looks like this:</p>
-        <div class='terminal'><pre>
-<span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>6ms</b></span>
-
-<span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>4ms</b></span>
-
-<span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
-<span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;1&nbsp;<span style='color: lightgray'><b>6ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:18)<br/><br/>&nbsp;&nbsp;expect(1&nbsp;&gt;=&nbsp;2)<br/><br/>&nbsp;&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/><br/>&nbsp;&nbsp;multiple_suites_failures.md:18<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect(1&nbsp;&gt;=&nbsp;2)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
-
-<span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;2&nbsp;<span style='color: lightgray'><b>4ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_failures.md:34)<br/>&nbsp;(multiple_suites_failures.md:31)<br/><br/>&nbsp;&nbsp;expect(clue(clue(x).length)&nbsp;&gt;&nbsp;10)<br/><br/>&nbsp;&nbsp;Clues&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;x:&nbsp;String&nbsp;=&nbsp;BnBI3DIT4K<br/>&nbsp;&nbsp;&nbsp;&nbsp;clue(x).length:&nbsp;Int&nbsp;=&nbsp;10<br/>&nbsp;&nbsp;}<br/><br/>&nbsp;&nbsp;multiple_suites_failures.md:34<br/>&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;check(x&nbsp;:&nbsp;String)&nbsp;=&nbsp;expect(clue(clue(x).length)&nbsp;&gt;&nbsp;10)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^<br/>&nbsp;&nbsp;multiple_suites_failures.md:31<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;check(x).traced(here)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
-
-Total&nbsp;2,&nbsp;Failed&nbsp;2,&nbsp;Passed&nbsp;0,&nbsp;Ignored&nbsp;0
-</pre></div>
+        <h1 id="why-are-my-error-messages-worse" class="title">Why are my error messages worse ?</h1>
+        <p>Weaver <code>0.9.0</code> reduced the error reporting power of <code>expect</code>.</p>
+        <p>Prior to <code>0.9.0</code>, <code>expect</code> would capture the values of its contents on failure. This used the <a href="https://github.com/eed3si9n/expecty/">expecty</a> macro library to introspect code. While the macro behaved well in most cases, it came with a high maintenance burden. Users reported many bugs in the Scala 3 implementation that were non-trivial to fix.</p>
+        <p>As the stewardship of weaver moved to Typelevel, it was decided to cut the cord with expecty in order to eliminate this maintenance burden, and to bring in <code>clue</code> (inspired from munit) as a much simpler alternative.</p>
+        <p>Expecty&#39;s error messages were useful, and this decision may be disappointing for users. However, it will allow maintainers to focus on improving other aspects of weaver.</p>
+        
+        <h2 id="how-can-i-improve-my-error-messages" class="section"><a class="anchor-link left" href="#how-can-i-improve-my-error-messages"><i class="icofont-laika link">&#xef71;</i></a>How can I improve my error messages?</h2>
+        <p>You can rewrite your <code>expect</code> assertions into <code>expect.same</code> calls, and add <code>clue</code> to any remaining assertions.</p>
+        <p>We recommend you do this automatically by <a href="https://scalacenter.github.io/scalafix/docs/rules/external-rules.html">applying a scalafix rule</a>.</p>
+        <p>Run the <code>RewriteExpect</code> rule to rewrite <code>expect</code> and <code>expect.all</code> into assertions with better failure messages.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt scalafixAll github:typelevel/weaver-test/RewriteExpect?sha=</span><span class="number-literal">0.10.1</span></code></pre>
+        <p>Run the <code>AddClueToExpect</code> rule to add <code>clue</code> calls to the remaining <code>expect</code> assertions.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt scalafixAll github:typelevel/weaver-test/AddClueToExpect?sha=</span><span class="number-literal">0.10.1</span></code></pre>
+        <p>Your failure messages will now include the values captured in <code>clue</code>.</p>
 
         
 <hr class="footer-rule"/>
