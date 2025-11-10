@@ -1,5 +1,5 @@
 fix.RenameAssertToExpect
-fix.RenameExpectToExpectSame
+fix.RewriteExpect
 fix.AddClueToExpect
 fix.RenameCancelToIgnore
 fix.RenameAssertionExceptionToExpectationFailed

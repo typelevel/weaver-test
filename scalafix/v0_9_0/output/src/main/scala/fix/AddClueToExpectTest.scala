@@ -30,6 +30,18 @@ object AddClueToExpectTest extends SimpleIOSuite {
     expect(isGreater(clue(a), clue(b))(clue(c)))
   }
 
+  pureTest("negation") {
+    expect(!clue(a).<(clue(b)))
+  }
+
+  pureTest("type application") {
+    expect(clue(a).isInstanceOf[Int])
+  }
+
+  pureTest("negated type application") {
+    expect(!clue(a).isInstanceOf[Int])
+  }
+
   pureTest("ignore anonymous functions") {
     expect(clue(Some(1)).fold(true)(_ == 1))
   }
@@ -45,4 +57,14 @@ object AddClueToExpectTest extends SimpleIOSuite {
   pureTest("ignore clue") {
     expect(clue(1) > 0)
   }
+
+  pureTest("all") {
+    def isGreater(a: Int, b: Int, c: Int): Boolean = a > b && b > c
+    expect.all(clue(a) == clue(b), clue(Some(2)).nonEmpty, isGreater(clue(a), clue(b), clue(c)))
+  }
+
+  pureTest("ignore clue in expect.all") {
+    expect.all(clue(1) > 0)
+  }
+
 }
