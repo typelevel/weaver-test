@@ -271,7 +271,7 @@ object Meta {
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
-    loggedTest("failure") { log =>
+    loggedTest("(failure)") { log =>
       for {
         _ <- log.error(
           "error",
