@@ -264,13 +264,19 @@ object Expectations {
           "unexpected error case encountered after error handling"))((z, x) =>
           z || x)
 
-    @deprecated("Use `expect` with `clue` instead", since = "0.11.0")
+    @deprecated(
+      "Use `expect` with `clue` instead. Apply the scalafix rule `github:typelevel/weaver-test/RenameVerifyToExpect?sha=0.11.0` to rewrite all usages.",
+      since = "0.11.0"
+    )
     def verify(condition: Boolean, hint: String)(
         implicit pos: SourceLocation): Expectations =
       if (condition) success
       else failure(hint)
 
-    @deprecated("Use `expect` with `clue` instead", since = "0.11.0")
+    @deprecated(
+      "Use `expect` with `clue` instead. Apply the scalafix rule `github:typelevel/weaver-test/RenameVerifyToExpect?sha=0.11.0` to rewrite all usages.",
+      since = "0.11.0"
+    )
     def verify(condition: Boolean)(
         implicit pos: SourceLocation): Expectations =
       verify(condition, "assertion failed!")
