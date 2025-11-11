@@ -265,7 +265,7 @@ object Expectations {
           z || x)
 
     @deprecated(
-      "Use `expect` with `clue` instead. Apply the scalafix rule `github:typelevel/weaver-test/RenameVerifyToExpect?sha=0.11.0` to rewrite all usages.",
+      "Use `expect` with `clue` instead. Apply the scalafix rule `github:typelevel/weaver-test/v0_11_0?sha=0.11.0` to rewrite all usages.",
       since = "0.11.0"
     )
     def verify(condition: Boolean, hint: String)(
@@ -274,7 +274,7 @@ object Expectations {
       else failure(hint)
 
     @deprecated(
-      "Use `expect` with `clue` instead. Apply the scalafix rule `github:typelevel/weaver-test/RenameVerifyToExpect?sha=0.11.0` to rewrite all usages.",
+      "Use `expect` with `clue` instead. Apply the scalafix rule `github:typelevel/weaver-test/v0_11_0?sha=0.11.0` to rewrite all usages.",
       since = "0.11.0"
     )
     def verify(condition: Boolean)(
