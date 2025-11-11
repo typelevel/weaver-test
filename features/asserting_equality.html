@@ -126,8 +126,10 @@
   <p class="header"><a href="#">Asserting equality</a></p>
 
   <ul class="nav-list">
-    <li class="level1 nav-leaf"><a href="#expect-eql-recommended"><code>expect.eql</code> (recommended)</a></li>
-    <li class="level1 nav-leaf"><a href="#expect-same"><code>expect.same</code></a></li>
+    <li class="level1 nav-node"><a href="#expect-eql-recommended"><code>expect.eql</code> (recommended)</a></li>
+    <li class="level2 nav-leaf"><a href="#example-report-1">Example report</a></li>
+    <li class="level1 nav-node"><a href="#expect-same"><code>expect.same</code></a></li>
+    <li class="level2 nav-leaf"><a href="#example-report-2">Example report</a></li>
     <li class="level1 nav-leaf"><a href="#do-not-use-expect">Do not use <code>expect</code></a></li>
     <li class="level1 nav-node"><a href="#should-i-use-expect-same-or-expect-eql">Should I use <code>expect.same</code> or <code>expect.eql</code>?</a></li>
     <li class="level2 nav-leaf"><a href="#example-suite">Example suite</a></li>
@@ -157,7 +159,23 @@
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">Eq</span><span>
 </span><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">petEq</span><span>: </span><span class="type-name">Eq</span><span>[</span><span class="type-name">Pet</span><span>] = </span><span class="type-name">Eq</span><span>.</span><span class="identifier">by</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">name</span><span>)
 
-</span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="type-name">Pet</span><span>(</span><span class="string-literal">&quot;Maru&quot;</span><span>), </span><span class="type-name">Pet</span><span>(</span><span class="string-literal">&quot;Fido&quot;</span><span>))</span></code></pre>
+</span><span class="keyword">object</span><span> </span><span class="type-name">ExpectEqlSuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">SimpleIOSuite</span><span> {
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Simple expectation&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="type-name">Pet</span><span>(</span><span class="string-literal">&quot;Maru&quot;</span><span>), </span><span class="type-name">Pet</span><span>(</span><span class="string-literal">&quot;Fido&quot;</span><span>))
+  }
+}</span></code></pre>
+        
+        <h3 id="example-report-1" class="section"><a class="anchor-link left" href="#example-report-1"><i class="icofont-laika link">&#xef71;</i></a>Example report</h3>
+        <div class='terminal'><pre>
+<span style='color: cyan'>repl.MdocSessionMdocAppExpectEqlSuite</span>
+<span style='color: red'>-&nbsp;</span>Simple&nbsp;expectation&nbsp;<span style='color: lightgray'><b>30ms</b></span>
+
+<span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
+<span style='color: cyan'>repl.MdocSessionMdocAppExpectEqlSuite</span>
+<span style='color: red'>-&nbsp;</span>Simple&nbsp;expectation&nbsp;<span style='color: lightgray'><b>30ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(asserting_equality.md:50)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.eql(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;&nbsp;Pet(<br/>&nbsp;&nbsp;</span><span style='color: lightred'>-&nbsp;name&nbsp;=&nbsp;&quot;Maru&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+&nbsp;name&nbsp;=&nbsp;&quot;Fido&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;&nbsp;&nbsp;)<br/><br/>&nbsp;&nbsp;asserting_equality.md:50<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.eql(Pet(&quot;Maru&quot;),&nbsp;Pet(&quot;Fido&quot;))<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+
+Total&nbsp;1,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;0,&nbsp;Ignored&nbsp;0
+</pre></div>
         
         <h2 id="expect-same" class="section"><a class="anchor-link left" href="#expect-same"><i class="icofont-laika link">&#xef71;</i></a><code>expect.same</code></h2>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">expect</span><span>.</span><span class="identifier">same</span><span>(</span><span class="identifier">expected</span><span>, </span><span class="identifier">found</span><span>)</span></code></pre>
@@ -168,7 +186,23 @@
         <p><code>expect.same</code> doesn&#39;t require an <code>Eq</code> instance. </p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Dog</span><span>(</span><span class="identifier">name</span><span>: </span><span class="type-name">String</span><span>) </span><span class="comment">// No Eq instance defined
 </span><span>
-</span><span class="identifier">expect</span><span>.</span><span class="identifier">same</span><span>(</span><span class="type-name">Dog</span><span>(</span><span class="string-literal">&quot;Maru&quot;</span><span>), </span><span class="type-name">Dog</span><span>(</span><span class="string-literal">&quot;Fido&quot;</span><span>))</span></code></pre>
+</span><span class="keyword">object</span><span> </span><span class="type-name">ExpectSameSuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">SimpleIOSuite</span><span> {
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;Simple expectation&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">same</span><span>(</span><span class="type-name">Dog</span><span>(</span><span class="string-literal">&quot;Maru&quot;</span><span>), </span><span class="type-name">Dog</span><span>(</span><span class="string-literal">&quot;Fido&quot;</span><span>))
+  }
+}</span></code></pre>
+        
+        <h3 id="example-report-2" class="section"><a class="anchor-link left" href="#example-report-2"><i class="icofont-laika link">&#xef71;</i></a>Example report</h3>
+        <div class='terminal'><pre>
+<span style='color: cyan'>repl.MdocSessionMdocAppExpectSameSuite</span>
+<span style='color: red'>-&nbsp;</span>Simple&nbsp;expectation&nbsp;<span style='color: lightgray'><b>2ms</b></span>
+
+<span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
+<span style='color: cyan'>repl.MdocSessionMdocAppExpectSameSuite</span>
+<span style='color: red'>-&nbsp;</span>Simple&nbsp;expectation&nbsp;<span style='color: lightgray'><b>2ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(asserting_equality.md:79)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.same(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;&nbsp;Dog(<br/>&nbsp;&nbsp;</span><span style='color: lightred'>-&nbsp;name&nbsp;=&nbsp;&quot;Maru&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+&nbsp;name&nbsp;=&nbsp;&quot;Fido&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;&nbsp;&nbsp;)<br/><br/>&nbsp;&nbsp;asserting_equality.md:79<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.same(Dog(&quot;Maru&quot;),&nbsp;Dog(&quot;Fido&quot;))<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+
+Total&nbsp;1,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;0,&nbsp;Ignored&nbsp;0
+</pre></div>
         
         <h2 id="do-not-use-expect" class="section"><a class="anchor-link left" href="#do-not-use-expect"><i class="icofont-laika link">&#xef71;</i></a>Do not use <code>expect</code></h2>
         <p>You can assert for equality using <code>expect</code>.</p>
@@ -214,15 +248,15 @@
         <h3 id="example-suite-report" class="section"><a class="anchor-link left" href="#example-suite-report"><i class="icofont-laika link">&#xef71;</i></a>Example suite report</h3>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppExpectationsSuite</span>
-<span style='color: red'>-&nbsp;</span>expect.eql&nbsp;for&nbsp;standard&nbsp;data&nbsp;types&nbsp;<span style='color: lightgray'><b>27ms</b></span>
-<span style='color: red'>-&nbsp;</span>expect.eql&nbsp;for&nbsp;user-defined&nbsp;data&nbsp;types&nbsp;<span style='color: lightgray'><b>27ms</b></span>
-<span style='color: red'>-&nbsp;</span>expect.same&nbsp;relaxed&nbsp;equality&nbsp;comparison&nbsp;<span style='color: lightgray'><b>27ms</b></span>
+<span style='color: red'>-&nbsp;</span>expect.eql&nbsp;for&nbsp;standard&nbsp;data&nbsp;types&nbsp;<span style='color: lightgray'><b>1ms</b></span>
+<span style='color: red'>-&nbsp;</span>expect.eql&nbsp;for&nbsp;user-defined&nbsp;data&nbsp;types&nbsp;<span style='color: lightgray'><b>1ms</b></span>
+<span style='color: red'>-&nbsp;</span>expect.same&nbsp;relaxed&nbsp;equality&nbsp;comparison&nbsp;<span style='color: lightgray'><b>3ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>repl.MdocSessionMdocAppExpectationsSuite</span>
-<span style='color: red'>-&nbsp;</span>expect.eql&nbsp;for&nbsp;standard&nbsp;data&nbsp;types&nbsp;<span style='color: lightgray'><b>27ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(asserting_equality.md:118)<br/><br/>&nbsp;&nbsp;</span><span style='color: red'>=&gt;&nbsp;Diff</span>&nbsp;(<span style='color: lightred'>-&nbsp;obtained</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;expected</span>)<br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightred'>-2</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+1</span><br/><span style='color: red'><br/>&nbsp;&nbsp;asserting_equality.md:118<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.eql(1,&nbsp;2)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
-<span style='color: red'>-&nbsp;</span>expect.eql&nbsp;for&nbsp;user-defined&nbsp;data&nbsp;types&nbsp;<span style='color: lightgray'><b>27ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(asserting_equality.md:126)<br/><br/>&nbsp;&nbsp;</span><span style='color: red'>=&gt;&nbsp;Diff</span>&nbsp;(<span style='color: lightred'>-&nbsp;obtained</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;expected</span>)<br/><span style='color: red'>&nbsp;&nbsp;&nbsp;Pet(<br/>&nbsp;&nbsp;</span><span style='color: lightred'>-&nbsp;name&nbsp;=&nbsp;&quot;Fido&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+&nbsp;name&nbsp;=&nbsp;&quot;Maru&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;&nbsp;&nbsp;)<br/><br/>&nbsp;&nbsp;asserting_equality.md:126<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.same(Pet(&quot;Maru&quot;),&nbsp;Pet(&quot;Fido&quot;))<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
-<span style='color: red'>-&nbsp;</span>expect.same&nbsp;relaxed&nbsp;equality&nbsp;comparison&nbsp;<span style='color: lightgray'><b>27ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(asserting_equality.md:134)<br/><br/>&nbsp;&nbsp;</span><span style='color: red'>=&gt;&nbsp;Diff</span>&nbsp;(<span style='color: lightred'>-&nbsp;obtained</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;expected</span>)<br/><span style='color: red'>&nbsp;&nbsp;&nbsp;Dog(<br/>&nbsp;&nbsp;</span><span style='color: lightred'>-&nbsp;name&nbsp;=&nbsp;&quot;Fido&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+&nbsp;name&nbsp;=&nbsp;&quot;Maru&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;&nbsp;&nbsp;)<br/><br/>&nbsp;&nbsp;asserting_equality.md:134<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.same(Dog(&quot;Maru&quot;),&nbsp;Dog(&quot;Fido&quot;))<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>expect.eql&nbsp;for&nbsp;standard&nbsp;data&nbsp;types&nbsp;<span style='color: lightgray'><b>1ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(asserting_equality.md:125)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.eql(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightred'>-1</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+2</span><br/><span style='color: red'><br/>&nbsp;&nbsp;asserting_equality.md:125<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.eql(1,&nbsp;2)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>expect.eql&nbsp;for&nbsp;user-defined&nbsp;data&nbsp;types&nbsp;<span style='color: lightgray'><b>1ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(asserting_equality.md:133)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.same(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;&nbsp;Pet(<br/>&nbsp;&nbsp;</span><span style='color: lightred'>-&nbsp;name&nbsp;=&nbsp;&quot;Maru&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+&nbsp;name&nbsp;=&nbsp;&quot;Fido&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;&nbsp;&nbsp;)<br/><br/>&nbsp;&nbsp;asserting_equality.md:133<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.same(Pet(&quot;Maru&quot;),&nbsp;Pet(&quot;Fido&quot;))<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>expect.same&nbsp;relaxed&nbsp;equality&nbsp;comparison&nbsp;<span style='color: lightgray'><b>3ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(asserting_equality.md:141)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.same(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;&nbsp;Dog(<br/>&nbsp;&nbsp;</span><span style='color: lightred'>-&nbsp;name&nbsp;=&nbsp;&quot;Maru&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+&nbsp;name&nbsp;=&nbsp;&quot;Fido&quot;</span><br/><span style='color: red'>&nbsp;&nbsp;&nbsp;&nbsp;)<br/><br/>&nbsp;&nbsp;asserting_equality.md:141<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.same(Dog(&quot;Maru&quot;),&nbsp;Dog(&quot;Fido&quot;))<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
 
 Total&nbsp;3,&nbsp;Failed&nbsp;3,&nbsp;Passed&nbsp;0,&nbsp;Ignored&nbsp;0
 </pre></div>
