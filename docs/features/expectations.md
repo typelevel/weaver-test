@@ -154,13 +154,13 @@ object ExpectationsSuite extends SimpleIOSuite {
 
   pureTest("Working with collections (success)") {
     forEach(List(1, 2, 3))(i => expect(i < 5)) and
-      forEach(Option("hello"))(msg => expect.eql(msg, "hello")) and
-      exists(List("a", "b", "c"))(i => expect.eql(i, "c")) and
-      exists(Vector(true, true, false))(i => expect.eql(i, false))
+      forEach(Option("hello"))(msg => expect.eql("hello", msg)) and
+      exists(List("a", "b", "c"))(i => expect.eql("c", i)) and
+      exists(Vector(true, true, false))(i => expect.eql(false, i))
   }
 
   pureTest("Working with collections (failure 1)") {
-    forEach(Vector("hello", "world"))(msg => expect.eql(msg, "hello"))
+    forEach(Vector("hello", "world"))(msg => expect.eql("hello", msg))
   }
 
   pureTest("Working with collections (failure 2)") {

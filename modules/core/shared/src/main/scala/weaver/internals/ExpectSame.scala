@@ -11,15 +11,7 @@ private[weaver] trait ExpectSame {
       found: A)(
       implicit comparisonA: Comparison[A],
       loc: SourceLocation): Expectations = {
-    comparisonA.diff(expected, found) match {
-      case Comparison.Result.Success => Expectations(Validated.validNel(()))
-      case Comparison.Result.Failure(report) =>
-        val header     = "Values not equal:"
-        val sourceLocs = NonEmptyList.of(loc)
-        Expectations(
-          Validated.invalidNel[ExpectationFailed, Unit](
-            new ExpectationFailed(header + "\n\n" + report, sourceLocs)))
-    }
+    eql(expected, found, "eql")(comparisonA, loc)
   }
 
   /**
@@ -31,5 +23,25 @@ private[weaver] trait ExpectSame {
       implicit comparisonA: Comparison[A] =
         Comparison.fromEq[A](Eq.fromUniversalEquals, MultiLineShow.show),
       loc: SourceLocation): Expectations =
-    eql(expected, found)(comparisonA, loc)
+    eql(expected, found, "same")(comparisonA, loc)
+
+  private def eql[A](
+      expected: A,
+      found: A,
+      functionName: String)(
+      implicit comparisonA: Comparison[A],
+      loc: SourceLocation): Expectations = {
+    comparisonA.diff(expected, found) match {
+      case Comparison.Result.Success => Expectations(Validated.validNel(()))
+      case Comparison.Result.Failure(report) =>
+        val header     = s"Values not equal:\n\nin expect.$functionName"
+        val sourceLocs = NonEmptyList.of(loc)
+        Expectations(
+          Validated.invalidNel[ExpectationFailed, Unit](
+            new ExpectationFailed(
+              header + report,
+              sourceLocs)))
+    }
+  }
+
 }
