@@ -44,6 +44,11 @@ object AddClueToExpectTest extends SimpleIOSuite {
     expect(!a.isInstanceOf[Int])
   }
 
+  pureTest("select"){
+    val either = Left[Int, Int](1)
+    expect(either.toOption.isEmpty)
+  }
+
   pureTest("ignore anonymous functions") {
     expect(Some(1).fold(true)(_ == 1))
   }
@@ -67,6 +72,14 @@ object AddClueToExpectTest extends SimpleIOSuite {
 
   pureTest("ignore clue in expect.all") {
     expect.all(clue(1) > 0)
+  }
+
+  pureTest("ignore named parameters") {
+    expect(Some(1).fold(ifEmpty = true)(_ => false))
+  }
+
+  pureTest("ignore blocks") {
+    expect(Some(1).fold(true)({_ => b == c }))
   }
 
 }

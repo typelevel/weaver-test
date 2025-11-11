@@ -1,6 +1,4 @@
 fix.RenameAssertToExpect
 fix.RewriteExpect
 fix.AddClueToExpect
-fix.RenameCancelToIgnore
-fix.RenameAssertionExceptionToExpectationFailed
-fix.RenameVerifyToExpect
+fix.v0_11_0

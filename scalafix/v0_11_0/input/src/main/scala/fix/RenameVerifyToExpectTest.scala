@@ -1,5 +1,5 @@
 /*
-rule = RenameVerifyToExpect
+rule = v0_11_0
  */
 package fix
 import weaver._
