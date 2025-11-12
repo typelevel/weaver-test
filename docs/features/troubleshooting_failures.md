@@ -85,21 +85,21 @@ object LoggedTests extends SimpleIOSuite {
     val response = Response("this went wrong", 500)
     for {
       _ <- log.info(s"The response body is: ${response.body}")
-    } yield expect.eql(response.status, 200)
+    } yield expect.eql(200, response.status)
   }
 
   loggedTest("This test also fails, and has separate logs") { log =>
     val response = Response("this also went wrong", 400)
     for {
       _ <- log.info(s"The response body is: ${response.body}")
-    } yield expect.eql(response.status, 200)
+    } yield expect.eql(200, response.status)
   }
 
   loggedTest("This test succeeds, so no logs are printed") { log =>
     val response = Response("OK", 200)
     for {
       _ <- log.info(s"The response body is: ${response.body}")
-    } yield expect.eql(response.status, 200)
+    } yield expect.eql(200, response.status)
   }
 }
 ```
@@ -145,7 +145,7 @@ object HttpSuite extends IOSuite {
           _ <- log.info(s"Content length: ${response.contentLength}")
         } yield response.status.code
       }
-    } yield expect.eql(statusCode, 200)
+    } yield expect.eql(200, statusCode)
   }
 }
 ```
@@ -178,11 +178,11 @@ object SourceLocationSuite extends FunSuite {
 
   test("This test fails with a different source location") {
     val response = Response("this also went wrong", 500)
-    expectOk(response) // The failure points here
+    expectOk(response) // The other failure points here
   }
 
   def expectOk(response: Response)(implicit loc: SourceLocation): Expectations = {
-     expect.eql(response.status, 200) && expect.eql(response.body, "OK")
+     expect.eql(200, response.status) && expect.eql("OK", response.body)
   }
 }
 ```
@@ -208,17 +208,17 @@ object TracingSuite extends FunSuite {
 
   test("This test fails") {
     val response = Response("this went wrong", 500)
-    expectOk(response) // The failure points here
+    expectOk(response) // The failure points here first
   }
 
   def expectOk(response: Response)(implicit loc: SourceLocation): Expectations = {
      expectOkStatus(response)
-       .traced(here) // The failure points here too
+       .traced(here) // The failure points here third
   }
 
   def expectOkStatus(response: Response)(implicit loc: SourceLocation): Expectations = {
-     expect.eql(response.status, 200)
-       .traced(here) // The failure points here too
+     expect.eql(200, response.status)
+       .traced(here) // The failure points here second
   }
 
 }

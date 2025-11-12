@@ -3,15 +3,15 @@ Motivation
 
 ## A test framework for integration tests
 
-Weaver was built for integration/end-to-end tests. It aims at making tests faster and make issues easier to debug, by treating effect types as first-class citizens.
+Weaver was built for integration/end-to-end tests. It makes tests faster and easier to debug by using cats-effect `IO`.
 
 ## History
 
 Weaver-test was born in 2018 as an experiment, trying to speedup an extremely slow, incredibly I/O heavy test suite that was implemented with scalatest, and was making numerous http calls to real services, verifying their deployments and orchestration.
 
-Neither **cats-effect** nor **fs2** had reached their respective 1.0.0 at the time, and **ZIO** was not yet known under that name.
+Neither **cats-effect** nor **fs2** had reached their respective 1.0.0 at the time.
 
-Nevertheless, built on bleeding edge libraries, and offering a principled api  that didn't completely shift from more classic frameworks such as utest, specs2, scalatest, etc, **weaver** allowed to tremendously speed up the test suite in question by parallelising its test, weaving their respective computations together in a single IO value that was executed by the framework.
+Nevertheless, built on bleeding edge libraries, and offering a principled api that didn't completely shift from more classic frameworks such as utest, specs2, scalatest, etc, **weaver** allowed to tremendously speed up the test suite in question by parallelising its test, weaving their respective computations together in a single IO value that was executed by the framework.
 
 From there, additional problems were tackled, among which :
 
