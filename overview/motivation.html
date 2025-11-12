@@ -140,12 +140,12 @@
         <h1 id="motivation" class="title">Motivation</h1>
         
         <h2 id="a-test-framework-for-integration-tests" class="section"><a class="anchor-link left" href="#a-test-framework-for-integration-tests"><i class="icofont-laika link">&#xef71;</i></a>A test framework for integration tests</h2>
-        <p>Weaver was built for integration/end-to-end tests. It aims at making tests faster and make issues easier to debug, by treating effect types as first-class citizens.</p>
+        <p>Weaver was built for integration/end-to-end tests. It makes tests faster and easier to debug by using cats-effect <code>IO</code>.</p>
         
         <h2 id="history" class="section"><a class="anchor-link left" href="#history"><i class="icofont-laika link">&#xef71;</i></a>History</h2>
         <p>Weaver-test was born in 2018 as an experiment, trying to speedup an extremely slow, incredibly I/O heavy test suite that was implemented with scalatest, and was making numerous http calls to real services, verifying their deployments and orchestration.</p>
-        <p>Neither <strong>cats-effect</strong> nor <strong>fs2</strong> had reached their respective 1.0.0 at the time, and <strong>ZIO</strong> was not yet known under that name.</p>
-        <p>Nevertheless, built on bleeding edge libraries, and offering a principled api  that didn&#39;t completely shift from more classic frameworks such as utest, specs2, scalatest, etc, <strong>weaver</strong> allowed to tremendously speed up the test suite in question by parallelising its test, weaving their respective computations together in a single IO value that was executed by the framework.</p>
+        <p>Neither <strong>cats-effect</strong> nor <strong>fs2</strong> had reached their respective 1.0.0 at the time.</p>
+        <p>Nevertheless, built on bleeding edge libraries, and offering a principled api that didn&#39;t completely shift from more classic frameworks such as utest, specs2, scalatest, etc, <strong>weaver</strong> allowed to tremendously speed up the test suite in question by parallelising its test, weaving their respective computations together in a single IO value that was executed by the framework.</p>
         <p>From there, additional problems were tackled, among which :</p>
         <ul>
           <li>Making errors appear at the very end of the report, no matter how many suites were run.</li>
