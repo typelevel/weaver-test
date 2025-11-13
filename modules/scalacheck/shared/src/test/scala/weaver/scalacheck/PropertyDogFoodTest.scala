@@ -78,6 +78,15 @@ object PropertyDogFoodTest extends IOSuite {
     }
   }
 
+  test("Property tests that are ignored get reported properly.") { dogfood =>
+    for {
+      results <- dogfood.runSuite(Meta.FailedChecks)
+      infoLog = results._1.collect {
+        case LoggedEvent.Info(msg) if msg.contains("(ignore)") => msg
+      }.toList.head
+    } yield expectMessageContains("!!! IGNORED !!!", infoLog)
+  }
+
   // 100 checks sleeping 1 second each should not take 100 seconds
   test("Checks are parallelised") { dogfood =>
     for {
@@ -211,6 +220,11 @@ object Meta {
       }
     }
 
+    test("(ignore)") {
+      forall { (x: Int) =>
+        if (x <= 0) ignore("Ignored") else IO(success)
+      }
+    }
   }
 
   trait SucceededChecks extends MetaSuite {
