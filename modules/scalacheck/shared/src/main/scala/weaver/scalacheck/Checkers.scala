@@ -118,6 +118,8 @@ trait Checkers {
             case TestResult.Discard             => oldStatus.addDiscard.pure
             case TestResult.Failure(input, exp) =>
               oldStatus.addFailure(input, initialSeed, exp).pure
+            case TestResult.Exception(_, error: IgnoredException) =>
+              error.raiseError
             case TestResult.Exception(input, error) =>
               val ith  = oldStatus.succeeded + oldStatus.discarded + 1
               val seed = initialSeed
