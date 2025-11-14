@@ -157,6 +157,24 @@ object Expectations {
           ))
     }
 
+  final private[weaver] class PartiallyAppliedMatchOrFailFast[F[_]](
+      val dummy: Boolean = true)
+      extends AnyVal {
+    def apply[A, B](x: A)(
+        pf: PartialFunction[A, B]
+    )(
+        implicit loc: SourceLocation,
+        F: Sync[F],
+        A: Show[A] = Show.fromToString[A]): F[B] =
+      pf.lift(x).fold[F[B]] {
+        Sync[F].raiseError(
+          new ExpectationFailed(
+            "Pattern did not match, got: " + x.show,
+            NonEmptyList.of(loc)
+          ))
+      }(Sync[F].pure)
+  }
+
   trait Helpers extends weaver.internals.ClueHelpers {
 
     /**
@@ -230,6 +248,25 @@ object Expectations {
         f(x)
       else
         failure("Pattern did not match, got: " + x.show)
+
+    /**
+     * Checks that a given expression matches a certain pattern, returning the
+     * result of the partial function <code>pf</code> if so, fails otherwise.
+     *
+     * @example
+     *   {{{
+     *     val x = Some(4)
+     *     val otherSideEffect = IO.pure("4")
+     *     for {
+     *       b <- matchOrFailFast[IO](x) {
+     *         case Some(v) => v.toString
+     *       }
+     *       c <- otherSideEffect
+     *     } yield expect.eql(b, c)
+     *   }}}
+     */
+    def matchOrFailFast[F[_]]: PartiallyAppliedMatchOrFailFast[F] =
+      new PartiallyAppliedMatchOrFailFast[F]
 
     /**
      * Alias for `forEach`
