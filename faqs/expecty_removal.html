@@ -145,9 +145,9 @@
         <p>You can rewrite your <code>expect</code> assertions into <code>expect.same</code> calls, and add <code>clue</code> to any remaining assertions.</p>
         <p>We recommend you do this automatically by <a href="https://scalacenter.github.io/scalafix/docs/rules/external-rules.html">applying a scalafix rule</a>.</p>
         <p>Run the <code>RewriteExpect</code> rule to rewrite <code>expect</code> and <code>expect.all</code> into assertions with better failure messages.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt scalafixAll github:typelevel/weaver-test/RewriteExpect?sha=</span><span class="number-literal">0.11.0</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt scalafixAll github:typelevel/weaver-test/RewriteExpect?sha=</span><span class="number-literal">0.11.1</span></code></pre>
         <p>Run the <code>AddClueToExpect</code> rule to add <code>clue</code> calls to the remaining <code>expect</code> assertions.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt scalafixAll github:typelevel/weaver-test/AddClueToExpect?sha=</span><span class="number-literal">0.11.0</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt scalafixAll github:typelevel/weaver-test/AddClueToExpect?sha=</span><span class="number-literal">0.11.1</span></code></pre>
         <p>Your failure messages will now include the values captured in <code>clue</code>.</p>
 
         
