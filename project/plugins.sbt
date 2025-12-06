@@ -10,7 +10,7 @@ addSbtPlugin("org.typelevel" % "sbt-typelevel-site" % "0.8.2")
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
 
-addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.8.0")
+addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.8.1")
 
 addSbtPlugin("io.get-coursier" % "sbt-shading"    % "2.1.5")
 addSbtPlugin("com.siriusxm"    % "sbt-snapshot4s" % "0.2.2")
