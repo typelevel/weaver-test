@@ -150,9 +150,10 @@ trait Checkers {
           x match {
             case Some((_, Right(ex))) if ex.run.isValid => TestResult.Success
             case Some((t, Right(ex))) => TestResult.Failure(t.show, ex)
-            case Some((t, Left(exception: ExpectationFailed))) =>
-              TestResult.Failure(t.show,
-                                 Expectations(Validated.invalidNel(exception)))
+            case Some((t, Left(exception: ExpectationsFailed))) =>
+              TestResult.Failure(
+                t.show,
+                Expectations(Validated.invalid(exception.failures)))
             case Some((t, Left(other))) => TestResult.Exception(t.show, other)
             case None                   => TestResult.Discard
           }
