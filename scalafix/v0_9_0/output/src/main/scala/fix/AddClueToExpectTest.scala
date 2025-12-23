@@ -8,7 +8,8 @@ object AddClueToExpectTest extends SimpleIOSuite {
   val c: Int = 3
 
   pureTest("multiple") {
-    expect(clue(a) == clue(b)) and expect(clue(b) == clue(c)) && not(expect(clue(c) == clue(a)))
+    expect(clue(a) == clue(b)) and expect(clue(b) == clue(c)) && not(
+      expect(clue(c) == clue(a)))
   }
 
   pureTest("infix") {
@@ -41,7 +42,7 @@ object AddClueToExpectTest extends SimpleIOSuite {
     expect(!clue(a).isInstanceOf[Int])
   }
 
-  pureTest("select"){
+  pureTest("select") {
     val either = Left[Int, Int](1)
     expect(clue(either.toOption).isEmpty)
   }
@@ -64,7 +65,9 @@ object AddClueToExpectTest extends SimpleIOSuite {
 
   pureTest("all") {
     def isGreater(a: Int, b: Int, c: Int): Boolean = a > b && b > c
-    expect.all(clue(a) == clue(b), clue(Some(2)).nonEmpty, isGreater(clue(a), clue(b), clue(c)))
+    expect.all(clue(a) == clue(b),
+               clue(Some(2)).nonEmpty,
+               isGreater(clue(a), clue(b), clue(c)))
   }
 
   pureTest("ignore clue in expect.all") {
@@ -77,8 +80,8 @@ object AddClueToExpectTest extends SimpleIOSuite {
 
   pureTest("ignore blocks") {
     expect(clue(Some(1)).fold(true) {
-  _ => b == c
-})
+      _ => b == c
+    })
   }
 
 }
