@@ -12,7 +12,7 @@ import sbt.testing.{ Fingerprint, SubclassFingerprint, TaskDef }
 object WeaverFingerprints {
   abstract class Mixin[
       F[_],
-      SC <: EffectSuite.Provider[F],
+      SC <: EffectSuite[F],
       GRIC <: GlobalResourceF[F]](
       implicit SC: ClassTag[SC],
       GRIC: ClassTag[GRIC],
@@ -30,7 +30,7 @@ object WeaverFingerprints {
  */
 abstract class WeaverFingerprints[F[_]](implicit F: Sync[F]) {
 
-  type SuiteClass <: EffectSuite.Provider[F]
+  type SuiteClass <: EffectSuite[F]
   implicit protected def SuiteClass: ClassTag[SuiteClass]
   type GlobalResourcesInitClass <: GlobalResourceF[F]
   implicit protected def GlobalResourcesInitClass: ClassTag[GlobalResourcesInitClass]
@@ -43,19 +43,17 @@ abstract class WeaverFingerprints[F[_]](implicit F: Sync[F]) {
           case SuiteFingerprint.matches() =>
             val mkSuite = F.delay {
               val module = loadModule(taskDef.fullyQualifiedName(), classLoader)
-              val provider = cast(module)(SuiteClass): EffectSuite.Provider[F]
-              provider.getSuite
+              cast(module)(SuiteClass): EffectSuite[F]
             }
             Some(SuiteRef(mkSuite))
           case ResourceSharingSuiteFingerprint.matches() =>
-            val cst: F[GlobalResourceF.Read[F] => EffectSuite.Provider[F]] =
+            val cst: F[GlobalResourceF.Read[F] => EffectSuite[F]] =
               // inherently unsafe, as it assumes the user doesn't
               F.delay(loadConstructor[GlobalResourceF.Read[F], SuiteClass](
                 taskDef.fullyQualifiedName(),
-                classLoader): GlobalResourceF.Read[F] => EffectSuite.Provider[
-                F])
+                classLoader): GlobalResourceF.Read[F] => EffectSuite[F])
             Some(ResourcesSharingSuiteRef(read =>
-              F.map(F.ap(cst)(F.pure(read)))(_.getSuite)))
+              F.ap(cst)(F.pure(read))))
           case GlobalResourcesFingerprint.matches() =>
             val module =
               loadModule(taskDef.fullyQualifiedName(), classLoader)
