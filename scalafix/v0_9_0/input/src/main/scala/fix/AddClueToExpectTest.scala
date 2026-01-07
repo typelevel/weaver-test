@@ -44,7 +44,7 @@ object AddClueToExpectTest extends SimpleIOSuite {
     expect(!a.isInstanceOf[Int])
   }
 
-  pureTest("select"){
+  pureTest("select") {
     val either = Left[Int, Int](1)
     expect(either.toOption.isEmpty)
   }
@@ -79,7 +79,7 @@ object AddClueToExpectTest extends SimpleIOSuite {
   }
 
   pureTest("ignore blocks") {
-    expect(Some(1).fold(true)({_ => b == c }))
+    expect(Some(1).fold(true)({ _ => b == c }))
   }
 
 }
