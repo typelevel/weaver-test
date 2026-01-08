@@ -105,6 +105,7 @@
     <li class="level2 nav-leaf"><a href="../features/parallelism.html">Configuring parallelism</a></li>
     <li class="level2 nav-leaf"><a href="../features/funsuite.html">Pure tests</a></li>
     <li class="level2 nav-leaf"><a href="../features/filtering.html">Filtering tests</a></li>
+    <li class="level2 nav-leaf"><a href="../features/custom_test_functions.html">Defining custom test functions</a></li>
     <li class="level2 nav-leaf"><a href="../features/specs2.html">specs2 (discontinued)</a></li>
     <li class="level1 nav-header">Sample reports</li>
     <li class="level2 nav-leaf"><a href="multiple_suites_success.html">Successes</a></li>
@@ -172,14 +173,14 @@
         <p>The report would look something like this:</p>
         <div class='terminal'><pre>
 <span style='color: cyan'>repl.MdocSessionMdocAppMySuite</span>
-<span style='color: green'>+&nbsp;</span>logging&nbsp;for&nbsp;success&nbsp;<span style='color: lightgray'><b>5ms</b></span>
+<span style='color: green'>+&nbsp;</span>logging&nbsp;for&nbsp;success&nbsp;<span style='color: lightgray'><b>6ms</b></span>
 
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failure&nbsp;should&nbsp;print&nbsp;logs&nbsp;<span style='color: lightgray'><b>12ms</b></span>
+<span style='color: red'>-&nbsp;</span>failure&nbsp;should&nbsp;print&nbsp;logs&nbsp;<span style='color: lightgray'><b>10ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>repl.MdocSessionMdocAppMyAnotherSuite</span>
-<span style='color: red'>-&nbsp;</span>failure&nbsp;should&nbsp;print&nbsp;logs&nbsp;<span style='color: lightgray'><b>12ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_logging.md:41)<br/><br/>&nbsp;&nbsp;expect(x.length&nbsp;&gt;&nbsp;20)<br/><br/>&nbsp;&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/><br/>&nbsp;&nbsp;multiple_suites_logging.md:41<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;expect(x.length&nbsp;&gt;&nbsp;20)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;[INFO]&nbsp;&nbsp;12:04:51&nbsp;[multiple_suites_logging.md:38]&nbsp;Starting&nbsp;the&nbsp;test...<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time&nbsp;&nbsp;&nbsp;&nbsp;-&gt;&nbsp;1767787491<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;purpose&nbsp;-&gt;&nbsp;docs<br/>&nbsp;&nbsp;&nbsp;&nbsp;[DEBUG]&nbsp;12:04:51&nbsp;[multiple_suites_logging.md:40]&nbsp;Generated&nbsp;random&nbsp;string:&nbsp;pV2GRPPngv
+<span style='color: red'>-&nbsp;</span>failure&nbsp;should&nbsp;print&nbsp;logs&nbsp;<span style='color: lightgray'><b>10ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;assertion&nbsp;failed&nbsp;(multiple_suites_logging.md:41)<br/><br/>&nbsp;&nbsp;expect(x.length&nbsp;&gt;&nbsp;20)<br/><br/>&nbsp;&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/><br/>&nbsp;&nbsp;multiple_suites_logging.md:41<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;expect(x.length&nbsp;&gt;&nbsp;20)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;[INFO]&nbsp;&nbsp;10:28:33&nbsp;[multiple_suites_logging.md:38]&nbsp;Starting&nbsp;the&nbsp;test...<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time&nbsp;&nbsp;&nbsp;&nbsp;-&gt;&nbsp;1767868113<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;purpose&nbsp;-&gt;&nbsp;docs<br/>&nbsp;&nbsp;&nbsp;&nbsp;[DEBUG]&nbsp;10:28:33&nbsp;[multiple_suites_logging.md:40]&nbsp;Generated&nbsp;random&nbsp;string:&nbsp;0eWajXr3cr
 
 Total&nbsp;2,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;1,&nbsp;Ignored&nbsp;0
 </pre></div>
