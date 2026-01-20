@@ -119,6 +119,9 @@ object Meta {
       expect(s"$x" == "2")
     }
 
+    test("(failFast)") {
+      expect.eql(1, 2).and(expect.eql(3, 4)).failFast.as(success)
+    }
   }
 
   object Clue extends SimpleIOSuite {

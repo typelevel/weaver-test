@@ -303,6 +303,29 @@ object DogFoodTests extends IOSuite {
     }
   }
 
+  test("multiple failures are rendered for failFast") {
+    _.runSuite(Meta.Rendering).flatMap {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(failFast)")
+
+        assertInlineSnapshot(
+          actual,
+          """- (failFast) 0ms
+ [0] Values not equal: (src/main/DogFoodTests.scala:5)
+ [0] 
+ [0] => Diff (- obtained, + expected)
+ [0] -2
+ [0] +1
+
+ [1] Values not equal: (src/main/DogFoodTests.scala:5)
+ [1] 
+ [1] => Diff (- obtained, + expected)
+ [1] -4
+ [1] +3"""
+        )
+    }
+  }
+
   test("successes with clues are rendered correctly") {
     _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>
