@@ -19,7 +19,7 @@ class Runner[F[_]: Async](
   // Signaling option, because we need to detect completion
   private type Channel[A] = Queue[F, Option[A]]
 
-  def run(suites: fs2.Stream[F, Suite[F]]): F[Outcome] =
+  def run(suites: fs2.Stream[F, EffectSuite[F]]): F[Outcome] =
     for {
       buffer  <- Ref[F].of(Chain.empty[SpecEvent])
       channel <- Queue.unbounded[F, Option[SpecEvent]]

@@ -17,7 +17,7 @@ object Output {
     if (s.endsWith("\n")) s.substring(0, s.length - 2) else s
   }
 
-  def runSuites(s: Suite[IO]*): String = {
+  def runSuites(s: EffectSuite[IO]*): String = {
     import cats.effect.unsafe.implicits.global
     val header = "<div class='terminal'><pre>"
     val footer = "</pre></div>"
