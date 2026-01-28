@@ -44,7 +44,8 @@ object macros {
       // Comparing roots to workaround a Windows-specific behaviour
       // https://github.com/disneystreaming/weaver-test/issues/364
       val rp =
-        if (!abstractFile.isVirtual && (pwd.getRoot() == abstractFile.file.toPath().getRoot())) {
+        if (!abstractFile.isVirtual &&
+          (pwd.getRoot() == abstractFile.file.toPath().getRoot())) {
           pwd.relativize(abstractFile.file.toPath()).toString()
         } else p
 
