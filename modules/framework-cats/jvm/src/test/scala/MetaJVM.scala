@@ -120,8 +120,10 @@ object MetaJVM {
       state.getState(parallelWait = true).map {
         case (initialised, finalised, totalUses, localUses) =>
           expect.all(
-            initialised == 1, // resource is initialised only once and uses in parallel
-            finalised == 0, // resource is not finalised until all parallel uses are completed
+            initialised ==
+              1, // resource is initialised only once and uses in parallel
+            finalised ==
+              0, // resource is not finalised until all parallel uses are completed
             totalUses >= 1,
             totalUses <= 3,
             localUses >= 1,
@@ -146,7 +148,8 @@ object MetaJVM {
       state.getState(parallelWait = false).map {
         case (initialised, finalised, totalUses, localUses) =>
           expect.all(
-            initialised == totalUses, // lazy resource will get initialised for each suite
+            initialised ==
+              totalUses, // lazy resource will get initialised for each suite
             finalised == totalUses - 1,
             localUses == 1 // one test for each inialisation
           )

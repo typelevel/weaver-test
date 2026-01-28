@@ -33,9 +33,10 @@ object Formatter {
       tabulatedTestLines match {
         case (_, firstLine) :: Nil        => newPrefix + withDuration(firstLine)
         case (_, firstLine) :: extraLines =>
-          newPrefix + withDuration(firstLine) + EOL + extraLines
-            .map(l => l._1.prefix + l._2)
-            .mkString(EOL)
+          newPrefix + withDuration(firstLine) + EOL +
+            extraLines
+              .map(l => l._1.prefix + l._2)
+              .mkString(EOL)
         case Nil => newPrefix + ""
       }
     }
@@ -66,7 +67,8 @@ object Formatter {
     val newLine = '\n'
     builder.append(formatResultStatus(name, result, outcome.duration))
 
-    if ((mode == Verbose && outcome.status.isFailed) || (mode == Summary && !outcome.status.isFailed))
+    if ((mode == Verbose && outcome.status.isFailed) ||
+      (mode == Summary && !outcome.status.isFailed))
       result.formatted.foreach { resultInfo =>
         builder.append(EOL)
         builder.append(resultInfo)

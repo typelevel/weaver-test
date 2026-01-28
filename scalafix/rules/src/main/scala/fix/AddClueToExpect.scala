@@ -24,10 +24,10 @@ class AddClueToExpect extends SemanticRule("AddClueToExpect") {
 
   private def makeClue(expr: Term)(implicit doc: SemanticDocument): Term = {
     expr match {
-      case _: Term.Name => q"clue($expr)"
-      case _: Term.Apply => q"clue($expr)"
+      case _: Term.Name   => q"clue($expr)"
+      case _: Term.Apply  => q"clue($expr)"
       case _: Term.Select => q"clue($expr)"
-      case _                         => expr
+      case _              => expr
     }
   }
 

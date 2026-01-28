@@ -5,7 +5,10 @@ import scala.meta._
 class v0_11_0 extends SemanticRule("v0_11_0") {
 
   override def fix(implicit doc: SemanticDocument): Patch =
-    List(renameCancelToIgnore, renameAssertionException, removeTagged, renameVerify).asPatch
+    List(renameCancelToIgnore,
+         renameAssertionException,
+         removeTagged,
+         renameVerify).asPatch
 
   def renameCancelToIgnore(implicit doc: SemanticDocument): Patch = {
     val cancelMethod =
@@ -26,9 +29,12 @@ class v0_11_0 extends SemanticRule("v0_11_0") {
     doc.tree.collect {
       case symbol(tree) =>
         tree match {
-          case q"AssertionException" => Patch.replaceTree(tree, s"new ExpectationFailed")
-          case t"AssertionException" => Patch.replaceTree(tree, s"ExpectationFailed")
-          case importee"AssertionException" => Patch.replaceTree(tree, s"ExpectationFailed")
+          case q"AssertionException" =>
+            Patch.replaceTree(tree, s"new ExpectationFailed")
+          case t"AssertionException" =>
+            Patch.replaceTree(tree, s"ExpectationFailed")
+          case importee"AssertionException" =>
+            Patch.replaceTree(tree, s"ExpectationFailed")
           case _ => Patch.empty
         }
     }.asPatch
@@ -36,13 +42,20 @@ class v0_11_0 extends SemanticRule("v0_11_0") {
 
   def removeTagged(implicit doc: SemanticDocument): Patch = {
     val taggedMethod =
-      SymbolMatcher.normalized("weaver/Expectations.Helpers#StringOps#tagged().")
+      SymbolMatcher.normalized(
+        "weaver/Expectations.Helpers#StringOps#tagged().")
     doc.tree.collect {
-      case tree @ Term.Apply.After_4_6_0(Term.Select(testName, taggedMethod(_)), Term.ArgClause(List(Lit.String("ignore")), None)) =>
+      case tree @ Term.Apply.After_4_6_0(
+            Term.Select(testName, taggedMethod(_)),
+            Term.ArgClause(List(Lit.String("ignore")), None)) =>
         Patch.replaceTree(tree, q"$testName.ignore".toString)
-      case tree @ Term.Apply.After_4_6_0(Term.Select(testName, taggedMethod(_)), Term.ArgClause(List(Lit.String("only")), None)) =>
+      case tree @ Term.Apply.After_4_6_0(
+            Term.Select(testName, taggedMethod(_)),
+            Term.ArgClause(List(Lit.String("only")), None)) =>
         Patch.replaceTree(tree, q"$testName.only".toString)
-      case tree @ Term.Apply.After_4_6_0(Term.Select(testName, taggedMethod(_)), Term.ArgClause(List(Lit.String(other)), None)) =>
+      case tree @ Term.Apply.After_4_6_0(
+            Term.Select(testName, taggedMethod(_)),
+            Term.ArgClause(List(Lit.String(other)), None)) =>
         Patch.replaceTree(tree, s"$testName")
     }.asPatch
   }

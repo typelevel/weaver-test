@@ -97,7 +97,7 @@ object RewriteExpectTest extends SimpleIOSuite {
   pureTest("infer order with sealed traits") {
     sealed trait Pet
     object Pet {
-      case object Cat extends Pet
+      case object Cat             extends Pet
       case class Dog(friend: Pet) extends Pet
     }
     val petCat = Pet.Cat
@@ -107,10 +107,10 @@ object RewriteExpectTest extends SimpleIOSuite {
 
   pureTest("infer order with common names") {
     val expectedId = 1
-    val actualId = 2
+    val actualId   = 2
     val obtainedId = 3
-    val result = 4
-    expect(result == expectedId && actualId == expectedId && obtainedId == expectedId)
+    val result     = 4
+    expect(result == expectedId && actualId == expectedId &&
+      obtainedId == expectedId)
   }
 }
-
