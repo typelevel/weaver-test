@@ -96,15 +96,16 @@ case class Expectations(run: ValidatedNel[ExpectationFailed, Unit]) {
         Expectations(otherL.orElse(otherR).orElse(otherL.product(otherR).void))
     }
 
+  /** Raises an error in an effect if an expectation has failed. */
   def failFast[F[_]: Sync]: F[Unit] =
     this.run match {
-      case Invalid(e) => Sync[F].raiseError(e.head)
+      case Invalid(e) => Sync[F].raiseError(new ExpectationsFailed(e))
       case Valid(_)   => Sync[F].unit
     }
 
   /**
    * Adds the specified location to the list of locations that will be reported
-   * if an expectation is failed.
+   * if an expectation has failed.
    */
   def traced(loc: SourceLocation): Expectations =
     Expectations(run.leftMap(_.map(e =>

@@ -44,7 +44,8 @@ object TestOutcome {
 
     def cause: Option[Throwable] = result match {
       case Result.Exception(cause)   => Some(cause)
-      case Result.Failures(failures) => Some(failures.head.source)
+      case Result.Failures(failures) =>
+        Some(new ExpectationsFailed(failures.map(_.source)))
       case Result.OnlyTagNotAllowedInCI(_) | Result.Ignored(
             _,
             _) | Result.Success => None
