@@ -114,10 +114,10 @@ object MySuite extends IOSuite {
 Weaver also includes support for
 
 
-| Alias             | Suite name               | Provided by        | Use case                                      |
-| ----------------- | ------------------------ | ------------------ | --------------------------------------------- |
-| `SimpleIOSuite`   | `SimpleMutableIOSuite`   | `weaver-cats`      | Each test is a standalone `IO` action         |
-| `IOSuite`         | `MutableIOSuite`         | `weaver-cats`      | Each test needs access to a shared `Resource` |
+| Alias           | Suite name             | Provided by   | Use case                                      |
+| --------------- | ---------------------- | ------------- | --------------------------------------------- |
+| `SimpleIOSuite` | `SimpleMutableIOSuite` | `weaver-cats` | Each test is a standalone `IO` action         |
+| `IOSuite`       | `MutableIOSuite`       | `weaver-cats` | Each test needs access to a shared `Resource` |
 
 ### Expectations (assertions)
 
@@ -141,17 +141,43 @@ Something worth noting is that expectations are not throwing, and that if the us
 
 ### Filtering tests
 
-When using the IOSuite variants, the user can call `sbt`'s test command as such:
+Weaver supports powerful test filtering with pattern-based and tag-based filters.
+
+#### Pattern filtering
+
+Filter tests by their qualified name using the `-o` or `--only` flag:
 
 ``` 
 > testOnly -- -o *foo*
 ```
 
-This filter will prevent the execution of any test that doesn't contain the string "foo" in is qualified name. For a test labeled "foo" in a "FooSuite" object, in the package "fooPackage", the qualified name of a test is:
+This will run only tests containing "foo" in their qualified name (`fooPackage.FooSuite.foo`).
+
+#### Tag filtering
+
+Filter tests using GitHub-style tag expressions with the `-t` or `--tags` flag:
 
 ```
-fooPackage.FooSuite.foo
+> testOnly -- -t "bug-*,feature-*"
 ```
+
+Tag expressions support:
+
+- **`,` (comma)** - OR: `bug,feature` matches either tag
+- **` ` (space)** - AND: `bug critical` matches both tags
+- **`!` (exclamation)** - NOT: `!slow` excludes slow tests
+- **`()` (parentheses)** - grouping: `(bug,feature) !wontfix`
+- **Wildcards** - `*` (any chars), `?` (one char): `bug-*`, `test-?`
+
+Add tags to tests:
+
+```scala
+test("my test".tagged("bug").tagged("critical")) {
+  expect(1 + 1 == 2)
+}
+```
+
+See the [filtering documentation](https://typelevel.org/weaver-test/features/filtering.html) for complete details.
 
 ### Running suites in standalone
 
