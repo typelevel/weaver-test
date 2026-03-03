@@ -13,7 +13,8 @@ object RewriteExpectTest extends SimpleIOSuite {
   }
 
   pureTest("nested ==") {
-    expect.same(1, 1).and(expect.same(2, 2)) and expect.same(1, 1).and(expect(2 >= 2))
+    expect.same(1, 1).and(expect.same(2, 2)) and
+      expect.same(1, 1).and(expect(2 >= 2))
   }
 
   pureTest("===") {
@@ -37,27 +38,28 @@ object RewriteExpectTest extends SimpleIOSuite {
   }
 
   pureTest("if then else if") {
-    if (1 == 2) expect(3 > 4) else if (2 == 3) expect.same(5, 5) else expect(4 > 3)
+    if (1 == 2) expect(3 > 4)
+    else if (2 == 3) expect.same(5, 5) else expect(4 > 3)
   }
 
   pureTest("match") {
     val n: Int = 1
     n match {
-  case 2 =>
-    expect(1 > 2)
-  case 3 =>
-    success
-  case 4 =>
-    failure("Assertion failed")
-}
+      case 2 =>
+        expect(1 > 2)
+      case 3 =>
+        success
+      case 4 =>
+        failure("Assertion failed")
+    }
   }
 
   pureTest("match with wildcard false") {
     val n: Int = 1
     matches(n) {
-  case 2 =>
-    expect(1 > 2)
-}
+      case 2 =>
+        expect(1 > 2)
+    }
   }
 
   pureTest("expect.all ==") {
@@ -77,7 +79,8 @@ object RewriteExpectTest extends SimpleIOSuite {
   }
 
   pureTest("expect.all with || and &&") {
-    expect(1 > 0).and(expect.same(2, 2)).and(expect(2 > 0).or(expect(3 > 4))).and(expect.same(2, 2))
+    expect(1 > 0).and(expect.same(2, 2)).and(expect(2 > 0).or(expect(3 >
+      4))).and(expect.same(2, 2))
   }
 
   pureTest("expect.all ignore clue") {
@@ -97,7 +100,7 @@ object RewriteExpectTest extends SimpleIOSuite {
   pureTest("infer order with sealed traits") {
     sealed trait Pet
     object Pet {
-      case object Cat extends Pet
+      case object Cat             extends Pet
       case class Dog(friend: Pet) extends Pet
     }
     val petCat = Pet.Cat
@@ -107,9 +110,10 @@ object RewriteExpectTest extends SimpleIOSuite {
 
   pureTest("infer order with common names") {
     val expectedId = 1
-    val actualId = 2
+    val actualId   = 2
     val obtainedId = 3
-    val result = 4
-    expect.same(expectedId, result).and(expect.same(expectedId, actualId)).and(expect.same(expectedId, obtainedId))
+    val result     = 4
+    expect.same(expectedId, result).and(expect.same(expectedId, actualId)).and(
+      expect.same(expectedId, obtainedId))
   }
 }

@@ -72,8 +72,11 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       "co.fs2"        %%% "fs2-core"    % Version.fs2,
       "org.typelevel" %%% "cats-effect" % Version.catsEffect,
       // https://github.com/portable-scala/portable-scala-reflect/issues/23
-      "org.portable-scala" %%% "portable-scala-reflect" % Version.portableReflect cross CrossVersion.for3Use2_13,
-      "org.typelevel" %% "scalac-compat-annotation" % Version.scalacCompatAnnotation,
+      "org.portable-scala"     %%%
+        "portable-scala-reflect" % Version.portableReflect cross
+        CrossVersion.for3Use2_13,
+      "org.typelevel" %% "scalac-compat-annotation" %
+        Version.scalacCompatAnnotation,
       "org.scalameta" %%% "munit-diff" % Version.munitDiff,
       if (scalaVersion.value.startsWith("3."))
         "org.scala-lang" % "scala-reflect" % scala213
@@ -95,7 +98,9 @@ lazy val munitDiffShadingSettings = Seq(
 lazy val coreJVM = core.jvm
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-stubs" % Version.scalajsStubs % "provided" cross CrossVersion.for3Use2_13,
+      "org.scala-js"  %%%
+        "scalajs-stubs" % Version.scalajsStubs % "provided" cross
+        CrossVersion.for3Use2_13,
       "junit" % "junit" % Version.junit % Optional
     ),
     munitDiffShadingSettings
@@ -117,15 +122,18 @@ lazy val framework = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 lazy val frameworkJVM = framework.jvm
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-sbt" % "test-interface" % Version.testInterface,
-      "org.scala-js" %%% "scalajs-stubs" % Version.scalajsStubs % "provided" cross CrossVersion.for3Use2_13
+      "org.scala-sbt"   % "test-interface"     % Version.testInterface,
+      "org.scala-js"  %%%
+        "scalajs-stubs" % Version.scalajsStubs % "provided" cross
+        CrossVersion.for3Use2_13
     )
   )
 
 lazy val frameworkJS = framework.js
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-js" %% "scalajs-test-interface" % scalaJSVersion cross CrossVersion.for3Use2_13
+      "org.scala-js" %% "scalajs-test-interface" % scalaJSVersion cross
+        CrossVersion.for3Use2_13
     )
   )
 
@@ -149,7 +157,8 @@ lazy val coreCats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 lazy val coreCatsJS = coreCats.js
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scala-js-macrotask-executor" % Version.scalajsMacroTask)
+      "org.scala-js" %%% "scala-js-macrotask-executor" %
+        Version.scalajsMacroTask)
   )
 
 lazy val cats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
@@ -161,7 +170,8 @@ lazy val cats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
 lazy val catsJVM = cats.jvm
   .settings(
-    libraryDependencies += "com.siriusxm" %% "snapshot4s-core" % Version.snapshot4s % Test
+    libraryDependencies +=
+      "com.siriusxm" %% "snapshot4s-core" % Version.snapshot4s % Test
   )
   .enablePlugins(Snapshot4sPlugin)
 
@@ -235,28 +245,31 @@ lazy val docs = project
       "org.http4s"    %% "http4s-ember-client" % Version.http4s,
       "org.typelevel" %% "cats-laws"           % Version.catsLaws
     ),
-    tlSiteHelium ~= (_.site.internalCSS(Root / "assets")
-      .site.landingPage(
-        logo = Some(Image.internal(Root / "assets/logo.png")),
-        title = Some("Weaver"),
-        subtitle = Some("A test framework that runs everything in parallel."),
-        latestReleases = Seq(
-          ReleaseInfo("Upcoming Stable Release", "1.0.0")
-        ),
-        license = Some("Apache2"),
-        titleLinks = Seq(
-          VersionMenu.create(unversionedLabel = "Getting Started"),
-          LinkGroup.create(
-            IconLink.external("https://github.com/typelevel/weaver-test",
-                              HeliumIcon.github),
-            IconLink.external("https://discord.gg/XF3CXcMzqD", HeliumIcon.chat)
+    tlSiteHelium ~=
+      (_.site.internalCSS(Root / "assets")
+        .site.landingPage(
+          logo = Some(Image.internal(Root / "assets/logo.png")),
+          title = Some("Weaver"),
+          subtitle = Some("A test framework that runs everything in parallel."),
+          latestReleases = Seq(
+            ReleaseInfo("Upcoming Stable Release", "1.0.0")
+          ),
+          license = Some("Apache2"),
+          titleLinks = Seq(
+            VersionMenu.create(unversionedLabel = "Getting Started"),
+            LinkGroup.create(
+              IconLink.external("https://github.com/typelevel/weaver-test",
+                                HeliumIcon.github),
+              IconLink.external("https://discord.gg/XF3CXcMzqD",
+                                HeliumIcon.chat)
+            )
+          ),
+          documentationLinks = Seq(
+            TextLink.internal(Root / "overview/installation.md",
+                              "Installation"),
+            TextLink.internal(Root / "features/expectations.md",
+                              "Expectations (Assertions)")
           )
-        ),
-        documentationLinks = Seq(
-          TextLink.internal(Root / "overview/installation.md", "Installation"),
-          TextLink.internal(Root / "features/expectations.md",
-                            "Expectations (Assertions)")
-        )
-      )),
+        )),
     laikaConfig ~= (_.withRawContent)
   )
