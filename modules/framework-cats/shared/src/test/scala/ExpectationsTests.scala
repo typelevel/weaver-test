@@ -74,7 +74,7 @@ object ExpectationsTests extends SimpleIOSuite {
     }
       .attempt
       .map { either =>
-        matches(either) { case Left(_: ExpectationFailed) =>
+        matches(either) { case Left(_: ExpectationsFailed) =>
           success
         }
       }

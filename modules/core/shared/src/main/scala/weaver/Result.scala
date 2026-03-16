@@ -66,7 +66,7 @@ private[weaver] object Result {
   object Failures {
     final case class Failure(
         msg: String,
-        source: Throwable,
+        source: ExpectationFailed,
         locations: NonEmptyList[SourceLocation])
   }
 
@@ -104,13 +104,12 @@ private[weaver] object Result {
 
   def from(error: Throwable): Result = {
     error match {
-      case ex: ExpectationFailed =>
-        Failures(NonEmptyList.of(Failures.Failure(
-          ex.message,
-          ex,
-          ex.locations)))
       case ex: IgnoredException =>
         Ignored(ex.reason, ex.location)
+      case exs: ExpectationsFailed =>
+        Failures(exs.failures.map { ex =>
+          Failures.Failure(ex.message, ex, ex.locations)
+        })
       case other =>
         Exception(other)
     }
