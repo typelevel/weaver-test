@@ -28,15 +28,21 @@ case class CheckConfig private (
   /**
    * The proportion of values discarded by the generator allowed before the test
    * is considered failed.
+   *
+   * A value is considered discarded if the generator outputs `None`. The
+   * generator must not discard more values than the number of successful runs,
+   * so this ratio is a proportion of [[minimumSuccessful]].
    */
   def withMaximumDiscardRatio(maximumDiscardRatio: Int) = copy(
     maximumDiscardRatio = maximumDiscardRatio
   )
 
+  /** The [[org.scalacheck.Gen.Parameters.size]] of the generator. */
   def withMaximumGeneratorSize(maximumGeneratorSize: Int) = copy(
     maximumGeneratorSize = maximumGeneratorSize
   )
 
+  /** The number of concurrent runs. */
   def withPerPropertyParallelism(perPropertyParallelism: Int) = copy(
     perPropertyParallelism = perPropertyParallelism
   )
