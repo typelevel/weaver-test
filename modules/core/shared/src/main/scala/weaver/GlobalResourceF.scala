@@ -94,7 +94,7 @@ object GlobalResourceF {
     ): F[A] =
       get[A](label).flatMap[A] {
         case Some(value) => F.pure(value)
-        case None =>
+        case None        =>
           F.raiseError(GlobalResourceF.ResourceNotFound(label, rt.description))
       }
 
@@ -102,7 +102,7 @@ object GlobalResourceF {
         implicit rt: ResourceTag[A]): Resource[F, A] =
       getR[A](label).flatMap {
         case Some(value) => Resource.pure[F, A](value)
-        case None =>
+        case None        =>
           Resource.eval(F.raiseError(GlobalResourceF.ResourceNotFound(
             label,
             rt.description)))
@@ -141,8 +141,8 @@ object GlobalResourceF {
     def rawGet[A](label: Option[String])(
         implicit rt: ResourceTag[A]): F[Option[Either[A, Resource[F, A]]]] =
       ref.get.map(_.get(label -> rt)).map {
-        case None              => None
-        case Some(Left(value)) => rt.cast(value).map(Left(_))
+        case None                  => None
+        case Some(Left(value))     => rt.cast(value).map(Left(_))
         case Some(Right(resource)) =>
           Some(Right(resource.map(rt.cast).map {
             case None =>

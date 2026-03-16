@@ -27,7 +27,7 @@ For other build tools and older SBT versions, read the [installation guide](http
 
 ![time](docs/assets/time.png)
 
-Weaver aims at providing a nice experience when writing and running tests :
+Weaver provides a nice experience when writing and running tests :
 
 - tests within a suite are run in parallel by default for quickest results possible
 - expectations (ie assertions) are composable values. This forces
@@ -35,6 +35,7 @@ Weaver aims at providing a nice experience when writing and running tests :
   which generally keeps tests cleaner / clearer.
 - failures are aggregated and reported at the end of the run. This prevents the developer from having to "scroll up" forever when trying to understand what failed.
 - a lazy logger is provided for each test, and log statements are only displayed in case of a test failure. This lets the developer enrich their tests with clues and works perfectly well with parallel runs
+- “beforeAll” and “afterAll” logic is represented using a `cats.effect.Resource`. This ensures that resources such as HTTP clients, connection pools and file handles are cleaned up correctly and predictably.
 
 ## API
 

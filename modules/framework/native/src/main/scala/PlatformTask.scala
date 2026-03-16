@@ -11,6 +11,7 @@ private[weaver] trait PlatformTask extends AsyncTask {
       eventHandler: EventHandler,
       loggers: Array[Logger]): Array[Task] = {
     val future = executeFuture(eventHandler, loggers)
+    scala.scalanative.LoopCompat.helpComplete()
     Await.result(future, 5.minutes)
     Array.empty[Task]
   }

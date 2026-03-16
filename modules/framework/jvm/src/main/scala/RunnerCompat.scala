@@ -73,8 +73,8 @@ trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
       // dispatching logs through a single logger at a time.
       val loggerPermit = new java.util.concurrent.Semaphore(1, true)
 
-      val queue  = new LinkedBlockingQueue[SuiteEvent]()
-      val broker = new ConcurrentQueueEventBroker(queue)
+      val queue         = new LinkedBlockingQueue[SuiteEvent]()
+      val broker        = new ConcurrentQueueEventBroker(queue)
       val startingBlock = unsafeRun.fromFuture {
         promise.future.map(_ => ())(ExecutionContext.global)
       }
@@ -215,7 +215,7 @@ trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
         suite <- mkSuite(globalResources)
         _     <- start // waiting for SBT to tell us to start
         _     <- broker.send(SuiteStarted(SuiteName(fqn)))
-        _ <- suite.run(args) { testOutcome =>
+        _     <- suite.run(args) { testOutcome =>
           outcomes
             .update(_.append(SuiteName(fqn) -> testOutcome))
             .whenA(testOutcome.status.isFailed)
