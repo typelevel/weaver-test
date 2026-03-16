@@ -57,6 +57,9 @@ val Version = new {
   val snapshot4s             = _root_.snapshot4s.BuildInfo.snapshot4sVersion
 }
 
+// Scala native doesn't publish version scheme so we have to explicitly define it
+ThisBuild / libraryDependencySchemes += "org.scala-native" %% "test-interface_native0.5" % "early-semver"
+
 lazy val root = tlCrossRootProject.aggregate(core,
                                              framework,
                                              coreCats,
