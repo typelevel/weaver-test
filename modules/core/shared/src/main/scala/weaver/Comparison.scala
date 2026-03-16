@@ -3,7 +3,7 @@ package weaver
 import cats.Eq
 import cats.Show
 import scala.annotation.implicitNotFound
-import munit.diff.Diffs
+import munit.diff.Diff
 import munit.diff.console.AnsiColors
 import weaver.internals.MultiLineShow
 
@@ -55,10 +55,8 @@ object Comparison {
             val expectedHeader = AnsiColors.c("- expected", AnsiColors.LightRed)
             val foundHeader    = AnsiColors.c("+ found", AnsiColors.LightGreen)
             val header         = s"($expectedHeader, $foundHeader)"
-            // Newer versions of munit-diff (1.1.0+) will reverse the order of `expected` and `found` arguments.
-            // When we upgrade to munit-diff `1.1.0`, we should switch the order to `found` then `expected`.
-            val report =
-              Diffs.unifiedDiff(showA.show(expected), showA.show(found))
+            val report         =
+              Diff.unifiedDiff(showA.show(found), showA.show(expected))
             Result.Failure(header + "\n" + report)
           }
         }

@@ -11,7 +11,7 @@ private[weaver] object Timestamp {
   def format(epochSecond: Long): String = {
     val out     = stackalloc[time.tm]()
     val timePtr = stackalloc[time.time_t]()
-    !timePtr = epochSecond
+    !timePtr = epochSecond.toSize
     val gmTime: Ptr[time.tm] = time.localtime_r(timePtr, out)
     val hour                 = gmTime.tm_hour
     val minutes              = gmTime.tm_min
