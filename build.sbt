@@ -57,7 +57,7 @@ val Version = new {
   val snapshot4s             = _root_.snapshot4s.BuildInfo.snapshot4sVersion
 }
 
-// Scala native doesn't publish version scheme so we have to explicitly define it
+// Scala native test-interface version scheme is set to strict, so we have to explicitly overrule it
 ThisBuild / libraryDependencySchemes += "org.scala-native" %% "test-interface_native0.5" % "early-semver"
 
 // Scala Native 0.5 support starts with 0.11.4, so skip MiMa checks for native artifacts
