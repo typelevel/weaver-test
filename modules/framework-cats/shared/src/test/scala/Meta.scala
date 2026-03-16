@@ -73,6 +73,10 @@ object Meta {
       ignore("Ignore me")
     }
 
+    test("lots\nof\nmultiline\n(cancelled)") {
+      cancel("I was cancelled :(")
+    }
+
     import cats.Show
     case class Foo(s: String, i: Int)
     object Foo {
@@ -94,23 +98,6 @@ object Meta {
     }
     pureTest("(same Comparison)") {
       expect.same(Foo("foo", 1), Foo("foo", 2))
-    }
-
-    pureTest("(eql Show)") {
-      implicit val showForString: Show[String] = _.toLowerCase
-      expect.eql("FOO", "foo")
-    }
-
-    case class Bar(s: String, i: Int)
-    object Bar {
-      implicit val barEq: cats.Eq[Bar] = cats.Eq.fromUniversalEquals
-    }
-
-    pureTest("(same with default show)") {
-      expect.same(List.fill(2)(Bar("bar", 1)), List.fill(3)(Bar("bar", 2)))
-    }
-    pureTest("(eql with default show)") {
-      expect.eql(List.fill(2)(Bar("bar", 1)), List.fill(3)(Bar("bar", 2)))
     }
 
     pureTest("(interpolator)") {
@@ -203,12 +190,12 @@ object Meta {
     }
   }
 
-  object FailingSuiteWithLogs extends SimpleIOSuite {
+  object FailingSuiteWithlogs extends SimpleIOSuite {
     override implicit protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
-    loggedTest("(failure)") { log =>
+    loggedTest("failure") { log =>
       val context = Map(
         "a"       -> "b",
         "token"   -> "<something>",
@@ -222,19 +209,6 @@ object Meta {
       } yield failure("expected")
     }
 
-    loggedTest("(multiple-failures)") { log =>
-      val context = Map(
-        "a"       -> "b",
-        "token"   -> "<something>",
-        "request" -> "true"
-      )
-
-      for {
-        _ <- log.info("this test")
-        _ <- log.error("has failed")
-        _ <- log.debug("with context", context)
-      } yield failure("expected") && failure("another")
-    }
   }
 
   object ErroringWithCauses extends SimpleIOSuite {
@@ -271,7 +245,7 @@ object Meta {
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
-    loggedTest("(failure)") { log =>
+    loggedTest("failure") { log =>
       for {
         _ <- log.error(
           "error",

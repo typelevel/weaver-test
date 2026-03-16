@@ -21,8 +21,8 @@ class WeaverRunner(cls: Class[_], @unused dummy: Boolean)
   }
 
   def testDescriptions: Map[String, Description] = {
-    (suite.plan.ignoredTests ++ suite.plan.filteredTests).map(name =>
-      name -> Description.createTestDescription(cls, name)).toMap
+    suite.plan.map(name =>
+      name.name -> Description.createTestDescription(cls, name.name)).toMap
   }
 
   def getDescription(): Description = {
@@ -36,7 +36,7 @@ class WeaverRunner(cls: Class[_], @unused dummy: Boolean)
 
     notifier.fireTestSuiteStarted(desc)
     notifyIgnored(notifier)
-    suite.runUnsafe(notifiying(notifier))
+    suite.runUnsafe(List.empty)(notifiying(notifier))
     notifier.fireTestSuiteFinished(desc)
   }
 
@@ -53,13 +53,24 @@ class WeaverRunner(cls: Class[_], @unused dummy: Boolean)
       case weaver.TestStatus.Exception =>
         notifier.fireTestStarted(description)
         notifier.fireTestFailure(failure(outcome))
+      case Cancelled =>
+        notifier.fireTestIgnored(description)
       case Ignored =>
         notifier.fireTestIgnored(description)
     }
   }
 
   private def notifyIgnored(notifier: RunNotifier): Unit = {
-    suite.plan.ignoredTests
+    val (taggedIgnored, rest) =
+      suite.plan.partition(_.tags(TestName.Tags.ignore))
+    val (only, ignored) = rest.partition(_.tags(TestName.Tags.only))
+    val toNotifyIgnored = if (only.nonEmpty) {
+      taggedIgnored ++ ignored
+    } else {
+      taggedIgnored
+    }
+    toNotifyIgnored
+      .map(_.name)
       .map(testDescriptions)
       .foreach(notifier.fireTestIgnored)
   }

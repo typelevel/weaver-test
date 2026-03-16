@@ -30,6 +30,7 @@ object SbtEvent {
         case TestStatus.Failure   => Status.Failure
         case TestStatus.Success   => Status.Success
         case TestStatus.Ignored   => Status.Ignored
+        case TestStatus.Cancelled => Status.Canceled
       }
 
     def selector(): Selector = {

@@ -13,16 +13,13 @@ import sbt.testing.{ Event => _, Status => _, Task => _, _ }
 
 import Platform._
 
-private[weaver] object DogFood {
+object DogFood extends DogFoodCompanion {
   type State = (Chain[LoggedEvent], Chain[sbt.testing.Event])
-
-  def make[F[_]](framework: WeaverFramework[F]): Resource[F, DogFood[F]] = {
-    Resource.pure(new DogFood(framework))
-  }
 }
 
 // Functionality to test how the frameworks react to successful and failing tests/suites
-private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
+abstract class DogFood[F[_]](
+    val framework: WeaverFramework[F])
     extends DogFoodCompat[F] {
   import framework.unsafeRun._
   import DogFood.State
@@ -37,12 +34,11 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
 
   def runSuites(
       suites: Seq[Fingerprinted],
-      maxParallelism: Int = 512,
-      args: Array[String] = Array.empty): F[State] =
+      maxParallelism: Int = 512): F[State] =
     for {
       eventHandler <- effect.delay(new MemoryEventHandler())
       logger       <- effect.delay(new MemoryLogger())
-      _            <- getTasks(suites, args).use { case (runner, tasks) =>
+      _ <- getTasks(suites).use { case (runner, tasks) =>
         runTasks(runner, eventHandler, logger, maxParallelism)(tasks.toList)
       }
       _      <- patience.fold(effect.unit)(framework.unsafeRun.sleep)
@@ -61,30 +57,25 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
     runSuites(Fingerprinted.ModuleSuite(suiteName))
 
   // Method used to run a test-suite
-  def runSuite(
-      suite: EffectSuite[F],
-      args: Array[String] = Array.empty): F[State] =
-    runSuites(
-      Seq(Fingerprinted.ModuleSuite(suite.getClass.getName.dropRight(1))),
-      args = args)
+  def runSuite(suite: EffectSuite[F]): F[State] =
+    runSuite(suite.getClass.getName.dropRight(1))
 
   def isSuccess(event: sbt.testing.Event)(
       implicit loc: SourceLocation): Expectations = {
     event.status() match {
       case sbt.testing.Status.Success => Expectations.Helpers.success
-      case status                     =>
+      case status =>
         Expectations.Helpers.failure(
           s"${event.fullyQualifiedName()}:${event.selector()} failed with $status")
     }
   }
 
   private def getTasks(
-      suites: Seq[Fingerprinted],
-      args: Array[String]
+      suites: Seq[Fingerprinted]
   ): Resource[F, (WeaverRunner[F], Array[sbt.testing.Task])] = {
     val acquire = Sync[F].delay {
       val cl = PlatformCompat.getClassLoader(this.getClass())
-      framework.weaverRunner(args, Array(), cl, None)
+      framework.weaverRunner(Array(), Array(), cl, None)
     }
     val runner = Resource.make(acquire) { runner =>
       done(runner).void
@@ -98,7 +89,7 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
                     Array(new SuiteSelector))
       }
 
-      effect.blocking(runner -> runner.tasks(taskDefs))
+      blocker.block(runner -> runner.tasks(taskDefs))
     }
   }
 
@@ -178,8 +169,8 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
 
 }
 
-private[weaver] sealed trait LoggedEvent
-private[weaver] object LoggedEvent {
+sealed trait LoggedEvent
+object LoggedEvent {
   final case class Error(msg: String)  extends LoggedEvent
   final case class Warn(msg: String)   extends LoggedEvent
   final case class Info(msg: String)   extends LoggedEvent

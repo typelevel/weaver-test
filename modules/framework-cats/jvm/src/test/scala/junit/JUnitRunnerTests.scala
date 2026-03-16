@@ -8,14 +8,17 @@ import cats.effect._
 import org.junit.runner.Description
 import org.junit.runner.notification.{ Failure, RunListener, RunNotifier }
 
-object JUnitRunnerTests extends SimpleIOSuite {
+object JUnitRunnerTests extends IOSuite {
+
+  type Res = BlockerCompat[IO]
+  def sharedResource: Resource[IO, Res] = effectCompat.blocker(identity)
 
   implicit val showNotifList: Show[List[Notification]] =
     list => list.map(_.toString()).mkString("\n")
   implicit val eqNotification: Eq[Notification] = Eq.fromUniversalEquals
 
-  test("Notifications are issued correctly") {
-    run(Meta.MySuite).map { notifications =>
+  test("Notifications are issued correctly") { blocker =>
+    run(blocker, Meta.MySuite).map { notifications =>
       val (failures, filteredNotifs) = notifications.partition {
         case TestFailure(_, _) => true
         case _                 => false
@@ -40,8 +43,8 @@ object JUnitRunnerTests extends SimpleIOSuite {
     }
   }
 
-  test("Only tests tagged with only are ran") {
-    run(Meta.Only).map { notifications =>
+  test("Only tests tagged with only are ran") { blocker =>
+    run(blocker, Meta.Only).map { notifications =>
       val expected = List(
         TestSuiteStarted("weaver.junit.Meta$Only$"),
         TestIgnored("not only(weaver.junit.Meta$Only$)"),
@@ -53,8 +56,8 @@ object JUnitRunnerTests extends SimpleIOSuite {
     }
   }
 
-  test("Tests tagged with only fail when ran on CI") {
-    run(Meta.OnlyFailsOnCi).map { notifications =>
+  test("Tests tagged with only fail when ran on CI") { blocker =>
+    run(blocker, Meta.OnlyFailsOnCi).map { notifications =>
       def testFailure(name: String, lineNumber: Int, sourceCode: String) = {
         val srcPath =
           "modules/framework-cats/jvm/src/test/scala/junit/Meta.scala"
@@ -103,23 +106,23 @@ object JUnitRunnerTests extends SimpleIOSuite {
   }
 
   test("Only tests tagged with only are ran (unless also tagged ignored)") {
-
-    run(Meta.IgnoreAndOnly).map { notifications =>
-      val expected = List(
-        TestSuiteStarted("weaver.junit.Meta$IgnoreAndOnly$"),
-        TestIgnored("not tagged(weaver.junit.Meta$IgnoreAndOnly$)"),
-        TestIgnored("is ignored(weaver.junit.Meta$IgnoreAndOnly$)"),
-        TestIgnored("only and ignored(weaver.junit.Meta$IgnoreAndOnly$)"),
-        TestStarted("only(weaver.junit.Meta$IgnoreAndOnly$)"),
-        TestFinished("only(weaver.junit.Meta$IgnoreAndOnly$)"),
-        TestSuiteFinished("weaver.junit.Meta$IgnoreAndOnly$")
-      )
-      expect.same(expected, notifications)
-    }
+    blocker =>
+      run(blocker, Meta.IgnoreAndOnly).map { notifications =>
+        val expected = List(
+          TestSuiteStarted("weaver.junit.Meta$IgnoreAndOnly$"),
+          TestIgnored("only and ignored(weaver.junit.Meta$IgnoreAndOnly$)"),
+          TestIgnored("is ignored(weaver.junit.Meta$IgnoreAndOnly$)"),
+          TestIgnored("not tagged(weaver.junit.Meta$IgnoreAndOnly$)"),
+          TestStarted("only(weaver.junit.Meta$IgnoreAndOnly$)"),
+          TestFinished("only(weaver.junit.Meta$IgnoreAndOnly$)"),
+          TestSuiteFinished("weaver.junit.Meta$IgnoreAndOnly$")
+        )
+        expect.same(notifications, expected)
+      }
   }
 
-  test("Tests tagged with ignore are ignored") {
-    run(Meta.Ignore).map { notifications =>
+  test("Tests tagged with ignore are ignored") { blocker =>
+    run(blocker, Meta.Ignore).map { notifications =>
       val expected = List(
         TestSuiteStarted("weaver.junit.Meta$Ignore$"),
         TestIgnored("is ignored(weaver.junit.Meta$Ignore$)"),
@@ -133,8 +136,8 @@ object JUnitRunnerTests extends SimpleIOSuite {
     }
   }
 
-  test("Tests tagged with ignore are ignored (FunSuite)") {
-    runPure(Meta.IgnorePure).map { notifications =>
+  test("Tests tagged with ignore are ignored (FunSuite)") { blocker =>
+    runPure(blocker, Meta.IgnorePure).map { notifications =>
       val expected = List(
         TestSuiteStarted("weaver.junit.Meta$IgnorePure$"),
         TestIgnored("is ignored(weaver.junit.Meta$IgnorePure$)"),
@@ -150,75 +153,82 @@ object JUnitRunnerTests extends SimpleIOSuite {
 
   test(
     "Even if all tests are ignored, will fail if a test is tagged with only") {
-
-    run(Meta.OnlyFailsOnCiEvenIfIgnored).map { notifications =>
-      val testFailure = {
-        val srcPath =
-          "modules/framework-cats/jvm/src/test/scala/junit/Meta.scala"
-        val name       = "only and ignored"
-        val lineNumber = 110
-        val sourceCode = if (ScalaCompat.isScala3)
-          """
+    blocker =>
+      run(blocker, Meta.OnlyFailsOnCiEvenIfIgnored).map { notifications =>
+        val testFailure = {
+          val srcPath =
+            "modules/framework-cats/jvm/src/test/scala/junit/Meta.scala"
+          val name       = "only and ignored"
+          val lineNumber = 110
+          val sourceCode = if (ScalaCompat.isScala3)
+            """
               |      pureTest("only and ignored".only.ignore) {
               |                                     ^
             """
-        else """
+          else """
                  |      pureTest("only and ignored".only.ignore) {
                  |                                  ^
                """
-        val message = s"""- $name 0ms
+          val message = s"""- $name 0ms
           |  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)
           |
           |  $srcPath:$lineNumber
           |${sourceCode.trim.stripMargin}
           |
           |""".stripMargin
-        TestFailure(
-          name = name + "(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)",
-          message = message
-        )
-      }
+          TestFailure(
+            name = name + "(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)",
+            message = message
+          )
+        }
 
-      val expected = List(
-        TestSuiteStarted("weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$"),
-        TestStarted(
-          "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
-        testFailure,
-        TestFinished(
-          "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
-        TestSuiteFinished("weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$")
-      )
-      expect.eql(notifications, expected)
-    }
+        val expected = List(
+          TestSuiteStarted("weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$"),
+          TestIgnored(
+            "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
+          TestStarted(
+            "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
+          testFailure,
+          TestFinished(
+            "only and ignored(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)"),
+          TestSuiteFinished("weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$")
+        )
+        expect.eql(expected, notifications)
+      }
   }
 
   test("Works when suite asks for global resources") {
-    run(classOf[Meta.Sharing]).map { notifications =>
-      val expected = List(
-        TestSuiteStarted("weaver.junit.Meta$Sharing"),
-        TestStarted("foo(weaver.junit.Meta$Sharing)"),
-        TestFinished("foo(weaver.junit.Meta$Sharing)"),
-        TestSuiteFinished("weaver.junit.Meta$Sharing")
-      )
-      expect.same(notifications, expected)
-    }
+    blocker =>
+      run(blocker, classOf[Meta.Sharing]).map { notifications =>
+        val expected = List(
+          TestSuiteStarted("weaver.junit.Meta$Sharing"),
+          TestStarted("foo(weaver.junit.Meta$Sharing)"),
+          TestFinished("foo(weaver.junit.Meta$Sharing)"),
+          TestSuiteFinished("weaver.junit.Meta$Sharing")
+        )
+        expect.same(notifications, expected)
+      }
   }
 
-  def run(suite: Class[_]): IO[List[Notification]] = for {
+  def run(
+      blocker: BlockerCompat[IO],
+      suite: Class[_]): IO[List[Notification]] = for {
     runner   <- IO(new WeaverRunner(suite))
     queue    <- IO(scala.collection.mutable.Queue.empty[Notification])
     notifier <- IO(new RunNotifier())
     _        <- IO(notifier.addListener(new NotificationListener(queue)))
-    _        <- IO.blocking(runner.run(notifier))
+    _        <- blocker.block(runner.run(notifier))
   } yield queue.toList
 
   def run(
+      blocker: BlockerCompat[IO],
       suite: SimpleIOSuite): IO[List[Notification]] =
-    run(suite.getClass())
+    run(blocker, suite.getClass())
 
   def runPure(
+      blocker: BlockerCompat[IO],
       suite: FunSuite): IO[List[Notification]] =
-    run(suite.getClass())
+    run(blocker, suite.getClass())
 
   sealed trait Notification
   case class TestSuiteStarted(name: String)             extends Notification

@@ -10,18 +10,15 @@ import weaver.internals.Reflection._
 import sbt.testing.{ Fingerprint, SubclassFingerprint, TaskDef }
 
 object WeaverFingerprints {
-  abstract class Mixin[
-      F[_],
-      SC <: EffectSuite.Provider[F],
-      GRIC <: GlobalResourceF[F]](
-      implicit SC: ClassTag[SC],
-      GRIC: ClassTag[GRIC],
-      F: Sync[F]) extends WeaverFingerprints[F] {
+  // format: off
+  abstract class Mixin[F[_], SC <: EffectSuite.Provider[F], GRIC <: GlobalResourceF[F]](
+      implicit SC: ClassTag[SC], GRIC: ClassTag[GRIC], F : Sync[F]) extends WeaverFingerprints[F] {
     type SuiteClass = SC
     val SuiteClass = SC
     type GlobalResourcesInitClass = GRIC
     val GlobalResourcesInitClass = GRIC
   }
+  // format: on
 }
 
 /**

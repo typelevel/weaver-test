@@ -1,91 +1,80 @@
 package weaver
 
+import scala.util.Try
+
 import cats.data.NonEmptyList
 import cats.data.Validated.{ Invalid, Valid }
 
-private[weaver] sealed trait Result {
+sealed trait Result {
   def formatted: Option[String]
 }
 
-private[weaver] object Result {
+object Result {
   import Formatter._
 
   def fromAssertion(assertion: Expectations): Result = assertion.run match {
-    case Valid(_)        => Success
+    case Valid(_) => Success
     case Invalid(failed) =>
       Failures(failed.map(ex =>
-        Failures.Failure(ex.message, ex, ex.locations)))
+        Result.Failure(ex.message, Some(ex), ex.locations.toList)))
   }
 
   case object Success extends Result {
     def formatted: Option[String] = None
   }
 
-  final case class Ignored(reason: String, location: SourceLocation)
+  final case class Ignored(reason: Option[String], location: SourceLocation)
       extends Result {
 
     def formatted: Option[String] = {
-      Some(formatDescription(reason,
-                             List(location),
-                             Console.YELLOW,
-                             TAB2.prefix))
+      reason.map(msg => indent(msg, List(location), Console.YELLOW, TAB2))
     }
   }
 
-  final case class Failures(failures: NonEmptyList[Failures.Failure])
+  final case class Cancelled(reason: Option[String], location: SourceLocation)
       extends Result {
 
+    def formatted: Option[String] = {
+      reason.map(msg => indent(msg, List(location), Console.YELLOW, TAB2))
+    }
+  }
+
+  final case class Failures(failures: NonEmptyList[Failure]) extends Result {
+
     def formatted: Option[String] =
-      if (failures.size == 1) {
-        val failure          = failures.head
-        val formattedMessage = formatDescription(
-          failure.msg,
-          failure.locations.toList,
-          Console.RED,
-          TAB2.prefix
-        ) + DOUBLE_EOL
-        Some(formattedMessage)
-      } else {
+      if (failures.size == 1) failures.head.formatted
+      else {
 
         val descriptions = failures.zipWithIndex.map {
           case (failure, idx) =>
             import failure._
 
             formatDescription(
-              msg,
-              locations.toList,
+              if (msg != null && msg.nonEmpty) msg else "Test failed",
+              location,
               Console.RED,
               s" [$idx] "
             )
         }
 
-        Some(descriptions.toList.mkString("", DOUBLE_EOL, DOUBLE_EOL))
+        Some(descriptions.toList.mkString(DOUBLE_EOL))
       }
   }
 
-  object Failures {
-    final case class Failure(
-        msg: String,
-        source: Throwable,
-        locations: NonEmptyList[SourceLocation])
-  }
-
-  final case class OnlyTagNotAllowedInCI(
-      location: SourceLocation)
+  final case class Failure(
+      msg: String,
+      source: Option[Throwable],
+      location: List[SourceLocation])
       extends Result {
 
-    def formatted: Option[String] = {
-      val formattedMessage = formatDescription(
-        "'Only' tag is not allowed when `isCI=true`",
-        List(location),
-        Console.RED,
-        TAB2.prefix
-      ) + DOUBLE_EOL
-      Some(formattedMessage)
-    }
+    def formatted: Option[String] =
+      Some(formatError(msg, source, location, Some(0)))
   }
 
-  final case class Exception(source: Throwable) extends Result {
+  final case class Exception(
+      source: Throwable,
+      location: Option[SourceLocation])
+      extends Result {
 
     def formatted: Option[String] = {
       val description = {
@@ -96,7 +85,16 @@ private[weaver] object Result {
           .fold(className)(m => s"$className: $m")
       }
 
-      Some(formatError(description, source))
+      val maxStackFrames = sys.props.get("WEAVER_MAX_STACKFRAMES").flatMap(s =>
+        Try(s.trim.toInt).toOption).getOrElse(50)
+
+      val stackTraceLimit =
+        if (location.isDefined) Some(maxStackFrames) else None
+
+      Some(formatError(description,
+                       Some(source),
+                       location.toList,
+                       stackTraceLimit))
     }
   }
 
@@ -104,22 +102,27 @@ private[weaver] object Result {
 
   def from(error: Throwable): Result = {
     error match {
-      case ex: ExpectationFailed =>
-        Failures(NonEmptyList.of(Failures.Failure(
-          ex.message,
-          ex,
-          ex.locations)))
+      case ex: AssertionException =>
+        Result.Failure(ex.message, Some(ex), ex.locations.toList)
       case ex: IgnoredException =>
-        Ignored(ex.reason, ex.location)
+        Result.Ignored(ex.reason, ex.location)
+      case ex: CanceledException =>
+        Result.Cancelled(ex.reason, ex.location)
+      case ex: WeaverException =>
+        Result.Exception(ex, Some(ex.getLocation))
       case other =>
-        Exception(other)
+        Result.Exception(other, None)
     }
   }
 
-  private def formatError(msg: String, source: Throwable): String = {
+  private def formatError(
+      msg: String,
+      source: Option[Throwable],
+      location: List[SourceLocation],
+      traceLimit: Option[Int]): String = {
 
-    val stackTrace = {
-      val stackTraceLines = TestErrorFormatter.formatStackTrace(source, None)
+    val stackTrace = source.fold("") { ex =>
+      val stackTraceLines = TestErrorFormatter.formatStackTrace(ex, traceLimit)
 
       def traverseCauses(ex: Throwable): Vector[Throwable] = {
         Option(ex.getCause) match {
@@ -128,27 +131,24 @@ private[weaver] object Result {
         }
       }
 
-      val causes               = traverseCauses(source)
+      val causes = traverseCauses(ex)
       val causeStackTraceLines = causes.flatMap { cause =>
         Vector(EOL + "Caused by: " + cause.toString + EOL) ++
-          TestErrorFormatter.formatStackTrace(cause, None)
+          TestErrorFormatter.formatStackTrace(cause, traceLimit)
       }
 
       val errorOutputLines = stackTraceLines ++ causeStackTraceLines
 
       if (errorOutputLines.nonEmpty) {
-        formatDescription(errorOutputLines.mkString(EOL),
-                          Nil,
-                          Console.RED,
-                          TAB2.prefix)
+        indent(errorOutputLines.mkString(EOL), Nil, Console.RED, TAB2)
       } else ""
     }
 
-    val formattedMessage = formatDescription(
-      msg,
-      Nil,
+    val formattedMessage = indent(
+      if (msg != null && msg.nonEmpty) msg else "Test failed",
+      location,
       Console.RED,
-      TAB2.prefix
+      TAB2
     )
 
     var res = formattedMessage + DOUBLE_EOL
@@ -164,19 +164,38 @@ private[weaver] object Result {
       color: String,
       prefix: String): String = {
 
-    val prefixIsWhitespace = prefix.trim.isEmpty
-    val footer             = locationFooter(location)
+    val footer = locationFooter(location)
     val lines = (message.split("\\r?\\n") ++ footer).zipWithIndex.map {
       case (line, index) =>
-        val linePrefix =
-          if (prefixIsWhitespace && line.trim.isEmpty) "" else prefix
         if (index == 0)
-          color + linePrefix + line +
+          color + prefix + line +
             location
               .map(l => s" (${l.fileRelativePath}:${l.line})")
               .mkString("\n")
         else
-          color + linePrefix + line
+          color + prefix + line
+    }
+
+    lines.mkString(EOL) + Console.RESET
+  }
+
+  private def indent(
+      message: String,
+      location: List[SourceLocation],
+      color: String,
+      width: Tabulation): String = {
+
+    val footer = locationFooter(location)
+    val lines = (message.split("\\r?\\n") ++ footer).zipWithIndex.map {
+      case (line, index) =>
+        val prefix = if (line.trim == "") "" else width.prefix
+        if (index == 0)
+          color + prefix + line +
+            location
+              .map(l => s" (${l.fileRelativePath}:${l.line})")
+              .mkString("\n")
+        else
+          color + prefix + line
     }
 
     lines.mkString(EOL) + Console.RESET

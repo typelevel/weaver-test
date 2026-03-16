@@ -6,7 +6,7 @@ import cats.data.{ NonEmptyList, Validated, ValidatedNel }
 import cats.effect.Sync
 import cats.syntax.all._
 
-case class Expectations(run: ValidatedNel[ExpectationFailed, Unit]) {
+case class Expectations(run: ValidatedNel[AssertionException, Unit]) {
   self =>
 
   /**
@@ -108,7 +108,7 @@ case class Expectations(run: ValidatedNel[ExpectationFailed, Unit]) {
    */
   def traced(loc: SourceLocation): Expectations =
     Expectations(run.leftMap(_.map(e =>
-      e.withLocation(loc))))
+      e.copy(locations = e.locations.append(loc)))))
 
 }
 
@@ -147,8 +147,8 @@ object Expectations {
       override def empty: Additive =
         Additive(
           Expectations(
-            Validated.invalidNel(new ExpectationFailed("empty",
-                                                       NonEmptyList.of(loc)))))
+            Validated.invalidNel(new AssertionException("empty",
+                                                        NonEmptyList.of(loc)))))
 
       override def combine(x: Additive, y: Additive): Additive =
         Additive(
@@ -156,24 +156,6 @@ object Expectations {
             Additive.unwrap(x).or(Additive.unwrap(y)).run
           ))
     }
-
-  final private[weaver] class PartiallyAppliedMatchOrFailFast[F[_]](
-      val dummy: Boolean = true)
-      extends AnyVal {
-    def apply[A, B](x: A)(
-        pf: PartialFunction[A, B]
-    )(
-        implicit loc: SourceLocation,
-        F: Sync[F],
-        A: Show[A] = Show.fromToString[A]): F[B] =
-      pf.lift(x).fold[F[B]] {
-        Sync[F].raiseError(
-          new ExpectationFailed(
-            "Pattern did not match, got: " + x.show,
-            NonEmptyList.of(loc)
-          ))
-      }(Sync[F].pure)
-  }
 
   trait Helpers extends weaver.internals.ClueHelpers {
 
@@ -185,7 +167,7 @@ object Expectations {
     val success: Expectations = Monoid[Expectations].empty
 
     def failure(hint: String)(implicit pos: SourceLocation): Expectations =
-      Expectations(Validated.invalidNel(new ExpectationFailed(
+      Expectations(Validated.invalidNel(new AssertionException(
         hint,
         NonEmptyList.of(pos))))
 
@@ -250,25 +232,6 @@ object Expectations {
         failure("Pattern did not match, got: " + x.show)
 
     /**
-     * Checks that a given expression matches a certain pattern, returning the
-     * result of the partial function <code>pf</code> if so, fails otherwise.
-     *
-     * @example
-     *   {{{
-     *     val x = Some(4)
-     *     val otherSideEffect = IO.pure("4")
-     *     for {
-     *       b <- matchOrFailFast[IO](x) {
-     *         case Some(v) => v.toString
-     *       }
-     *       c <- otherSideEffect
-     *     } yield expect.eql(b, c)
-     *   }}}
-     */
-    def matchOrFailFast[F[_]]: PartiallyAppliedMatchOrFailFast[F] =
-      new PartiallyAppliedMatchOrFailFast[F]
-
-    /**
      * Alias for `forEach`
      */
     def inEach[L[_], A](la: L[A])(f: A => Expectations)(
@@ -301,19 +264,11 @@ object Expectations {
           "unexpected error case encountered after error handling"))((z, x) =>
           z || x)
 
-    @deprecated(
-      "Use `expect` with `clue` instead. Apply the scalafix rule `github:typelevel/weaver-test/v0_11_0?sha=0.11.0` to rewrite all usages.",
-      since = "0.11.0"
-    )
     def verify(condition: Boolean, hint: String)(
         implicit pos: SourceLocation): Expectations =
       if (condition) success
       else failure(hint)
 
-    @deprecated(
-      "Use `expect` with `clue` instead. Apply the scalafix rule `github:typelevel/weaver-test/v0_11_0?sha=0.11.0` to rewrite all usages.",
-      since = "0.11.0"
-    )
     def verify(condition: Boolean)(
         implicit pos: SourceLocation): Expectations =
       verify(condition, "assertion failed!")
@@ -324,18 +279,13 @@ object Expectations {
       case Invalid(_) => success
     }
 
-    /**
-     * Raises an error that leads to the running test being tagged as "ignored"
-     */
-    def ignore[F[_]: Sync](reason: String)(implicit
-        pos: SourceLocation): F[Nothing] =
-      Sync[F].raiseError(new IgnoredException(reason, pos))
-
     implicit class StringOps(str: String) {
       def ignore(implicit loc: SourceLocation): TestName =
         new TestName(str, loc, Set.empty).ignore
       def only(implicit loc: SourceLocation): TestName =
         new TestName(str, loc, Set.empty).only
+      def tagged(tag: String)(implicit loc: SourceLocation): TestName =
+        new TestName(str, loc, Set.empty).tagged(tag)
     }
 
   }
@@ -347,7 +297,7 @@ object Expectations {
     def loop(index: Int, acc: String): String =
       if (index >= values.length) acc
       else {
-        val value  = String.valueOf(values(index))
+        val value = String.valueOf(values(index))
         val newStr =
           acc.replaceAll(s"[{]$index[}]",
                          java.util.regex.Matcher.quoteReplacement(value))

@@ -14,8 +14,8 @@ import sbt.librarymanagement.Configurations.ScalaDocTool
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
 ThisBuild / tlBaseVersion := "0.11" // your current series x.y
 
-ThisBuild / startYear  := Some(2019)
-ThisBuild / licenses   := Seq(License.Apache2)
+ThisBuild / startYear := Some(2019)
+ThisBuild / licenses  := Seq(License.Apache2)
 ThisBuild / developers := List(
   tlGitHubDev("baccata", "Olivier Mélois"),
   tlGitHubDev("keynmol", "Anton Sviridov"),
@@ -34,36 +34,32 @@ ThisBuild / tlCiReleaseBranches := List("main", "feature/native-0.5")
 // use JDK 11
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
 
-val scala212 = "2.12.21"
-val scala213 = "2.13.18"
-ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.7")
+val scala212 = "2.12.20"
+val scala213 = "2.13.16"
+ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.3.6")
 ThisBuild / scalaVersion       := scala213 // the default Scala
 
+// Silence binary compatibility warnings for test-interface in Scala Native 0.5.x series
+// has to include _native suffix due to https://github.com/sbt/sbt/issues/7140
+ThisBuild / libraryDependencySchemes +=
+  "org.scala-native" %% "test-interface_native0.5" % VersionScheme.Always
+
 val Version = new {
-  val catsEffect             = "3.7.0"
+  val catsEffect             = "3.7.0-RC1"
   val catsLaws               = "2.13.0"
   val discipline             = "1.7.0"
-  val fs2                    = "3.13.0"
+  val fs2                    = "3.13.0-M6"
   val junit                  = "4.13.2"
   val portableReflect        = "1.1.3"
   val scalaJavaTime          = "2.4.0"
-  val scalacheck             = "1.19.0"
+  val scalacheck             = "1.18.1"
   val scalajsMacroTask       = "1.1.1"
   val scalajsStubs           = "1.1.0"
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
-  val munitDiff              = "1.2.4"
-  val snapshot4s             = _root_.snapshot4s.BuildInfo.snapshot4sVersion
+  val munitDiff              = "1.2.0"
 }
-
-// Scala native test-interface version scheme is set to strict, so we have to explicitly overrule it
-ThisBuild / libraryDependencySchemes += "org.scala-native" %% "test-interface_native0.5" % "early-semver"
-
-// Scala Native 0.5 support starts with 0.11.4, so skip MiMa checks for native artifacts
-lazy val nativeMimaSettings = Seq(
-  tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.11.4").toMap
-)
 
 lazy val root = tlCrossRootProject.aggregate(core,
                                              framework,
@@ -73,7 +69,6 @@ lazy val root = tlCrossRootProject.aggregate(core,
                                              discipline)
 
 lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
-  .nativeSettings(nativeMimaSettings)
   .in(file("modules/core"))
   .settings(
     name := "weaver-core",
@@ -88,34 +83,26 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
         "org.scala-lang" % "scala-reflect" % scala213
       else
         "org.scala-lang" % "scala-reflect" % scalaVersion.value
-    )
-  )
-
-// Shades the munit-diff dependency.
-lazy val munitDiffShadingSettings = Seq(
-  shadedDependencies += "org.scalameta" %%% "munit-diff" % "<ignored>",
-  shadingRules += ShadingRule.moveUnder("munit.diff",
-                                        "weaver.internal.shaded"),
-  validNamespaces ++= Set("weaver", "org"),
-  mimaBinaryIssueFilters += ProblemFilters.exclude[MissingClassProblem](
-    "weaver.internal.shaded.*")
-)
+    ),
+    // Shades the scala-diff dependency.
+    shadedDependencies += "org.scalameta" %%% "munit-diff" % "<ignored>",
+    shadingRules += ShadingRule.moveUnder("munit.diff",
+                                          "weaver.internal.shaded"),
+    validNamespaces ++= Set("weaver", "org"),
+    mimaBinaryIssueFilters += ProblemFilters.exclude[MissingClassProblem](
+      "weaver.internal.shaded.*")
+  ).enablePlugins(ShadingPlugin)
 
 lazy val coreJVM = core.jvm
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-stubs" % Version.scalajsStubs % "provided" cross CrossVersion.for3Use2_13,
       "junit" % "junit" % Version.junit % Optional
-    ),
-    munitDiffShadingSettings
-  ).enablePlugins(ShadingPlugin)
-
-lazy val coreJS =
-  core.js.settings(munitDiffShadingSettings).enablePlugins(ShadingPlugin)
+    )
+  )
 
 lazy val framework = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/framework"))
-  .nativeSettings(nativeMimaSettings)
   .dependsOn(core)
   .settings(
     name := "weaver-framework",
@@ -149,7 +136,6 @@ lazy val frameworkNative = framework.native
 lazy val coreCats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/core-cats"))
   .dependsOn(core)
-  .nativeSettings(nativeMimaSettings)
   .settings(
     libraryDependencies ++= Seq(
       "junit" % "junit" % Version.junit % ScalaDocTool
@@ -166,21 +152,14 @@ lazy val coreCatsJS = coreCats.js
 lazy val cats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/framework-cats"))
   .dependsOn(framework, coreCats)
-  .nativeSettings(nativeMimaSettings)
   .settings(
     name           := "weaver-cats",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect"))
   )
-lazy val catsJVM = cats.jvm
-  .settings(
-    libraryDependencies += "com.siriusxm" %% "snapshot4s-core" % Version.snapshot4s % Test
-  )
-  .enablePlugins(Snapshot4sPlugin)
 
 lazy val scalacheck = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/scalacheck"))
   .dependsOn(core, cats % "test->compile")
-  .nativeSettings(nativeMimaSettings)
   .settings(
     name           := "weaver-scalacheck",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
@@ -192,7 +171,6 @@ lazy val scalacheck = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/discipline"))
   .dependsOn(core, cats)
-  .nativeSettings(nativeMimaSettings)
   .settings(
     name           := "weaver-discipline",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),

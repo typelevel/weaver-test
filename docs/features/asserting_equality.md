@@ -2,7 +2,6 @@
 
 ```scala mdoc:invisible
 import weaver.Expectations.Helpers._
-import weaver._
 val expected = 1
 val found = 2
 ```
@@ -27,24 +26,14 @@ expect.eql(1, "one")
 
 The data types you compare must have an [Eq](https://typelevel.org/cats/typeclasses/eq.html) typeclass instance. You can declare one, or derive one using [kittens](https://github.com/typelevel/kittens).
 
-```scala mdoc:silent
+```scala mdoc:compile-only
 case class Pet(name: String)
 
 // A cats.Eq instance is needed
 import cats.Eq
 implicit val petEq: Eq[Pet] = Eq.by(_.name)
 
-object ExpectEqlSuite extends SimpleIOSuite {
-  pureTest("Simple expectation") {
-    expect.eql(Pet("Maru"), Pet("Fido"))
-  }
-}
-```
-
-### Example report
-
-```scala mdoc:passthrough
-println(weaver.docs.Output.runSuites(ExpectEqlSuite))
+expect.eql(Pet("Maru"), Pet("Fido"))
 ```
 
 ## `expect.same`
@@ -65,20 +54,10 @@ expect.same(1, "one")
 
 `expect.same` doesn't require an `Eq` instance. 
 
-```scala mdoc:silent
+```scala mdoc:compile-only
 case class Dog(name: String) // No Eq instance defined
 
-object ExpectSameSuite extends SimpleIOSuite {
-  pureTest("Simple expectation") {
-    expect.same(Dog("Maru"), Dog("Fido"))
-  }
-}
-```
-
-### Example report
-
-```scala mdoc:passthrough
-println(weaver.docs.Output.runSuites(ExpectSameSuite))
+expect.same(Dog("Maru"), Dog("Fido"))
 ```
 
 ## Do not use `expect`

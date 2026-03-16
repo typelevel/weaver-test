@@ -2,7 +2,6 @@ package weaver
 package framework
 package test
 
-import cats.effect.IO
 import cats.kernel.Eq
 
 object ExpectationsTests extends SimpleIOSuite {
@@ -62,32 +61,13 @@ object ExpectationsTests extends SimpleIOSuite {
       })
   }
 
-  test("matchOrFailFast (success)") {
-    matchOrFailFast[IO](Some(4)) {
-      case Some(v) => v
-    }.as(success)
-  }
-
-  test("matchOrFailFast (failure)") {
-    matchOrFailFast[IO](Option.empty[Int]) {
-      case Some(v) => v
-    }
-      .attempt
-      .map { either =>
-        matches(either) { case Left(_: ExpectationFailed) =>
-          success
-        }
-      }
-  }
-
   pureTest("expect.eql respects cats.kernel.Eq") {
     implicit val eqInt: Eq[Int] = Eq.allEqual
     expect.eql(0, 1)
   }
 
   pureTest("expect.eql respects weaver.Comparison") {
-    implicit val comparison: Comparison[Int] =
-      Comparison.fromEq(Eq.allEqual, implicitly[cats.Show[Int]])
+    implicit val comparison: Comparison[Int] = Comparison.fromEq(Eq.allEqual)
     expect.eql(0, 1)
   }
 

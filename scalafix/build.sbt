@@ -9,13 +9,11 @@ inThisBuild(
   List(
     organization := "typelevel",
     homepage     := Some(url("https://github.com/typelevel/weaver-test")),
-    licenses     := List(
+    licenses := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
     semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision,
-    resolvers += "Sonatype central snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
-    scalacOptions += "-deprecation"
+    semanticdbVersion := scalafixSemanticdb.revision
   )
 )
 
@@ -53,27 +51,16 @@ lazy val v0_9_0_output =
   makeOutput("v0_9_0", "org.typelevel" %% "weaver-cats" % "0.9.0")
 lazy val v0_9_0_tests = makeTests("v0_9_0", v0_9_0_input, v0_9_0_output)
 
-lazy val v0_11_0_input =
-  makeInput("v0_11_0", "org.typelevel" %% "weaver-cats" % "0.10.1")
-lazy val v0_11_0_output =
-  makeOutput("v0_11_0", "org.typelevel" %% "weaver-cats" % "0.11-799b8e6-SNAPSHOT")
-lazy val v0_11_0_tests = makeTests("v0_11_0", v0_11_0_input, v0_11_0_output)
-
 lazy val testsAggregate = Project("tests", file("target/testsAggregate"))
-  .aggregate(v0_8_3_tests.projectRefs ++ v0_9_0_tests.projectRefs ++ v0_11_0_tests.projectRefs: _*)
+  .aggregate(v0_8_3_tests.projectRefs ++ v0_9_0_tests.projectRefs: _*)
   .settings(
     publish / skip := true
   )
 
-def makeOutput(name: String, weaver: ModuleID): ProjectMatrix =
-  makeInputOrOutput(name, weaver, "output")
-def makeInput(name: String, weaver: ModuleID): ProjectMatrix =
-  makeInputOrOutput(name, weaver, "input")
+def makeOutput(name: String, weaver: ModuleID): ProjectMatrix = makeInputOrOutput(name, weaver, "output")
+def makeInput(name: String, weaver: ModuleID): ProjectMatrix = makeInputOrOutput(name, weaver, "input")
 
-def makeInputOrOutput(
-    name: String,
-    weaver: ModuleID,
-    inputOrOutput: String): ProjectMatrix = ProjectMatrix(
+def makeInputOrOutput(name: String, weaver: ModuleID, inputOrOutput: String): ProjectMatrix = ProjectMatrix(
   s"${name}_$inputOrOutput",
   file(s"$name/$inputOrOutput")
 ).settings(
@@ -90,7 +77,7 @@ def makeTests(
   file(s"$name/tests")
 )
   .settings(
-    publish / skip                         := true,
+    publish / skip := true,
     scalafixTestkitOutputSourceDirectories :=
       TargetAxis
         .resolve(output, Compile / unmanagedSourceDirectories)
