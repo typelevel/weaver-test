@@ -58,7 +58,7 @@ object Comparison {
             // Newer versions of munit-diff (1.1.0+) will reverse the order of `expected` and `found` arguments.
             // When we upgrade to munit-diff `1.1.0`, we should switch the order to `found` then `expected`.
             val report =
-              Diff.unifiedDiff(showA.show(expected), showA.show(found))
+              Diff.unifiedDiff(showA.show(found), showA.show(expected))
             Result.Failure(header + "\n" + report)
           }
         }
