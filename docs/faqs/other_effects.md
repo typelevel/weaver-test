@@ -10,6 +10,8 @@ use in repository they control.
 If you are looking for documentation of the legacy branches of weaver that did
 support other effect types, you can find it [in the archived repository](https://github.com/disneystreaming/weaver-test/blob/v0.6.15/docs/installation.md).
 
+Weaver versions before `0.9.0` (`0.8.x`) are published under the `com.disneystreaming` organization.
+
 To summarize :
 
 | Version | Cats Effect | ZIO    | Monix  | maintained? |

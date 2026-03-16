@@ -35,21 +35,19 @@ object TestOutcome {
       extends TestOutcome {
 
     def status: TestStatus = result match {
-      case Result.Success                               => TestStatus.Success
-      case Result.Cancelled(_, _)                       => TestStatus.Cancelled
-      case Result.Ignored(_, _)                         => TestStatus.Ignored
-      case Result.Failure(_, _, _) | Result.Failures(_) => TestStatus.Failure
-      case Result.Exception(_, _)                       => TestStatus.Exception
+      case Result.Success       => TestStatus.Success
+      case Result.Ignored(_, _) => TestStatus.Ignored
+      case Result.OnlyTagNotAllowedInCI(_) | Result.Failures(_) =>
+        TestStatus.Failure
+      case Result.Exception(_) => TestStatus.Exception
     }
 
     def cause: Option[Throwable] = result match {
-      case Result.Exception(cause, _)       => Some(cause)
-      case Result.Failure(_, maybeCause, _) => maybeCause
-      case Result.Failures(failures) =>
-        failures.collectFirst {
-          case Result.Failure(_, Some(cause), _) => cause
-        }
-      case _ => None
+      case Result.Exception(cause)   => Some(cause)
+      case Result.Failures(failures) => Some(failures.head.source)
+      case Result.OnlyTagNotAllowedInCI(_) | Result.Ignored(
+            _,
+            _) | Result.Success => None
     }
 
     def formatted(mode: Mode): String =

@@ -17,7 +17,7 @@ import org.typelevel.discipline.Laws
 
 import Discipline._
 
-trait Discipline { self: FunSuiteAux =>
+trait Discipline { self: SharedResourceSuiteAux =>
 
   def checkAll(
       name: TestName,
@@ -25,8 +25,10 @@ trait Discipline { self: FunSuiteAux =>
       parameters: Parameters => Parameters = identity): Unit =
     ruleSet.all.properties.toList.foreach {
       case (id, prop) =>
-        test(name.copy(s"${name.name}: $id")) {
-          executeProp(prop, name.location, parameters)
+        val testName = name.copy(s"${name.name}: $id")
+        registerTest(testName) { _ =>
+          effect.pure(Test.pure(testName.name)(() =>
+            executeProp(prop, name.location, parameters)))
         }
     }
 
@@ -64,13 +66,13 @@ trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
   class PartiallyAppliedCheckAll(
       name: TestName,
       parameters: Parameters => Parameters) {
-    def apply(run: => F[Laws#RuleSet]): Unit = apply(_ => run)
+    def apply(run: => F[Laws#RuleSet]): Unit     = apply(_ => run)
     def apply(run: Res => F[Laws#RuleSet]): Unit = {
       registerTest(
         Kleisli(run).map(_.all.properties.toList.map {
           case (id, prop) =>
             val propTestName = s"${name.name}: $id"
-            val runProp = effectCompat.effect.delay(
+            val runProp      = effectCompat.effect.delay(
               executeProp(prop, name.location, parameters)
             )
             foundProps.synchronized {
@@ -103,8 +105,10 @@ trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
       }
     }
 
-  override def plan: List[TestName] =
-    foundProps.synchronized { foundProps.toList }
+  private[weaver] override def plan: WeaverRunnerPlan =
+    foundProps.synchronized {
+      WeaverRunnerPlan(Nil, foundProps.toList.map(_.name))
+    }
 
   private[this] val foundProps = mutable.Buffer.empty[TestName]
 
@@ -138,7 +142,7 @@ object Discipline {
     ScalaCheckTest.check(prop)(parameters).status match {
       case Passed | Proved(_) => success
       case Exhausted          => failure("Property exhausted")(location)
-      case Failed(input, _) =>
+      case Failed(input, _)   =>
         failure(s"Property violated \n" + printArgs(input))(location)
       case PropException(input, cause, _) =>
         throw PropertyException(input, cause)

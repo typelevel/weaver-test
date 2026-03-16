@@ -4,7 +4,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 
 import cats.Parallel
-import cats.effect.{ Async, Resource }
+import cats.effect.{ Async }
 import cats.syntax.all._
 
 trait EffectCompat[F[_]] {
@@ -16,13 +16,6 @@ trait EffectCompat[F[_]] {
     effect.fromFuture(effect.delay(thunk))
   def async[A](cb: (Either[Throwable, A] => Unit) => Unit): F[A] =
     effect.async_(cb)
-
-  private[weaver] def blocker[T](
-      f: BlockerCompat[F] => T): Resource[F, T] =
-    Resource.pure(f(new BlockerCompat[F] {
-      def block[A](thunk: => A): F[A] = effect.blocking(thunk)
-    }))
-
 }
 
 /**
