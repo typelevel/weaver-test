@@ -58,7 +58,8 @@ val Version = new {
 }
 
 // Scala native test-interface version scheme is set to strict, so we have to explicitly overrule it
-ThisBuild / libraryDependencySchemes += "org.scala-native" %% "test-interface_native0.5" % "early-semver"
+ThisBuild / libraryDependencySchemes +=
+  "org.scala-native" %% "test-interface_native0.5" % "early-semver"
 
 // Scala Native 0.5 support starts with 0.11.4, so skip MiMa checks for native artifacts
 lazy val nativeMimaSettings = Seq(
