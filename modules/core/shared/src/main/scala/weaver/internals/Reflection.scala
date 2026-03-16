@@ -15,7 +15,7 @@ private[weaver] object Reflection {
       loader: ClassLoader): RunnableSuite[AnyEffect] =
     Reflect.lookupLoadableModuleClass(qualifiedName, loader) match {
       case Some(cls) => cls.loadModule().asInstanceOf[RunnableSuite[AnyEffect]]
-      case None =>
+      case None      =>
         Reflect.lookupInstantiatableClass(qualifiedName, loader) match {
           case None =>
             throw new Exception(s"Could not find class $qualifiedName")

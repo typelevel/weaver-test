@@ -3,9 +3,10 @@ package scalacheck
 
 import cats.syntax.all._
 import cats.{ Applicative, Defer, Show }
-
+import scala.util.control.NoStackTrace
 import org.scalacheck.rng.Seed
 import org.scalacheck.{ Arbitrary, Gen }
+import cats.data.Validated
 
 trait Checkers {
   self: EffectSuiteAux =>
@@ -26,14 +27,13 @@ trait Checkers {
 
     def apply[A1: Arbitrary: Show, B: PropF](f: A1 => B)(
         implicit loc: SourceLocation): F[Expectations] =
-      forall(implicitly[Arbitrary[A1]].arbitrary)(liftProp[A1, B](f))
+      forall_(implicitly[Arbitrary[A1]].arbitrary, liftProp[A1, B](f))
 
     def apply[A1: Arbitrary: Show, A2: Arbitrary: Show, B: PropF](f: (
         A1,
         A2) => B)(
         implicit loc: SourceLocation): F[Expectations] =
-      forall(implicitly[Arbitrary[(A1, A2)]].arbitrary)(liftProp(
-        f.tupled))
+      forall_(implicitly[Arbitrary[(A1, A2)]].arbitrary, liftProp(f.tupled))
 
     def apply[
         A1: Arbitrary: Show,
@@ -45,8 +45,7 @@ trait Checkers {
       implicit val tuple3Show: Show[(A1, A2, A3)] = {
         case (a1, a2, a3) => s"(${a1.show},${a2.show},${a3.show})"
       }
-      forall(implicitly[Arbitrary[(A1, A2, A3)]].arbitrary)(liftProp(
-        f.tupled))
+      forall_(implicitly[Arbitrary[(A1, A2, A3)]].arbitrary, liftProp(f.tupled))
     }
 
     def apply[
@@ -61,8 +60,8 @@ trait Checkers {
         case (a1, a2, a3, a4) =>
           s"(${a1.show},${a2.show},${a3.show},${a4.show})"
       }
-      forall(implicitly[Arbitrary[(A1, A2, A3, A4)]].arbitrary)(
-        liftProp(f.tupled))
+      forall_(implicitly[Arbitrary[(A1, A2, A3, A4)]].arbitrary,
+              liftProp(f.tupled))
     }
 
     def apply[
@@ -78,8 +77,8 @@ trait Checkers {
         case (a1, a2, a3, a4, a5) =>
           s"(${a1.show},${a2.show},${a3.show},${a4.show},${a5.show})"
       }
-      forall(implicitly[Arbitrary[(A1, A2, A3, A4, A5)]].arbitrary)(
-        liftProp(f.tupled))
+      forall_(implicitly[Arbitrary[(A1, A2, A3, A4, A5)]].arbitrary,
+              liftProp(f.tupled))
     }
 
     def apply[
@@ -96,8 +95,8 @@ trait Checkers {
         case (a1, a2, a3, a4, a5, a6) =>
           s"(${a1.show},${a2.show},${a3.show},${a4.show},${a5.show},${a6.show})"
       }
-      forall(implicitly[Arbitrary[(A1, A2, A3, A4, A5, A6)]].arbitrary)(
-        liftProp(f.tupled))
+      forall_(implicitly[Arbitrary[(A1, A2, A3, A4, A5, A6)]].arbitrary,
+              liftProp(f.tupled))
     }
 
     def apply[A: Show, B: PropF](gen: Gen[A])(f: A => B)(
@@ -111,12 +110,18 @@ trait Checkers {
       val initialSeed = config.initialSeed.getOrElse(Seed.random())
       seedStream(initialSeed)
         .parEvalMap(config.perPropertyParallelism)(testOne(gen, f)(params, _))
-        .scan(Status.start[A]) { case (oldStatus, testResult) =>
+        .evalScan(Status.start[A]) { case (oldStatus, testResult) =>
           testResult match {
-            case TestResult.Success => oldStatus.addSuccess
-            case TestResult.Discard => oldStatus.addDiscard
+            case TestResult.Success             => oldStatus.addSuccess.pure
+            case TestResult.Discard             => oldStatus.addDiscard.pure
             case TestResult.Failure(input, exp) =>
-              oldStatus.addFailure(input, initialSeed, exp)
+              oldStatus.addFailure(input, initialSeed, exp).pure
+            case TestResult.Exception(_, error: IgnoredException) =>
+              error.raiseError
+            case TestResult.Exception(input, error) =>
+              val ith  = oldStatus.succeeded + oldStatus.discarded + 1
+              val seed = initialSeed
+              (new PropertyTestError(ith, seed, input, error)).raiseError
           }
         }
         .takeWhile(_.shouldContinue(config), takeFailure = true)
@@ -140,12 +145,16 @@ trait Checkers {
       seed: Seed): F[TestResult] = {
     Defer[F](self.effect).defer {
       gen(params, seed)
-        .traverse(x => f(x).map(x -> _))
-        .map { (x: Option[(T, Expectations)]) =>
+        .traverse(x => f(x).attempt.map(x -> _))
+        .map { (x: Option[(T, Either[Throwable, Expectations])]) =>
           x match {
-            case Some((_, ex)) if ex.run.isValid => TestResult.Success
-            case Some((t, ex)) => TestResult.Failure(t.show, ex)
-            case None          => TestResult.Discard
+            case Some((_, Right(ex))) if ex.run.isValid => TestResult.Success
+            case Some((t, Right(ex))) => TestResult.Failure(t.show, ex)
+            case Some((t, Left(exception: ExpectationFailed))) =>
+              TestResult.Failure(t.show,
+                                 Expectations(Validated.invalidNel(exception)))
+            case Some((t, Left(other))) => TestResult.Exception(t.show, other)
+            case None                   => TestResult.Discard
           }
         }
     }
@@ -160,16 +169,14 @@ trait Checkers {
       if (failure.isEmpty) copy(succeeded = succeeded + 1) else this
     def addDiscard: Status[T] =
       if (failure.isEmpty) copy(discarded = discarded + 1) else this
-    def addFailure(input: String, seed: Seed, exp: Expectations): Status[T] =
+    def addFailure(input: String, seed: Seed, exp: Expectations)(implicit
+        loc: SourceLocation): Status[T] =
       if (failure.isEmpty) {
-        val ith = succeeded + discarded + 1
-        val failure = Expectations.Helpers
-          .failure(
-            s"""Property test failed on try $ith with seed $seed and input $input.
-                |You can reproduce this by adding the following override to your suite:
-                |
-                |override def checkConfig = super.checkConfig.withInitialSeed($seed.toOption)""".stripMargin)
-          .and(exp)
+        val ith     = succeeded + discarded + 1
+        val failure = Expectations.Helpers.failure(failureMessage(
+          ith,
+          seed,
+          input)).and(exp)
         copy(failure = Some(failure))
       } else this
 
@@ -220,5 +227,20 @@ object Checkers {
     case object Discard extends TestResult
     case class Failure(input: String, exp: Expectations)
         extends TestResult
+    case class Exception(input: String, error: Throwable) extends TestResult
   }
+
+  private def failureMessage(ith: Int, seed: Seed, input: String): String =
+    s"""Property test failed on try $ith with seed ${seed} and input $input.
+                |You can reproduce this by adding the following configuration to your test:
+                |
+                |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.$seed.toOption))""".stripMargin
+
+  private class PropertyTestError(
+      ith: Int,
+      seed: Seed,
+      input: String,
+      cause: Throwable)
+      extends RuntimeException(failureMessage(ith, seed, input), cause)
+      with NoStackTrace
 }

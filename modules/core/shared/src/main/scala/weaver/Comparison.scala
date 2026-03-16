@@ -4,14 +4,16 @@ import cats.Eq
 import cats.Show
 import scala.annotation.implicitNotFound
 import munit.diff.Diff
+import munit.diff.console.AnsiColors
+import weaver.internals.MultiLineShow
 
 /**
  * A type class used to compare two instances of the same type and construct an
  * informative report.
  *
- * If the comparison succeeds with [[Result.Success]] then no report is printed.
- * If the comparison fails with [[Result.Failure]], then the report is printed
- * with the test failure.
+ * If the comparison succeeds with [[Comparison.Result.Success]] then no report
+ * is printed. If the comparison fails with [[Comparison.Result.Failure]], then
+ * the report is printed with the test failure.
  *
  * The report is generally a diff of the `expected` and `found` values. It may
  * use ANSI escape codes to add color.
@@ -37,16 +39,28 @@ object Comparison {
    */
   implicit def fromEq[A](
       implicit eqv: Eq[A],
-      showA: Show[A] = Show.fromToString[A]
+      showA: Show[A] = MultiLineShow.show[A]
   ): Comparison[A] = {
     new Comparison[A] {
       def diff(expected: A, found: A): Result = {
         if (eqv.eqv(found, expected)) {
           Result.Success
         } else {
-          val report =
-            Diff(showA.show(found), showA.show(expected)).createDiffOnlyReport()
-          Result.Failure(report)
+          val foundStr    = showA.show(found)
+          val expectedStr = showA.show(expected)
+          if (foundStr == expectedStr) {
+            Result.Failure(
+              s"(expected, found)\nValues have the same string representation. Consider modifying their Show instance.\n${foundStr}")
+          } else {
+            val expectedHeader = AnsiColors.c("- expected", AnsiColors.LightRed)
+            val foundHeader    = AnsiColors.c("+ found", AnsiColors.LightGreen)
+            val header         = s"($expectedHeader, $foundHeader)"
+            // Newer versions of munit-diff (1.1.0+) will reverse the order of `expected` and `found` arguments.
+            // When we upgrade to munit-diff `1.1.0`, we should switch the order to `found` then `expected`.
+            val report =
+              Diff.unifiedDiff(showA.show(found), showA.show(expected))
+            Result.Failure(header + "\n" + report)
+          }
         }
       }
     }

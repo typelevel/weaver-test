@@ -42,8 +42,8 @@ object Ansi2Html extends Function1[String, String] {
   def transition(from: fansi.Attr, to: fansi.Attr) = {
     import fansi._
     (from, to) match {
-      case (Underlined.Off, Underlined.On) => "<u>"
-      case (Underlined.On, Underlined.Off) => "</u>"
+      case (Underlined.Off, Underlined.On)         => "<u>"
+      case (Underlined.On, Underlined.Off)         => "</u>"
       case (col1, col2) if color.isDefinedAt(col2) =>
         val closing   = if (color.isDefinedAt(col1)) "</span>" else ""
         val nextColor = color(col2)
