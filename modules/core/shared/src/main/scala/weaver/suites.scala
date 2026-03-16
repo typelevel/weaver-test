@@ -92,7 +92,8 @@ abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
       val argsFilter = Filters.filterTests(this.name)(args)
 
       val testsIgnored =
-        testsTaggedOnlyAndIgnored ++ testsNotTaggedOnlyAndIgnored // "foo".only.ignore and "foo".ignore
+        testsTaggedOnlyAndIgnored ++
+          testsNotTaggedOnlyAndIgnored // "foo".only.ignore and "foo".ignore
 
       val (filteredTests, filteredOutTests) =
         testsNotTaggedOnlyAndNotIgnored.partition {

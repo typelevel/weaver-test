@@ -84,13 +84,15 @@ class Runner[F[_]: Async](
         outcome =>
           for {
             failures <- buffer.get
-            _ <- (printLine(red(stars) + "FAILURES" + red(stars)) *> failures
-              .traverse[F, Unit] { specEvent =>
-                printLine(cyan(specEvent.name)) *>
-                  specEvent.events.traverse(printTestEvent(Verbose)) *>
-                  newLine
-              }
-              .void).whenA(failures.nonEmpty)
+            _        <-
+            (printLine(red(stars) + "FAILURES" + red(stars)) *>
+              failures
+                .traverse[F, Unit] { specEvent =>
+                  printLine(cyan(specEvent.name)) *>
+                    specEvent.events.traverse(printTestEvent(Verbose)) *>
+                    newLine
+                }
+                .void).whenA(failures.nonEmpty)
             _ <- printLine(outcome.formatted)
           } yield outcome
       }
