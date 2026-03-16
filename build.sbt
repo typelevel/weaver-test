@@ -61,11 +61,6 @@ val Version = new {
 ThisBuild / libraryDependencySchemes +=
   "org.scala-native" %% "test-interface_native0.5" % "early-semver"
 
-// Scala Native 0.5 support starts with 0.11.4, so skip MiMa checks for native artifacts
-lazy val nativeMimaSettings = Seq(
-  tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.11.4").toMap
-)
-
 lazy val root = tlCrossRootProject.aggregate(core,
                                              framework,
                                              coreCats,
@@ -74,7 +69,6 @@ lazy val root = tlCrossRootProject.aggregate(core,
                                              discipline)
 
 lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
-  .nativeSettings(nativeMimaSettings)
   .in(file("modules/core"))
   .settings(
     name := "weaver-core",
@@ -121,7 +115,6 @@ lazy val coreJS =
 
 lazy val framework = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/framework"))
-  .nativeSettings(nativeMimaSettings)
   .dependsOn(core)
   .settings(
     name := "weaver-framework",
@@ -158,7 +151,6 @@ lazy val frameworkNative = framework.native
 lazy val coreCats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/core-cats"))
   .dependsOn(core)
-  .nativeSettings(nativeMimaSettings)
   .settings(
     libraryDependencies ++= Seq(
       "junit" % "junit" % Version.junit % ScalaDocTool
@@ -176,7 +168,6 @@ lazy val coreCatsJS = coreCats.js
 lazy val cats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/framework-cats"))
   .dependsOn(framework, coreCats)
-  .nativeSettings(nativeMimaSettings)
   .settings(
     name           := "weaver-cats",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect"))
@@ -191,7 +182,6 @@ lazy val catsJVM = cats.jvm
 lazy val scalacheck = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/scalacheck"))
   .dependsOn(core, cats % "test->compile")
-  .nativeSettings(nativeMimaSettings)
   .settings(
     name           := "weaver-scalacheck",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
@@ -203,7 +193,6 @@ lazy val scalacheck = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 lazy val discipline = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/discipline"))
   .dependsOn(core, cats)
-  .nativeSettings(nativeMimaSettings)
   .settings(
     name           := "weaver-discipline",
     testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
