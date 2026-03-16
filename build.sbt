@@ -47,13 +47,13 @@ val Version = new {
   val junit                  = "4.13.2"
   val portableReflect        = "1.1.3"
   val scalaJavaTime          = "2.4.0"
-  val scalacheck             = "1.17.1"
+  val scalacheck             = "1.19.0"
   val scalajsMacroTask       = "1.1.1"
   val scalajsStubs           = "1.1.0"
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
-  val munitDiff              = "1.0.0"
+  val munitDiff              = "1.2.4"
   val snapshot4s             = _root_.snapshot4s.BuildInfo.snapshot4sVersion
 }
 
