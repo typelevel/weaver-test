@@ -99,7 +99,6 @@
     <li class="level2 nav-leaf"><a href="asserting_equality.html">Asserting equality</a></li>
     <li class="level2 nav-leaf"><a href="resources.html">Sharing resources</a></li>
     <li class="level2 nav-leaf"><a href="global_resources.html">Sharing resources across suites</a></li>
-    <li class="level2 nav-leaf"><a href="tagging.html">Tagging</a></li>
     <li class="level2 nav-leaf"><a href="scalacheck.html">ScalaCheck integration</a></li>
     <li class="level2 nav-leaf"><a href="discipline.html">Discipline integration</a></li>
     <li class="level2 nav-leaf"><a href="parallelism.html">Configuring parallelism</a></li>
@@ -127,6 +126,12 @@
   <p class="header"><a href="#">Filtering tests</a></p>
 
   <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#running-a-subset-of-tests">Running a subset of tests</a></li>
+    <li class="level1 nav-leaf"><a href="#running-a-single-test">Running a single test</a></li>
+    <li class="level1 nav-node"><a href="#ignoring-tests">Ignoring tests</a></li>
+    <li class="level2 nav-leaf"><a href="#example-report-1">Example report</a></li>
+    <li class="level1 nav-node"><a href="#dynamically-ignoring-tests">Dynamically ignoring tests</a></li>
+    <li class="level2 nav-leaf"><a href="#example-report-2">Example report</a></li>
   </ul>
 
   <p class="footer"></p>
@@ -136,10 +141,77 @@
       <main class="content">
 
         <h1 id="filtering-tests" class="title">Filtering tests</h1>
-        <p>When using the IOSuite variants, the user can call <code>sbt</code>&#39;s test command as such:</p>
+        
+        <h2 id="running-a-subset-of-tests" class="section"><a class="anchor-link left" href="#running-a-subset-of-tests"><i class="icofont-laika link">&#xef71;</i></a>Running a subset of tests</h2>
+        <p>You can run a set of tests with <code>sbt</code> using the <code>testOnly</code> command:</p>
         <pre class="keep-together pdf epub"><code class=" ">&gt; testOnly -- -o *foo*</code></pre>
         <p>This filter will prevent the execution of any test that doesn&#39;t contain the string &quot;foo&quot; in is qualified name. For a test labeled &quot;foo&quot; in a &quot;FooSuite&quot; object, in the package &quot;fooPackage&quot;, the qualified name of a test is:</p>
         <pre><code>fooPackage.FooSuite.foo</code></pre>
+        
+        <h2 id="running-a-single-test" class="section"><a class="anchor-link left" href="#running-a-single-test"><i class="icofont-laika link">&#xef71;</i></a>Running a single test</h2>
+        <p>You can run a single test in a suite by appending <code>only</code> to the test name:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">weaver</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">ExampleSuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">FunSuite</span><span> {
+
+  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;Only run this test&quot;</span><span>.</span><span class="identifier">only</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>)
+  }
+  
+  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;This test will not be run&quot;</span><span>) {
+      </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">1</span><span>)
+  }
+}</span></code></pre>
+        
+        <h2 id="ignoring-tests" class="section"><a class="anchor-link left" href="#ignoring-tests"><i class="icofont-laika link">&#xef71;</i></a>Ignoring tests</h2>
+        <p>You can mark a test as ignored by appending <code>ignore</code> to the test name. The test will not be run as part of your test suite.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">weaver</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">IgnoreSuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">FunSuite</span><span> {
+
+  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;This test is not run&quot;</span><span>.</span><span class="identifier">ignore</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>)
+  }
+  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;This test is run&quot;</span><span>) {
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">1</span><span>)
+  }
+}</span></code></pre>
+        
+        <h3 id="example-report-1" class="section"><a class="anchor-link left" href="#example-report-1"><i class="icofont-laika link">&#xef71;</i></a>Example report</h3>
+        <div class='terminal'><pre>
+<span style='color: cyan'>repl.MdocSessionMdocAppIgnoreSuite</span>
+<span style='color: green'>+&nbsp;</span>This&nbsp;test&nbsp;is&nbsp;run&nbsp;<span style='color: lightgray'><b>0ms</b></span>
+
+Total&nbsp;1,&nbsp;Failed&nbsp;0,&nbsp;Passed&nbsp;1,&nbsp;Ignored&nbsp;0
+</pre></div>
+        
+        <h2 id="dynamically-ignoring-tests" class="section"><a class="anchor-link left" href="#dynamically-ignoring-tests"><i class="icofont-laika link">&#xef71;</i></a>Dynamically ignoring tests</h2>
+        <p>You can also dynamically mark tests as ignored using the <code>ignore</code> function:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">weaver</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">DynamicIgnoreSuite</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">SimpleIOSuite</span><span> {
+
+  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;Only on CI&quot;</span><span>) {
+    </span><span class="keyword">for</span><span> {
+      </span><span class="identifier">onCI</span><span> &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">sys</span><span>.</span><span class="identifier">env</span><span>.</span><span class="identifier">get</span><span>(</span><span class="string-literal">&quot;CI&quot;</span><span>).</span><span class="identifier">isDefined</span><span>)
+      </span><span class="identifier">_</span><span>    &lt;- </span><span class="identifier">ignore</span><span>(</span><span class="string-literal">&quot;not on CI&quot;</span><span>).</span><span class="identifier">unlessA</span><span>(</span><span class="identifier">onCI</span><span>)
+    } </span><span class="keyword">yield</span><span> </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>)
+  }
+}</span></code></pre>
+        
+        <h3 id="example-report-2" class="section"><a class="anchor-link left" href="#example-report-2"><i class="icofont-laika link">&#xef71;</i></a>Example report</h3>
+        <div class='terminal'><pre>
+<span style='color: cyan'>repl.MdocSessionMdocAppDynamicIgnoreSuite</span>
+<span style='color: red'>-&nbsp;</span>Only&nbsp;on&nbsp;CI&nbsp;<span style='color: lightgray'><b>5ms</b></span>
+
+<span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
+<span style='color: cyan'>repl.MdocSessionMdocAppDynamicIgnoreSuite</span>
+<span style='color: red'>-&nbsp;</span>Only&nbsp;on&nbsp;CI&nbsp;<span style='color: lightgray'><b>5ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(filtering.md:64)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.eql(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightred'>-1</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+2</span><br/><span style='color: red'><br/>&nbsp;&nbsp;filtering.md:64<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;expect.eql(1,&nbsp;2)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+
+Total&nbsp;1,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;0,&nbsp;Ignored&nbsp;0
+</pre></div>
 
         
 <hr class="footer-rule"/>
