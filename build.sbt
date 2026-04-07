@@ -57,6 +57,8 @@ val Version = new {
   val snapshot4s             = _root_.snapshot4s.BuildInfo.snapshot4sVersion
 }
 
+ThisBuild / versionScheme := Some("early-semver")
+
 // Scala native test-interface version scheme is set to strict, so we have to explicitly overrule it
 ThisBuild / libraryDependencySchemes +=
   "org.scala-native" %% "test-interface_native0.5" % "early-semver"
