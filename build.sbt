@@ -53,7 +53,7 @@ val Version = new {
   val testInterface          = "1.0"
   val scalacCompatAnnotation = "0.1.4"
   val http4s                 = "0.23.26"
-  val munitDiff              = "1.2.4"
+  val munitDiff              = "1.3.0"
   val snapshot4s             = _root_.snapshot4s.BuildInfo.snapshot4sVersion
 }
 
