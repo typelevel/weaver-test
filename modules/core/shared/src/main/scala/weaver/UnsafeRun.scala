@@ -4,13 +4,13 @@ import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 
 import cats.Parallel
-import cats.effect.{ Async }
-import cats.syntax.all._
+import cats.effect.{ Async, Clock }
 
 trait EffectCompat[F[_]] {
   implicit def parallel: Parallel[F]
   implicit def effect: Async[F]
-  def realTimeMillis: F[Long]                  = effect.realTime.map(_.toMillis)
+  protected[weaver] def clock: Clock[F] = effect
+
   def sleep(duration: FiniteDuration): F[Unit] = effect.sleep(duration)
   def fromFuture[A](thunk: => scala.concurrent.Future[A]): F[A] =
     effect.fromFuture(effect.delay(thunk))

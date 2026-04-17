@@ -329,9 +329,15 @@ object Meta {
   }
 
   object SetTimeUnsafeRun extends CatsUnsafeRun {
+    import scala.concurrent.duration._
+
     private val setTimestamp = weaver.internals.Timestamp.localTime(12, 54, 35)
 
-    override def realTimeMillis: IO[Long] = IO.pure(setTimestamp)
+    override def clock: Clock[IO] = new Clock[IO] {
+      def realTime: cats.effect.IO[FiniteDuration]  = IO(setTimestamp.millis)
+      def monotonic: cats.effect.IO[FiniteDuration] = IO(0L.millis)
+      def applicative: cats.Applicative[cats.effect.IO] = cats.Applicative[IO]
+    }
   }
 
 }

@@ -12,9 +12,9 @@ abstract class MutableSuiteTest extends SimpleIOSuite {
 
   test("sleeping") {
     for {
-      before <- CatsUnsafeRun.realTimeMillis
+      before <- CatsUnsafeRun.clock.realTime.map(_.toMillis)
       _      <- CatsUnsafeRun.sleep(1.seconds)
-      after  <- CatsUnsafeRun.realTimeMillis
+      after  <- CatsUnsafeRun.clock.realTime.map(_.toMillis)
     } yield expect(after - before >= 1000)
   }
 

@@ -183,19 +183,25 @@ abstract class SharedResourceSuite[F[_]] extends RunnableSuite[F]
 }
 abstract class MutableFSuite[F[_]] extends SharedResourceSuite[F] {
   def pureTest(name: TestName)(run: => Expectations): Unit =
-    registerTest(name)(_ => Test(name.name, effect.delay(run)))
+    registerTest(name)(_ =>
+      Test(name.name, effect.delay(run))(effectCompat, effectCompat.clock))
   def loggedTest(name: TestName)(run: Log[F] => F[Expectations]): Unit =
-    registerTest(name)(_ => Test[F](name.name, log => run(log)))
+    registerTest(name)(_ =>
+      Test[F](name.name, log => run(log))(effectCompat, effectCompat.clock))
   def test(name: TestName): PartiallyAppliedTest =
     new PartiallyAppliedTest(name)
 
   class PartiallyAppliedTest(name: TestName) {
     def apply(run: => F[Expectations]): Unit =
-      registerTest(name)(_ => Test(name.name, run))
+      registerTest(name)(_ =>
+        Test(name.name, run)(effectCompat, effectCompat.clock))
     def apply(run: Res => F[Expectations]): Unit =
-      registerTest(name)(res => Test(name.name, run(res)))
+      registerTest(name)(res =>
+        Test(name.name, run(res))(effectCompat, effectCompat.clock))
     def apply(run: (Res, Log[F]) => F[Expectations]): Unit =
-      registerTest(name)(res => Test[F](name.name, log => run(res, log)))
+      registerTest(name)(res =>
+        Test[F](name.name, log => run(res, log))(effectCompat,
+                                                 effectCompat.clock))
 
     // this alias helps using pattern matching on `Res`
     def usingRes(run: Res => F[Expectations]): Unit = apply(run)
