@@ -32,7 +32,6 @@ trait UnsafeRun[F[_]] extends EffectCompat[F] {
   def cancel(token: CancelToken): Unit
 
   def unsafeRunSync(task: F[Unit]): Unit
-  def unsafeRunAndForget(task: F[Unit]): Unit
   def unsafeRunToFuture(task: F[Unit]): Future[Unit]
 
 }

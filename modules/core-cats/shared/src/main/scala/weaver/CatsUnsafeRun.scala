@@ -16,7 +16,6 @@ trait CatsUnsafeRun extends UnsafeRun[IO] with CatsUnsafeRunPlatformCompat {
 
   def cancel(token: CancelToken): Unit = unsafeRunSync(token.cancel)
 
-  def unsafeRunAndForget(task: IO[Unit]): Unit = task.unsafeRunAndForget()
   def unsafeRunToFuture(task: IO[Unit]): Future[Unit] = task.unsafeToFuture()
 
 }
