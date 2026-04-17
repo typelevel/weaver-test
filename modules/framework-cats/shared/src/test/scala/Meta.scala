@@ -13,7 +13,7 @@ object Meta {
 
   object SourceLocationSuite extends SimpleIOSuite {
 
-    override implicit protected def effectCompat: UnsafeRun[IO] =
+    override protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
 
     pureTest("(expect-same)") {
@@ -55,7 +55,7 @@ object Meta {
   }
 
   object Rendering extends SimpleIOSuite {
-    override implicit protected def effectCompat: UnsafeRun[IO] =
+    override protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
@@ -125,7 +125,7 @@ object Meta {
   }
 
   object Clue extends SimpleIOSuite {
-    override implicit protected def effectCompat: UnsafeRun[IO] =
+    override protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
@@ -189,7 +189,7 @@ object Meta {
   }
 
   object FailingTestStatusReporting extends SimpleIOSuite {
-    override implicit protected def effectCompat: UnsafeRun[IO] =
+    override protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
@@ -207,7 +207,7 @@ object Meta {
   }
 
   object FailingSuiteWithLogs extends SimpleIOSuite {
-    override implicit protected def effectCompat: UnsafeRun[IO] =
+    override protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
@@ -241,7 +241,7 @@ object Meta {
   }
 
   object ErroringWithCauses extends SimpleIOSuite {
-    override implicit protected def effectCompat: UnsafeRun[IO] =
+    override protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
 
     loggedTest("erroring with causes") { _ =>
@@ -254,7 +254,7 @@ object Meta {
   }
 
   object ErroringWithLongPayload extends SimpleIOSuite {
-    override implicit protected def effectCompat: UnsafeRun[IO] =
+    override protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
 
     val smiles = ":)" * 1024
@@ -270,7 +270,7 @@ object Meta {
   }
 
   object SucceedsWithErrorInLogs extends SimpleIOSuite {
-    override implicit protected def effectCompat: UnsafeRun[IO] =
+    override protected def effectCompat: UnsafeRun[IO] =
       SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 

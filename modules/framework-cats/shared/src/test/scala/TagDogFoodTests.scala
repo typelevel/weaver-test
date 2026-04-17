@@ -124,7 +124,7 @@ object TagDogFoodTests extends IOSuite {
     }
 
     object Only extends SimpleIOSuite {
-      override implicit protected def effectCompat: UnsafeRun[IO] =
+      override protected def effectCompat: UnsafeRun[IO] =
         weaver.framework.test.Meta.SetTimeUnsafeRun
 
       override def isCI = false
@@ -140,7 +140,7 @@ object TagDogFoodTests extends IOSuite {
     }
 
     object TestRunnerArgs extends SimpleIOSuite {
-      override implicit protected def effectCompat: UnsafeRun[IO] =
+      override protected def effectCompat: UnsafeRun[IO] =
         weaver.framework.test.Meta.SetTimeUnsafeRun
 
       pureTest("(matches-args)") {
@@ -153,7 +153,7 @@ object TagDogFoodTests extends IOSuite {
     }
 
     object TestRunnerArgsWithOnly extends SimpleIOSuite {
-      override implicit protected def effectCompat: UnsafeRun[IO] =
+      override protected def effectCompat: UnsafeRun[IO] =
         weaver.framework.test.Meta.SetTimeUnsafeRun
 
       override def isCI = false
