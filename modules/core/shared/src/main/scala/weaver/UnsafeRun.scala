@@ -11,10 +11,13 @@ trait EffectCompat[F[_]] {
   implicit def effect: Async[F]
   protected[weaver] def clock: Clock[F] = effect
 
-  def sleep(duration: FiniteDuration): F[Unit] = effect.sleep(duration)
-  def fromFuture[A](thunk: => scala.concurrent.Future[A]): F[A] =
+  private[weaver] final def sleep(duration: FiniteDuration): F[Unit] =
+    effect.sleep(duration)
+  private[weaver] final def fromFuture[A](
+      thunk: => scala.concurrent.Future[A]): F[A] =
     effect.fromFuture(effect.delay(thunk))
-  def async[A](cb: (Either[Throwable, A] => Unit) => Unit): F[A] =
+  private[weaver] final def async[A](cb: (Either[Throwable,
+                                                 A] => Unit) => Unit): F[A] =
     effect.async_(cb)
 }
 
