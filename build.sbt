@@ -27,9 +27,7 @@ ThisBuild / tlCiHeaderCheck := false
 // enable the sbt-typelevel-site laika documentation
 ThisBuild / tlSitePublishBranch := Some("main")
 
-// Publish snapshots on main and on the feature branch for native 0.5.
-// This setting should be removed once native 0.5 support is merged.
-ThisBuild / tlCiReleaseBranches := List("main", "feature/native-0.5")
+ThisBuild / tlCiReleaseBranches := List("main")
 
 // use JDK 11
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
