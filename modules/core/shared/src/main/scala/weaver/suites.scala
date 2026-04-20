@@ -7,7 +7,6 @@ import cats.effect.{ Async, Resource }
 
 import fs2.Stream
 import org.portablescala.reflect.annotation.EnableReflectiveInstantiation
-import org.junit.runner.RunWith
 
 // Just a non-parameterized marker trait to help SBT's test detection logic.
 @EnableReflectiveInstantiation
@@ -34,17 +33,55 @@ trait EffectSuite[F[_]] extends BaseSuiteClass with EffectSuiteAux
   def spec(args: List[String]): Stream[F, TestOutcome]
 }
 
-@RunWith(classOf[weaver.junit.WeaverRunner])
-abstract class RunnableSuite[F[_]] extends EffectSuite[F] {
-  protected def effectCompat: UnsafeRun[EffectType]
-  private[weaver] def getEffectCompat: UnsafeRun[EffectType] = effectCompat
-  private[weaver] def plan: WeaverRunnerPlan
-  private[weaver] def runUnsafe(
-      report: TestOutcome => Unit): Unit =
-    effectCompat.unsafeRunSync(run(List.empty)(outcome =>
-      effectCompat.effect.delay(report(outcome))))
+trait SharedResourceSuiteAux extends EffectSuiteAux {
+  type Res
 
-  def isCI: Boolean = System.getenv("CI") == "true"
+  protected def registerTest(name: TestName)(
+      f: Res => EffectType[TestOutcome]): Unit
+}
+
+abstract class SharedResourceSuite[F[_]] extends SharedResourceRunnableSuite[F]
+    with SharedResourceSuiteAux {
+
+  type Res
+  def sharedResource: Resource[F, Res]
+
+  def maxParallelism: Int = 10000
+
+  protected final def registerTest(name: TestName)(
+      f: Res => F[TestOutcome]): Unit =
+    synchronized {
+      if (isInitialized) throw initError
+      testSeq = testSeq :+ (name -> f)
+    }
+
+  override final def spec(args: List[String]): Stream[F, TestOutcome] =
+    synchronized {
+      if (!isInitialized) isInitialized = true
+      val parallelism = math.max(1, maxParallelism)
+
+      analyze(testSeq, args) match {
+        case TagAnalysisResult.Outcomes(_, outcomes) =>
+          fs2.Stream.emits(outcomes)
+        case TagAnalysisResult.FilteredTests(_, filteredTests)
+            if filteredTests.isEmpty =>
+          Stream.empty // no need to allocate resources
+        case TagAnalysisResult.FilteredTests(_, filteredTests) => for {
+            resource <- Stream.resource(sharedResource)
+            tests      = filteredTests.map(_._2.apply(resource))
+            testStream = Stream.emits(tests).covary[F]
+            result <- if (parallelism > 1)
+              testStream.parEvalMap(parallelism)(identity)(effectCompat.effect)
+            else testStream.evalMap(identity)
+          } yield result
+      }
+    }
+
+  private[weaver] final var testSeq: Seq[(TestName, Res => F[TestOutcome])] =
+    Seq.empty
+
+  private[this] var isInitialized = false
+  def isCI: Boolean               = System.getenv("CI") == "true"
 
   private[weaver] def analyze[A](
       testSeq: Seq[(TestName, A)],
@@ -118,69 +155,6 @@ private[weaver] object TagAnalysisResult {
       extends TagAnalysisResult[A]
 }
 
-private[weaver] case class WeaverRunnerPlan(
-    ignoredTests: List[String],
-    filteredTests: List[String])
-private[weaver] object WeaverRunnerPlan {
-  def apply(result: TagAnalysisResult[_]): WeaverRunnerPlan = result match {
-    case TagAnalysisResult.Outcomes(ignored, outcomes) =>
-      WeaverRunnerPlan(ignored.toList, outcomes.map(_.name).toList)
-    case TagAnalysisResult.FilteredTests(ignored, tests) =>
-      WeaverRunnerPlan(ignored.toList, tests.map(_._1).toList)
-  }
-}
-
-trait SharedResourceSuiteAux extends EffectSuiteAux {
-  type Res
-
-  protected def registerTest(name: TestName)(
-      f: Res => EffectType[TestOutcome]): Unit
-}
-
-abstract class SharedResourceSuite[F[_]] extends RunnableSuite[F]
-    with SharedResourceSuiteAux {
-
-  type Res
-  def sharedResource: Resource[F, Res]
-
-  def maxParallelism: Int = 10000
-
-  protected final def registerTest(name: TestName)(
-      f: Res => F[TestOutcome]): Unit =
-    synchronized {
-      if (isInitialized) throw initError
-      testSeq = testSeq :+ (name -> f)
-    }
-
-  override final def spec(args: List[String]): Stream[F, TestOutcome] =
-    synchronized {
-      if (!isInitialized) isInitialized = true
-      val parallelism = math.max(1, maxParallelism)
-
-      analyze(testSeq, args) match {
-        case TagAnalysisResult.Outcomes(_, outcomes) =>
-          fs2.Stream.emits(outcomes)
-        case TagAnalysisResult.FilteredTests(_, filteredTests)
-            if filteredTests.isEmpty =>
-          Stream.empty // no need to allocate resources
-        case TagAnalysisResult.FilteredTests(_, filteredTests) => for {
-            resource <- Stream.resource(sharedResource)
-            tests      = filteredTests.map(_._2.apply(resource))
-            testStream = Stream.emits(tests).covary[F]
-            result <- if (parallelism > 1)
-              testStream.parEvalMap(parallelism)(identity)(effectCompat.effect)
-            else testStream.evalMap(identity)
-          } yield result
-      }
-    }
-
-  private[this] var testSeq: Seq[(TestName, Res => F[TestOutcome])] = Seq.empty
-
-  private[weaver] final def plan: WeaverRunnerPlan =
-    WeaverRunnerPlan(analyze(testSeq.toList, List.empty))
-
-  private[this] var isInitialized = false
-}
 abstract class MutableFSuite[F[_]] extends SharedResourceSuite[F] {
   def pureTest(name: TestName)(run: => Expectations): Unit =
     registerTest(name)(_ =>

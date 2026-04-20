@@ -4,11 +4,14 @@ package junit
 import org.typelevel.scalaccompat.annotation.unused
 
 import weaver.TestStatus._
-import weaver.internals.Reflection
 
 import org.junit.runner.Description
 import org.junit.runner.notification.RunNotifier
 
+/**
+ * Runner for the JUnit integration. JUnit is used to run individual suites in
+ * IntelliJ.
+ */
 class WeaverRunner(cls: Class[_], @unused dummy: Boolean)
     extends org.junit.runner.Runner {
 
@@ -16,11 +19,11 @@ class WeaverRunner(cls: Class[_], @unused dummy: Boolean)
 
   def this(cls: Class[_]) = this(cls, true)
 
-  lazy val suite: RunnableSuite[F] = {
+  private lazy val suite: RunnableSuite[F] = {
     Reflection.loadRunnableSuite(cls.getName(), getClass().getClassLoader())
   }
 
-  def testDescriptions: Map[String, Description] = {
+  private def testDescriptions: Map[String, Description] = {
     (suite.plan.ignoredTests ++ suite.plan.filteredTests).map(name =>
       name -> Description.createTestDescription(cls, name)).toMap
   }
@@ -40,23 +43,24 @@ class WeaverRunner(cls: Class[_], @unused dummy: Boolean)
     notifier.fireTestSuiteFinished(desc)
   }
 
-  def notifiying(notifier: RunNotifier): TestOutcome => Unit = outcome => {
-    val description = desc(outcome)
-    outcome.status match {
-      case Success =>
-        notifier.fireTestStarted(description)
-        notifier.fireTestFinished(description)
-      case Failure =>
-        notifier.fireTestStarted(description)
-        notifier.fireTestFailure(assertionFailed(outcome))
-        notifier.fireTestFinished(description)
-      case weaver.TestStatus.Exception =>
-        notifier.fireTestStarted(description)
-        notifier.fireTestFailure(failure(outcome))
-      case Ignored =>
-        notifier.fireTestIgnored(description)
+  private def notifiying(notifier: RunNotifier): TestOutcome => Unit =
+    outcome => {
+      val description = desc(outcome)
+      outcome.status match {
+        case Success =>
+          notifier.fireTestStarted(description)
+          notifier.fireTestFinished(description)
+        case Failure =>
+          notifier.fireTestStarted(description)
+          notifier.fireTestFailure(assertionFailed(outcome))
+          notifier.fireTestFinished(description)
+        case weaver.TestStatus.Exception =>
+          notifier.fireTestStarted(description)
+          notifier.fireTestFailure(failure(outcome))
+        case Ignored =>
+          notifier.fireTestIgnored(description)
+      }
     }
-  }
 
   private def notifyIgnored(notifier: RunNotifier): Unit = {
     suite.plan.ignoredTests
