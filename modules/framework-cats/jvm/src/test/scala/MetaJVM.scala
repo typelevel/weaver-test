@@ -43,10 +43,6 @@ object MetaJVM {
     }
   }
 
-  object SetTimeUnsafeRun extends CatsUnsafeRun {
-    override def realTimeMillis: IO[Long] = IO.pure(0L)
-  }
-
   class LazyState(
       initialised: IO[Int],
       finalised: IO[Int],
