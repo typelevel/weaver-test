@@ -34,7 +34,7 @@ trait Discipline { self: SharedResourceSuiteAux =>
 
 }
 
-trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
+trait DisciplineFSuite[F[_]] extends DisciplineFRunnableSuite[F] {
 
   type Res
   def sharedResource: Resource[F, Res]
@@ -105,12 +105,7 @@ trait DisciplineFSuite[F[_]] extends RunnableSuite[F] {
       }
     }
 
-  private[weaver] override def plan: WeaverRunnerPlan =
-    foundProps.synchronized {
-      WeaverRunnerPlan(Nil, foundProps.toList.map(_.name))
-    }
-
-  private[this] val foundProps = mutable.Buffer.empty[TestName]
+  private[weaver] val foundProps = mutable.Buffer.empty[TestName]
 
   private[this] val registeredTests =
     mutable.Buffer.empty[Res => F[List[F[TestOutcome]]]]
