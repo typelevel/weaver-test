@@ -103,4 +103,7 @@ object ExpectationsTests extends SimpleIOSuite {
         failure("unexpected run of success handler given failure payload")))
   }
 
+  pureTest("should fail") {
+    expect.eql(1, 2)
+  }
 }
