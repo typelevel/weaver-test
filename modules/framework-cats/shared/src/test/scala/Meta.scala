@@ -13,6 +13,9 @@ object Meta {
 
   object SourceLocationSuite extends SimpleIOSuite {
 
+    override protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
+
     pureTest("(expect-same)") {
       val x = 1
       val y = 2
@@ -42,6 +45,14 @@ object Meta {
     }
   }
 
+  object SourceUrlSuite extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] = SourceUrlUnsafeRun
+
+    test("(failure)") {
+      IO(expect.eql(1, 2))
+    }
+  }
+
   object MutableSuiteTest extends MutableSuiteTest
 
   object Boom extends Error("Boom") with scala.util.control.NoStackTrace
@@ -52,6 +63,8 @@ object Meta {
   }
 
   object Rendering extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     pureTest("lots\nof\nmultiline\n(success)") {
@@ -120,6 +133,8 @@ object Meta {
   }
 
   object Clue extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     pureTest("(success)") {
@@ -182,6 +197,8 @@ object Meta {
   }
 
   object FailingTestStatusReporting extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     pureTest("I succeeded") {
@@ -198,6 +215,8 @@ object Meta {
   }
 
   object FailingSuiteWithLogs extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     loggedTest("(failure)") { log =>
@@ -230,6 +249,8 @@ object Meta {
   }
 
   object ErroringWithCauses extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
 
     loggedTest("erroring with causes") { _ =>
       throw CustomException(
@@ -241,6 +262,8 @@ object Meta {
   }
 
   object ErroringWithLongPayload extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
 
     val smiles = ":)" * 1024
 
@@ -255,6 +278,8 @@ object Meta {
   }
 
   object SucceedsWithErrorInLogs extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] =
+      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     loggedTest("(failure)") { log =>
@@ -309,6 +334,39 @@ object Meta {
       "src/main/DogFoodTests.scala",
       5,
       None)
+  }
+
+  object SetTimeUnsafeRun extends CatsUnsafeRun {
+    import scala.concurrent.duration._
+    import cats.effect.std.Env
+
+    private val setTimestamp = weaver.internals.Timestamp.localTime(12, 54, 35)
+
+    override def clock: Clock[IO] = new Clock[IO] {
+      def realTime: cats.effect.IO[FiniteDuration]  = IO(setTimestamp.millis)
+      def monotonic: cats.effect.IO[FiniteDuration] = IO(0L.millis)
+      def applicative: cats.Applicative[cats.effect.IO] = cats.Applicative[IO]
+    }
+
+    // Override the environment variables such that local error messages are displayed in CI runs.
+    override def env: Env[IO] = new Env[IO] {
+      def entries: IO[List[(String, String)]]   = IO.pure(Nil)
+      def get(name: String): IO[Option[String]] = IO.pure(None)
+    }
+  }
+
+  object SourceUrlUnsafeRun extends CatsUnsafeRun {
+    import cats.effect.std.Env
+
+    override def clock: Clock[IO] = SetTimeUnsafeRun.clock
+
+    override def env: Env[IO] = new Env[IO] {
+      def entries: IO[List[(String, String)]] = IO(List(
+        ("WEAVER_SOURCE_URL",
+         "https://github.com/typelevel/weaver-test/blob/v0.12.0/")
+      ))
+      def get(name: String): IO[Option[String]] = entries.map(_.toMap.get(name))
+    }
   }
 
 }
