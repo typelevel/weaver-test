@@ -27,8 +27,13 @@ trait Discipline { self: SharedResourceSuiteAux =>
       case (id, prop) =>
         val testName = name.copy(s"${name.name}: $id")
         registerTest(testName) { _ =>
-          effect.pure(Test.pure(testName.name)(() =>
-            executeProp(prop, name.location, parameters)))
+          Test(testName.name,
+               effect.delay(executeProp(prop, name.location, parameters)))(
+            effect,
+            effect,
+            effectCompat.clock,
+            effectCompat.env
+          )
         }
     }
 
@@ -78,7 +83,12 @@ trait DisciplineFSuite[F[_]] extends DisciplineFRunnableSuite[F] {
             foundProps.synchronized {
               foundProps += name.copy(propTestName)
             }
-            Test(propTestName, runProp)
+            Test(propTestName, runProp)(
+              effect,
+              effect,
+              effectCompat.clock,
+              effectCompat.env
+            )
         }).run
       )
     }

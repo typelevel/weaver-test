@@ -131,7 +131,7 @@ trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
         val outcome =
           TestOutcome("Unexpected failure",
                       0.seconds,
-                      Result.from(error),
+                      Result.from(sourceLocationUrl = None, error),
                       Chain.empty)
         reportTest(outcome).productR(
           reportDoneF(TestOutcomeNative.from(fqn)(outcome)))

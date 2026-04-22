@@ -326,6 +326,41 @@ object DogFoodTests extends IOSuite {
     }
   }
 
+  test("source locations are rendered with URLs") {
+    _.runSuite(Meta.SourceUrlSuite).flatMap {
+      case (logs, _) =>
+        val actual = extractFailureMessageForTest(logs, "(failure)")
+        if (ScalaCompat.isScala3)
+          assertInlineSnapshot(
+            actual,
+            """- (failure) 0ms
+  Values not equal: (https://github.com/typelevel/weaver-test/blob/v0.12.0/modules/framework-cats/shared/src/test/scala/Meta.scala#L52)
+
+  in expect.eql(- expected, + found)
+  -1
+  +2
+
+  https://github.com/typelevel/weaver-test/blob/v0.12.0/modules/framework-cats/shared/src/test/scala/Meta.scala#L52
+        IO(expect.eql(1, 2))
+                          ^"""
+          )
+        else
+          assertInlineSnapshot(
+            actual,
+            """- (failure) 0ms
+  Values not equal: (https://github.com/typelevel/weaver-test/blob/v0.12.0/modules/framework-cats/shared/src/test/scala/Meta.scala#L52)
+
+  in expect.eql(- expected, + found)
+  -1
+  +2
+
+  https://github.com/typelevel/weaver-test/blob/v0.12.0/modules/framework-cats/shared/src/test/scala/Meta.scala#L52
+        IO(expect.eql(1, 2))
+                     ^"""
+          )
+    }
+  }
+
   test("successes with clues are rendered correctly") {
     _.runSuite(Meta.Clue).flatMap {
       case (logs, _) =>

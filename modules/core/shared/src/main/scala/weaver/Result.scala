@@ -10,22 +10,29 @@ private[weaver] sealed trait Result {
 private[weaver] object Result {
   import Formatter._
 
-  def fromAssertion(assertion: Expectations): Result = assertion.run match {
-    case Valid(_)        => Success
-    case Invalid(failed) =>
-      Failures(failed.map(ex =>
-        Failures.Failure(ex.message, ex, ex.locations)))
-  }
+  def fromAssertion(
+      sourceLocationUrl: Option[String],
+      assertion: Expectations): Result =
+    assertion.run match {
+      case Valid(_)        => Success
+      case Invalid(failed) =>
+        Failures(failed.map(ex =>
+          Failures.Failure(ex.message, ex, sourceLocationUrl, ex.locations)))
+    }
 
   case object Success extends Result {
     def formatted: Option[String] = None
   }
 
-  final case class Ignored(reason: String, location: SourceLocation)
+  final case class Ignored(
+      reason: String,
+      sourceLocationUrl: Option[String],
+      location: SourceLocation)
       extends Result {
 
     def formatted: Option[String] = {
       Some(formatDescription(reason,
+                             sourceLocationUrl = sourceLocationUrl,
                              List(location),
                              Console.YELLOW,
                              TAB2.prefix))
@@ -40,6 +47,7 @@ private[weaver] object Result {
         val failure          = failures.head
         val formattedMessage = formatDescription(
           failure.msg,
+          failures.head.sourceLocationUrl,
           failure.locations.toList,
           Console.RED,
           TAB2.prefix
@@ -53,6 +61,7 @@ private[weaver] object Result {
 
             formatDescription(
               msg,
+              sourceLocationUrl,
               locations.toList,
               Console.RED,
               s" [$idx] "
@@ -67,6 +76,7 @@ private[weaver] object Result {
     final case class Failure(
         msg: String,
         source: ExpectationFailed,
+        sourceLocationUrl: Option[String],
         locations: NonEmptyList[SourceLocation])
   }
 
@@ -77,6 +87,7 @@ private[weaver] object Result {
     def formatted: Option[String] = {
       val formattedMessage = formatDescription(
         "'Only' tag is not allowed when `isCI=true`",
+        None,
         List(location),
         Console.RED,
         TAB2.prefix
@@ -102,13 +113,13 @@ private[weaver] object Result {
 
   val success: Result = Success
 
-  def from(error: Throwable): Result = {
+  def from(sourceLocationUrl: Option[String], error: Throwable): Result = {
     error match {
       case ex: IgnoredException =>
-        Ignored(ex.reason, ex.location)
+        Ignored(ex.reason, sourceLocationUrl, ex.location)
       case exs: ExpectationsFailed =>
         Failures(exs.failures.map { ex =>
-          Failures.Failure(ex.message, ex, ex.locations)
+          Failures.Failure(ex.message, ex, sourceLocationUrl, ex.locations)
         })
       case other =>
         Exception(other)
@@ -137,6 +148,7 @@ private[weaver] object Result {
 
       if (errorOutputLines.nonEmpty) {
         formatDescription(errorOutputLines.mkString(EOL),
+                          None,
                           Nil,
                           Console.RED,
                           TAB2.prefix)
@@ -145,6 +157,7 @@ private[weaver] object Result {
 
     val formattedMessage = formatDescription(
       msg,
+      None,
       Nil,
       Console.RED,
       TAB2.prefix
@@ -159,12 +172,13 @@ private[weaver] object Result {
 
   private def formatDescription(
       message: String,
+      sourceLocationUrl: Option[String],
       location: List[SourceLocation],
       color: String,
       prefix: String): String = {
 
     val prefixIsWhitespace = prefix.trim.isEmpty
-    val footer             = locationFooter(location)
+    val footer             = locationFooter(sourceLocationUrl, location)
     val lines = (message.split("\\r?\\n") ++ footer).zipWithIndex.map {
       case (line, index) =>
         val linePrefix =
@@ -172,7 +186,7 @@ private[weaver] object Result {
         if (index == 0)
           color + linePrefix + line +
             location
-              .map(l => s" (${l.fileRelativePath}:${l.line})")
+              .map(l => s" (${formatLocationPath(sourceLocationUrl, l)})")
               .mkString("\n")
         else
           color + linePrefix + line
@@ -181,14 +195,30 @@ private[weaver] object Result {
     lines.mkString(EOL) + Console.RESET
   }
 
-  private def locationFooter(locations: List[SourceLocation]): List[String] = {
+  private def locationFooter(
+      sourceLocationUrl: Option[String],
+      locations: List[SourceLocation]): List[String] = {
     val lines = locations.flatMap { l =>
-      val prefix = s"${l.fileRelativePath}:${l.line}"
       l.sourceCode.fold(List.empty[String]) { sourceCode =>
         val pointer = " " * (sourceCode.column - 1) + "^"
-        List(prefix, sourceCode.sourceLine, pointer)
+        List(formatLocationPath(sourceLocationUrl, l),
+             sourceCode.sourceLine,
+             pointer)
       }
     }
     if (lines.nonEmpty) "" :: lines else Nil
   }
+
+  private def formatLocationPath(
+      sourceLocationUrl: Option[String],
+      l: SourceLocation): String =
+    sourceLocationUrl match {
+      case Some(url) =>
+        // Display a URL to a source location on a CI host. Line numbers are typically referenced with #L anchors.
+        s"${url}${l.fileRelativePath}#L${l.line}"
+      case None =>
+        // Display a path to a local file.
+        s"${l.fileRelativePath}:${l.line}"
+    }
+
 }

@@ -45,6 +45,14 @@ object Meta {
     }
   }
 
+  object SourceUrlSuite extends SimpleIOSuite {
+    override protected def effectCompat: UnsafeRun[IO] = SourceUrlUnsafeRun
+
+    test("(failure)") {
+      IO(expect.eql(1, 2))
+    }
+  }
+
   object MutableSuiteTest extends MutableSuiteTest
 
   object Boom extends Error("Boom") with scala.util.control.NoStackTrace
@@ -330,6 +338,7 @@ object Meta {
 
   object SetTimeUnsafeRun extends CatsUnsafeRun {
     import scala.concurrent.duration._
+    import cats.effect.std.Env
 
     private val setTimestamp = weaver.internals.Timestamp.localTime(12, 54, 35)
 
@@ -337,6 +346,26 @@ object Meta {
       def realTime: cats.effect.IO[FiniteDuration]  = IO(setTimestamp.millis)
       def monotonic: cats.effect.IO[FiniteDuration] = IO(0L.millis)
       def applicative: cats.Applicative[cats.effect.IO] = cats.Applicative[IO]
+    }
+
+    // Override the environment variables such that local error messages are displayed in CI runs.
+    override def env: Env[IO] = new Env[IO] {
+      def entries: IO[List[(String, String)]]   = IO.pure(Nil)
+      def get(name: String): IO[Option[String]] = IO.pure(None)
+    }
+  }
+
+  object SourceUrlUnsafeRun extends CatsUnsafeRun {
+    import cats.effect.std.Env
+
+    override def clock: Clock[IO] = SetTimeUnsafeRun.clock
+
+    override def env: Env[IO] = new Env[IO] {
+      def entries: IO[List[(String, String)]] = IO(List(
+        ("WEAVER_SOURCE_URL",
+         "https://github.com/typelevel/weaver-test/blob/v0.12.0/")
+      ))
+      def get(name: String): IO[Option[String]] = entries.map(_.toMap.get(name))
     }
   }
 

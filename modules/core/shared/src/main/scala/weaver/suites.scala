@@ -15,6 +15,7 @@ trait BaseSuiteClass {}
 // A version of EffectSuite that has a type member instead of a type parameter.
 protected[weaver] trait EffectSuiteAux {
   type EffectType[A]
+  protected def effectCompat: EffectCompat[EffectType]
   implicit protected def effect: Async[EffectType]
 }
 
@@ -158,25 +159,38 @@ private[weaver] object TagAnalysisResult {
 abstract class MutableFSuite[F[_]] extends SharedResourceSuite[F] {
   def pureTest(name: TestName)(run: => Expectations): Unit =
     registerTest(name)(_ =>
-      Test(name.name, effect.delay(run))(effect, effect, effectCompat.clock))
+      Test(name.name, effect.delay(run))(effect,
+                                         effect,
+                                         effectCompat.clock,
+                                         effectCompat.env))
   def loggedTest(name: TestName)(run: Log[F] => F[Expectations]): Unit =
     registerTest(name)(_ =>
-      Test[F](name.name, log => run(log))(effect, effect, effectCompat.clock))
+      Test[F](name.name, log => run(log))(effect,
+                                          effect,
+                                          effectCompat.clock,
+                                          effectCompat.env))
   def test(name: TestName): PartiallyAppliedTest =
     new PartiallyAppliedTest(name)
 
   class PartiallyAppliedTest(name: TestName) {
     def apply(run: => F[Expectations]): Unit =
       registerTest(name)(_ =>
-        Test(name.name, run)(effect, effect, effectCompat.clock))
+        Test(name.name, run)(effect,
+                             effect,
+                             effectCompat.clock,
+                             effectCompat.env))
     def apply(run: Res => F[Expectations]): Unit =
       registerTest(name)(res =>
-        Test(name.name, run(res))(effect, effect, effectCompat.clock))
+        Test(name.name, run(res))(effect,
+                                  effect,
+                                  effectCompat.clock,
+                                  effectCompat.env))
     def apply(run: (Res, Log[F]) => F[Expectations]): Unit =
       registerTest(name)(res =>
         Test[F](name.name, log => run(res, log))(effect,
                                                  effect,
-                                                 effectCompat.clock))
+                                                 effectCompat.clock,
+                                                 effectCompat.env))
 
     // this alias helps using pattern matching on `Res`
     def usingRes(run: Res => F[Expectations]): Unit = apply(run)
@@ -189,7 +203,11 @@ abstract class FunSuiteF[F[_]] extends SharedResourceSuite[F] {
   override final def maxParallelism: Int      = 1
 
   def test(name: TestName)(run: => Expectations): Unit =
-    registerTest(name)(_ => effect.pure(Test.pure(name.name)(() => run)))
+    registerTest(name)(_ =>
+      Test(name.name, effect.delay(run))(effect,
+                                         effect,
+                                         effectCompat.clock,
+                                         effectCompat.env))
 
 }
 
