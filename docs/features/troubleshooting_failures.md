@@ -193,6 +193,16 @@ object SourceLocationSuite extends FunSuite {
 println(weaver.docs.Output.runSuites(SourceLocationSuite))
 ```
 
+## Displaying source locations in CI test runs
+
+Source locations in CI runs are displayed as urls. If you use GitHub Actions, the source code URL is determined automatically.
+
+You can display urls in other CI providers using the `WEAVER_SOURCE_URL` environment variable.
+
+```sh
+export WEAVER_SOURCE_URL=https://gitlab.com/my-org/my-repo/-/tree/my-branch/
+```
+
 ## Displaying a trace
 
 If you have a test codebase with many nested helper functions, you may want to display a trace of source locations. You can do this with the `traced(here)` function.
