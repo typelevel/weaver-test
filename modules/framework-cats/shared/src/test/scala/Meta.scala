@@ -79,10 +79,10 @@ object Meta {
       val show: Show[Foo] = Show.show[Foo] {
         case Foo(s, i) =>
           s"""
-          |Foo {
-          |  s: ${Show[String].show(s)}
-          |  i: ${Show[Int].show(i)}
-          |}
+             |Foo {
+             |  s: ${Show[String].show(s)}
+             |  i: ${Show[Int].show(i)}
+             |}
           """.stripMargin.trim()
       }
       implicit val comparison: Comparison[Foo] =
