@@ -35,8 +35,8 @@ object TestOutcome {
       extends TestOutcome {
 
     def status: TestStatus = result match {
-      case Result.Success          => TestStatus.Success
-      case Result.Ignored(_, _, _) => TestStatus.Ignored
+      case Result.Success       => TestStatus.Success
+      case Result.Ignored(_, _) => TestStatus.Ignored
       case Result.OnlyTagNotAllowedInCI(_) | Result.Failures(_) =>
         TestStatus.Failure
       case Result.Exception(_) => TestStatus.Exception
@@ -47,7 +47,6 @@ object TestOutcome {
       case Result.Failures(failures) =>
         Some(new ExpectationsFailed(failures.map(_.source)))
       case Result.OnlyTagNotAllowedInCI(_) | Result.Ignored(
-            _,
             _,
             _) | Result.Success => None
     }

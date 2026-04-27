@@ -233,7 +233,7 @@ trait RunnerCompat[F[_]] { self: sbt.testing.Runner =>
           val outcome =
             TestOutcome("Unexpected failure",
                         0.seconds,
-                        Result.from(sourceLocationUrl = None, error),
+                        Result.from(error),
                         Chain.empty)
 
           Async[F].guarantee(outcomes
