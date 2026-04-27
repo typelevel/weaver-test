@@ -27,10 +27,10 @@ object TagDogFoodTests extends IOSuite {
         assertInlineSnapshot(
           failureMessages,
           List(
-            """- (should-fail) 0ms
-  'Only' tag is not allowed when `isCI=true` (src/main/MaoTests.scala:1)""",
-            """- (should-also-fail) 0ms
-  'Only' tag is not allowed when `isCI=true` (src/main/MaoTests.scala:1)"""
+            s"""- (should-fail) 0ms
+               |  'Only' tag is not allowed when `isCI=true` (src/main/MaoTests.scala:1)""".stripMargin,
+            s"""- (should-also-fail) 0ms
+               |  'Only' tag is not allowed when `isCI=true` (src/main/MaoTests.scala:1)""".stripMargin
           )
         )
     }
@@ -48,8 +48,7 @@ object TagDogFoodTests extends IOSuite {
         assertInlineSnapshot(
           infoMessages(logs),
           List("weaver.framework.test.TagDogFoodTests$Meta$Only",
-               "+ (should-run) 0ms")
-        )
+               "+ (should-run) 0ms"))
     }
   }
 
@@ -60,8 +59,7 @@ object TagDogFoodTests extends IOSuite {
         assertInlineSnapshot(
           infoMessages(logs),
           List("weaver.framework.test.TagDogFoodTests$Meta$TestRunnerArgs",
-               "+ (matches-args) 0ms")
-        )
+               "+ (matches-args) 0ms"))
     }
   }
 
@@ -72,8 +70,7 @@ object TagDogFoodTests extends IOSuite {
         assertInlineSnapshot(
           infoMessages(logs),
           List("weaver.framework.test.TagDogFoodTests$Meta$TestRunnerArgs",
-               "+ (matches-args) 0ms")
-        )
+               "+ (matches-args) 0ms"))
     }
   }
 
@@ -86,8 +83,7 @@ object TagDogFoodTests extends IOSuite {
           infoMessages(logs),
           List(
             "weaver.framework.test.TagDogFoodTests$Meta$TestRunnerArgsWithOnly",
-            "+ (does-not-match) 0ms")
-        )
+            "+ (does-not-match) 0ms"))
     }
   }
   private def infoMessages(logs: Chain[LoggedEvent]): List[String] = logs
