@@ -233,9 +233,9 @@ object Checkers {
 
   private def failureMessage(ith: Int, seed: Seed, input: String): String =
     s"""Property test failed on try $ith with seed ${seed} and input $input.
-                |You can reproduce this by adding the following configuration to your test:
-                |
-                |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.$seed.toOption))""".stripMargin
+       |You can reproduce this by adding the following configuration to your test:
+       |
+       |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.$seed.toOption))""".stripMargin
 
   private class PropertyTestError(
       ith: Int,

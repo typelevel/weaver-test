@@ -112,14 +112,14 @@ object DogFoodTests extends IOSuite {
 
         val expected =
           s"""
-            |- erroring with a long message: ${Meta.ErroringWithLongPayload.smiles} 0ms
-            |  Meta$$CustomException: surfaced error
-            |
-            |  DogFoodTests.scala:15    my.package.MyClass#MyMethod
-            |  DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$$new$$1
-            |  <snipped>                cats.effect.internals.<...>
-            |  <snipped>                java.util.concurrent.<...>
-            |""".stripMargin.trim
+             |- erroring with a long message: ${Meta.ErroringWithLongPayload.smiles} 0ms
+             |  Meta$$CustomException: surfaced error
+             |
+             |  DogFoodTests.scala:15    my.package.MyClass#MyMethod
+             |  DogFoodTests.scala:20    my.package.ClassOfDifferentLength#method$$new$$1
+             |  <snipped>                cats.effect.internals.<...>
+             |  <snipped>                java.util.concurrent.<...>
+             |""".stripMargin.trim
 
         expect.same(actual, expected)
     }
@@ -311,17 +311,17 @@ object DogFoodTests extends IOSuite {
         assertInlineSnapshot(
           actual,
           s"""- (failFast) 0ms
-| [0] Values not equal: (src/main/DogFoodTests.scala:5)
-| [0] 
-| [0] in expect.eql(- expected, + found)
-| [0] -1
-| [0] +2
-|
-| [1] Values not equal: (src/main/DogFoodTests.scala:5)
-| [1] 
-| [1] in expect.eql(- expected, + found)
-| [1] -3
-| [1] +4""".stripMargin
+             | [0] Values not equal: (src/main/DogFoodTests.scala:5)
+             | [0] 
+             | [0] in expect.eql(- expected, + found)
+             | [0] -1
+             | [0] +2
+             |
+             | [1] Values not equal: (src/main/DogFoodTests.scala:5)
+             | [1] 
+             | [1] in expect.eql(- expected, + found)
+             | [1] -3
+             | [1] +4""".stripMargin
         )
     }
   }

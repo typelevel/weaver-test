@@ -58,13 +58,14 @@ object JUnitRunnerTests extends SimpleIOSuite {
       def testFailure(name: String, lineNumber: Int, sourceCode: String) = {
         val srcPath =
           "modules/framework-cats/jvm/src/test/scala/junit/Meta.scala"
-        val message = s"""- $name 0ms
-          |  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)
-          |
-          |  $srcPath:$lineNumber
-          |${sourceCode.trim.stripMargin}
-          |
-          |""".stripMargin
+        val message =
+          s"""- $name 0ms
+             |  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)
+             |
+             |  $srcPath:$lineNumber
+             |${sourceCode.trim.stripMargin}
+             |
+             |""".stripMargin
         TestFailure(
           name = name + "(weaver.junit.Meta$OnlyFailsOnCi$)",
           message = message
@@ -166,13 +167,14 @@ object JUnitRunnerTests extends SimpleIOSuite {
                  |      pureTest("only and ignored".only.ignore) {
                  |                                  ^
                """
-        val message = s"""- $name 0ms
-          |  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)
-          |
-          |  $srcPath:$lineNumber
-          |${sourceCode.trim.stripMargin}
-          |
-          |""".stripMargin
+        val message =
+          s"""- $name 0ms
+             |  'Only' tag is not allowed when `isCI=true` ($srcPath:$lineNumber)
+             |
+             |  $srcPath:$lineNumber
+             |${sourceCode.trim.stripMargin}
+             |
+             |""".stripMargin
         TestFailure(
           name = name + "(weaver.junit.Meta$OnlyFailsOnCiEvenIfIgnored$)",
           message = message

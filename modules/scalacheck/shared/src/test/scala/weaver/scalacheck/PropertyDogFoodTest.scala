@@ -26,12 +26,13 @@ object PropertyDogFoodTest extends IOSuite {
       val attempt = Meta.FailedChecks.failedAttempt
       val value   = Meta.FailedChecks.failedValue
 
-      val expected = s"""(pure)
-          |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
-          |You can reproduce this by adding the following configuration to your test:
-          |
-          |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))"""
-        .stripMargin
+      val expected =
+        s"""(pure)
+           |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+           |You can reproduce this by adding the following configuration to your test:
+           |
+           |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))"""
+          .stripMargin
       expectMessageContains(expected, log)
     }
   }
@@ -45,12 +46,13 @@ object PropertyDogFoodTest extends IOSuite {
         val attempt = Meta.FailedChecks.failedAttempt
         val value   = Meta.FailedChecks.failedValue
 
-        val expected = s"""(failFast)
-          |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
-          |You can reproduce this by adding the following configuration to your test:
-          |
-          |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))"""
-          .stripMargin
+        val expected =
+          s"""(failFast)
+             |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+             |You can reproduce this by adding the following configuration to your test:
+             |
+             |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))"""
+            .stripMargin
         expectMessageContains(expected, errorLog)
       }
     }
@@ -65,15 +67,16 @@ object PropertyDogFoodTest extends IOSuite {
       val attempt = Meta.FailedChecks.failedAttempt
       val value   = Meta.FailedChecks.failedValue
 
-      val expected = s"""(error)
-          |PropertyTestError: Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
-          |You can reproduce this by adding the following configuration to your test:
-          |
-          |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))
-          |
-          |
-          | Caused by: weaver.scalacheck.Meta$$Boom$$: Boom"""
-        .stripMargin
+      val expected =
+        s"""(error)
+           |PropertyTestError: Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+           |You can reproduce this by adding the following configuration to your test:
+           |
+           |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))
+           |
+           |
+           | Caused by: weaver.scalacheck.Meta$$Boom$$: Boom"""
+          .stripMargin
       expectMessageContains(expected, errorLog)
     }
   }
