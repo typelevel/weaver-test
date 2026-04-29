@@ -22,7 +22,7 @@ object snapshot4s {
 object SnapshotExpectations {
   def assertInlineSnapshot[A](found: A, snapshot: A)(
       implicit @unused config: snapshot4s.SnapshotConfig,
-      comparison: Comparison[A]
-  ): IO[Expectations] =
+      comparison: Comparison[A],
+      loc: SourceLocation): IO[Expectations] =
     IO(Expectations.Helpers.expect.eql(found, snapshot))
 }
