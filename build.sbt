@@ -247,6 +247,12 @@ lazy val docs = project
     moduleName := "weaver-docs",
     name       := "Weaver documentation",
     mdocExtraArguments += "--allowCodeFenceIndented",
+    // Source location file paths in md files are not relative to the
+    // base directory.  This results in incorrect URLs in the website
+    // docs. Work around this by setting the WEAVER_SOURCE_URL to an
+    // empty string.
+    Compile / fork := true,
+    envVars        := Map("WEAVER_SOURCE_URL" -> ""),
     watchSources += (ThisBuild / baseDirectory).value / "docs",
     libraryDependencies ++= Seq(
       "org.http4s"    %% "http4s-ember-client" % Version.http4s,
