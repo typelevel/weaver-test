@@ -13,9 +13,6 @@ object Meta {
 
   object SourceLocationSuite extends SimpleIOSuite {
 
-    override protected def effectCompat: UnsafeRun[IO] =
-      SetTimeUnsafeRun
-
     pureTest("(expect-same)") {
       val x = 1
       val y = 2
@@ -55,8 +52,6 @@ object Meta {
   }
 
   object Rendering extends SimpleIOSuite {
-    override protected def effectCompat: UnsafeRun[IO] =
-      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     pureTest("lots\nof\nmultiline\n(success)") {
@@ -125,8 +120,6 @@ object Meta {
   }
 
   object Clue extends SimpleIOSuite {
-    override protected def effectCompat: UnsafeRun[IO] =
-      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     pureTest("(success)") {
@@ -189,8 +182,6 @@ object Meta {
   }
 
   object FailingTestStatusReporting extends SimpleIOSuite {
-    override protected def effectCompat: UnsafeRun[IO] =
-      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     pureTest("I succeeded") {
@@ -207,8 +198,6 @@ object Meta {
   }
 
   object FailingSuiteWithLogs extends SimpleIOSuite {
-    override protected def effectCompat: UnsafeRun[IO] =
-      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     loggedTest("(failure)") { log =>
@@ -241,8 +230,6 @@ object Meta {
   }
 
   object ErroringWithCauses extends SimpleIOSuite {
-    override protected def effectCompat: UnsafeRun[IO] =
-      SetTimeUnsafeRun
 
     loggedTest("erroring with causes") { _ =>
       throw CustomException(
@@ -254,8 +241,6 @@ object Meta {
   }
 
   object ErroringWithLongPayload extends SimpleIOSuite {
-    override protected def effectCompat: UnsafeRun[IO] =
-      SetTimeUnsafeRun
 
     val smiles = ":)" * 1024
 
@@ -270,8 +255,6 @@ object Meta {
   }
 
   object SucceedsWithErrorInLogs extends SimpleIOSuite {
-    override protected def effectCompat: UnsafeRun[IO] =
-      SetTimeUnsafeRun
     implicit val sourceLocation: SourceLocation = TimeCop.sourceLocation
 
     loggedTest("(failure)") { log =>
@@ -326,18 +309,6 @@ object Meta {
       "src/main/DogFoodTests.scala",
       5,
       None)
-  }
-
-  object SetTimeUnsafeRun extends CatsUnsafeRun {
-    import scala.concurrent.duration._
-
-    private val setTimestamp = weaver.internals.Timestamp.localTime(12, 54, 35)
-
-    override def clock: Clock[IO] = new Clock[IO] {
-      def realTime: cats.effect.IO[FiniteDuration]  = IO(setTimestamp.millis)
-      def monotonic: cats.effect.IO[FiniteDuration] = IO(0L.millis)
-      def applicative: cats.Applicative[cats.effect.IO] = cats.Applicative[IO]
-    }
   }
 
 }

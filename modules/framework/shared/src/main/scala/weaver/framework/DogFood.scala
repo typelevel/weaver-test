@@ -147,22 +147,40 @@ private[weaver] class DogFood[F[_]](val framework: WeaverFramework[F])
     override def ansiCodesSupported(): Boolean = false
 
     override def error(msg: String): Unit =
-      add(LoggedEvent.Error(msg))
+      add(LoggedEvent.Error(stripTimestamps(msg)))
 
     override def warn(msg: String): Unit =
-      add(LoggedEvent.Warn(msg))
+      add(LoggedEvent.Warn(stripTimestamps(msg)))
 
     override def info(msg: String): Unit =
-      add(LoggedEvent.Info(msg))
+      add(LoggedEvent.Info(stripTimestamps(msg)))
 
     override def debug(msg: String): Unit =
-      add(LoggedEvent.Debug(msg))
+      add(LoggedEvent.Debug(stripTimestamps(msg)))
 
     override def trace(t: Throwable): Unit =
       add(LoggedEvent.Trace(t))
 
     def get: F[Chain[LoggedEvent]] =
       effect.delay(Chain.fromSeq(logs.toList))
+  }
+
+  /**
+   * Replaces the times in logged events with constants.
+   *
+   *   - Test durations are replaced with 0ms
+   *   - Log timestamps are replaced with 12:54:35
+   *
+   * Ensures that logged events have the same messages, regardless of test
+   * running time.
+   */
+  private def stripTimestamps(msg: String): String = {
+    val durationRx         = """[0-9]+:?[0-9]*(ms|s|min)""".r
+    val dummyDuration      = "0ms"
+    val logTimestampRx     = """\d{1,2}:\d{1,2}:\d{1,2}""".r
+    val dummyTimestamp     = "12:54:35"
+    val msgWithoutDuration = durationRx.replaceAllIn(msg, dummyDuration)
+    logTimestampRx.replaceAllIn(msgWithoutDuration, dummyTimestamp)
   }
 
   private class MemoryEventHandler() extends EventHandler {

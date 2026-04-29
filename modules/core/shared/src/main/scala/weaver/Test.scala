@@ -3,27 +3,23 @@ package weaver
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
-import cats.Defer
 import cats.data.Chain
 import cats.effect.Ref
-import cats.effect.Clock
-import cats.effect.Concurrent
+import cats.effect.Async
 import cats.syntax.all._
 
 object Test {
 
   def apply[F[_]](name: String, f: Log[F] => F[Expectations])(
-      implicit F: Defer[F],
-      G: Concurrent[F],
-      C: Clock[F]): F[TestOutcome] = {
+      implicit F: Async[F]): F[TestOutcome] = {
     for {
       ref   <- Ref[F].of(Chain.empty[Log.Entry])
-      start <- C.realTime
-      res   <- Defer[F]
-        .defer(f(Log.collected[F, Chain](ref, C.realTime.map(_.toMillis))))
-        .map(Result.fromAssertion)
-        .handleError(ex => Result.from(ex))
-      end  <- C.realTime
+      start <- F.realTime
+      res   <-
+        F.defer(f(Log.collected[F, Chain](ref, F.realTime.map(_.toMillis))))
+          .map(Result.fromAssertion)
+          .handleError(ex => Result.from(ex))
+      end  <- F.realTime
       logs <- ref.get
     } yield TestOutcome(name, end - start, res, logs)
   }
@@ -41,9 +37,7 @@ object Test {
   }
 
   def apply[F[_]](name: String, f: F[Expectations])(
-      implicit F: Defer[F],
-      G: Concurrent[F],
-      C: Clock[F]
+      implicit F: Async[F]
   ): F[TestOutcome] = apply[F](name, (_: Log[F]) => f)
 
 }
