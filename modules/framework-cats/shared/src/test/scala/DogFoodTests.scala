@@ -491,13 +491,13 @@ object DogFoodTests extends IOSuite {
           assertInlineSnapshot(
             actual,
             """- (expect-same) 0ms
-  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L22)
+  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L19)
 
   in expect.same(- expected, + found)
   -1
   +2
 
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L22
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L19
         expect.same(x, y)
                         ^"""
           )
@@ -505,13 +505,13 @@ object DogFoodTests extends IOSuite {
           assertInlineSnapshot(
             actual,
             """- (expect-same) 0ms
-  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L22)
+  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L19)
 
   in expect.same(- expected, + found)
   -1
   +2
 
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L22
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L19
         expect.same(x, y)
                    ^"""
           )
@@ -526,23 +526,23 @@ object DogFoodTests extends IOSuite {
           assertInlineSnapshot(
             actual,
             """- (multiple) 0ms
- [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L29)
+ [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L26)
  [0] 
  [0] in expect.same(- expected, + found)
  [0] -1
  [0] +2
  [0] 
- [0] modules/framework-cats/shared/src/test/scala/Meta.scala#L29
+ [0] modules/framework-cats/shared/src/test/scala/Meta.scala#L26
  [0]       expect.same(x, y) && expect.same(y, z)
  [0]                       ^
 
- [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L29)
+ [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L26)
  [1] 
  [1] in expect.same(- expected, + found)
  [1] -2
  [1] +3
  [1] 
- [1] modules/framework-cats/shared/src/test/scala/Meta.scala#L29
+ [1] modules/framework-cats/shared/src/test/scala/Meta.scala#L26
  [1]       expect.same(x, y) && expect.same(y, z)
  [1]                                            ^"""
           )
@@ -550,23 +550,23 @@ object DogFoodTests extends IOSuite {
           assertInlineSnapshot(
             actual,
             """- (multiple) 0ms
- [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L29)
+ [0] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L26)
  [0] 
  [0] in expect.same(- expected, + found)
  [0] -1
  [0] +2
  [0] 
- [0] modules/framework-cats/shared/src/test/scala/Meta.scala#L29
+ [0] modules/framework-cats/shared/src/test/scala/Meta.scala#L26
  [0]       expect.same(x, y) && expect.same(y, z)
  [0]                  ^
 
- [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L29)
+ [1] Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L26)
  [1] 
  [1] in expect.same(- expected, + found)
  [1] -2
  [1] +3
  [1] 
- [1] modules/framework-cats/shared/src/test/scala/Meta.scala#L29
+ [1] modules/framework-cats/shared/src/test/scala/Meta.scala#L26
  [1]       expect.same(x, y) && expect.same(y, z)
  [1]                                       ^"""
           )
@@ -581,21 +581,21 @@ object DogFoodTests extends IOSuite {
           assertInlineSnapshot(
             actual,
             """- (traced) 0ms
-  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L33)
- (modules/framework-cats/shared/src/test/scala/Meta.scala#L40)
+  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L30)
  (modules/framework-cats/shared/src/test/scala/Meta.scala#L37)
+ (modules/framework-cats/shared/src/test/scala/Meta.scala#L34)
 
   in expect.same(- expected, + found)
   -1
   +2
 
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L33
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L30
         helper
              ^
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L40
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L37
         expect.same(1, 2).traced(here)
                                     ^
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L37
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L34
         nestedHelper.traced(here)
                                ^"""
           )
@@ -603,21 +603,21 @@ object DogFoodTests extends IOSuite {
           assertInlineSnapshot(
             actual,
             """- (traced) 0ms
-  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L33)
- (modules/framework-cats/shared/src/test/scala/Meta.scala#L40)
+  Values not equal: (modules/framework-cats/shared/src/test/scala/Meta.scala#L30)
  (modules/framework-cats/shared/src/test/scala/Meta.scala#L37)
+ (modules/framework-cats/shared/src/test/scala/Meta.scala#L34)
 
   in expect.same(- expected, + found)
   -1
   +2
 
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L33
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L30
         helper
         ^
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L40
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L37
         expect.same(1, 2).traced(here)
                                  ^
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L37
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L34
         nestedHelper.traced(here)
                             ^"""
           )
@@ -632,13 +632,13 @@ object DogFoodTests extends IOSuite {
           assertInlineSnapshot(
             actual,
             """- (interpolator) 0ms
-  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala#L44)
+  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala#L41)
 
   expect(x == "2")
 
   Use the `clue` function to troubleshoot
 
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L44
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L41
         forEach(Option(s"$x"))(x => expect(x == "2"))
                                                    ^"""
           )
@@ -646,13 +646,13 @@ object DogFoodTests extends IOSuite {
           assertInlineSnapshot(
             actual,
             """- (interpolator) 0ms
-  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala#L44)
+  assertion failed (modules/framework-cats/shared/src/test/scala/Meta.scala#L41)
 
   expect(x == "2")
 
   Use the `clue` function to troubleshoot
 
-  modules/framework-cats/shared/src/test/scala/Meta.scala#L44
+  modules/framework-cats/shared/src/test/scala/Meta.scala#L41
         forEach(Option(s"$x"))(x => expect(x == "2"))
                                           ^"""
           )
