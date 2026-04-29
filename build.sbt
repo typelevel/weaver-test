@@ -168,12 +168,17 @@ lazy val cats = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .dependsOn(framework, coreCats)
   .settings(
     name           := "weaver-cats",
-    testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect"))
+    testFrameworks := Seq(new TestFramework("weaver.framework.CatsEffect")),
+    // Ensure that the source locations in failure messages are identical on CI
+    // as when running locally. See `weaver.internals.SourceLocationUrl`.
+    Test / envVars := Map("WEAVER_SOURCE_URL" -> "")
   )
 lazy val catsJVM = cats.jvm
   .settings(
     libraryDependencies +=
-      "com.siriusxm" %% "snapshot4s-core" % Version.snapshot4s % Test
+      "com.siriusxm" %% "snapshot4s-core" % Version.snapshot4s % Test,
+    // Required for seting the WEAVER_SOURCE_URL environment variable.
+    Test / fork := true
   )
   .enablePlugins(Snapshot4sPlugin)
 
@@ -242,6 +247,12 @@ lazy val docs = project
     moduleName := "weaver-docs",
     name       := "Weaver documentation",
     mdocExtraArguments += "--allowCodeFenceIndented",
+    // Source location file paths in md files are not relative to the
+    // base directory.  This results in incorrect URLs in the website
+    // docs. Work around this by setting the WEAVER_SOURCE_URL to an
+    // empty string.
+    Compile / fork := true,
+    envVars        := Map("WEAVER_SOURCE_URL" -> ""),
     watchSources += (ThisBuild / baseDirectory).value / "docs",
     libraryDependencies ++= Seq(
       "org.http4s"    %% "http4s-ember-client" % Version.http4s,

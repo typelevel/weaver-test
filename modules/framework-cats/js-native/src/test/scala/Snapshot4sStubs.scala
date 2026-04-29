@@ -24,5 +24,5 @@ object SnapshotExpectations {
       implicit @unused config: snapshot4s.SnapshotConfig,
       comparison: Comparison[A],
       loc: SourceLocation): IO[Expectations] =
-    IO(Expectations.Helpers.expect.eql(found, snapshot))
+    IO(Expectations.Helpers.expect.eql(snapshot, found))
 }

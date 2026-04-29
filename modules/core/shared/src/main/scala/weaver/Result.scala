@@ -2,6 +2,7 @@ package weaver
 
 import cats.data.NonEmptyList
 import cats.data.Validated.{ Invalid, Valid }
+import weaver.internals.SourceLocationUrl
 
 private[weaver] sealed trait Result {
   def formatted: Option[String]
@@ -172,7 +173,7 @@ private[weaver] object Result {
         if (index == 0)
           color + linePrefix + line +
             location
-              .map(l => s" (${l.fileRelativePath}:${l.line})")
+              .map(l => s" (${formatLocationPath(l)})")
               .mkString("\n")
         else
           color + linePrefix + line
@@ -183,12 +184,24 @@ private[weaver] object Result {
 
   private def locationFooter(locations: List[SourceLocation]): List[String] = {
     val lines = locations.flatMap { l =>
-      val prefix = s"${l.fileRelativePath}:${l.line}"
       l.sourceCode.fold(List.empty[String]) { sourceCode =>
         val pointer = " " * (sourceCode.column - 1) + "^"
-        List(prefix, sourceCode.sourceLine, pointer)
+        List(formatLocationPath(l),
+             sourceCode.sourceLine,
+             pointer)
       }
     }
     if (lines.nonEmpty) "" :: lines else Nil
   }
+
+  private def formatLocationPath(l: SourceLocation): String =
+    SourceLocationUrl() match {
+      case Some(url) =>
+        // Display a URL to a source location on a CI host. Line numbers are typically referenced with #L anchors.
+        s"${url}${l.fileRelativePath}#L${l.line}"
+      case None =>
+        // Display a path to a local file.
+        s"${l.fileRelativePath}:${l.line}"
+    }
+
 }
