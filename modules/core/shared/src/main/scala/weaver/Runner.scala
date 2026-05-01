@@ -33,7 +33,7 @@ class Runner[F[_]: Async](
                 .spec(args)
                 .compile
                 .toList
-                .map(SpecEvent(suite.name, _))
+                .map(SpecEvent(suite.getClass.getName.replace("$", ""), _))
                 .flatMap(produce(channel))
             }
             .compile
