@@ -1,9 +1,17 @@
 Motivation
 ==========
 
+![time](../assets/time.png)
+
 ## A test framework for integration tests
 
 Weaver was built for integration/end-to-end tests. It makes tests faster and easier to debug by using cats-effect `IO`.
+
+- Tests are run concurrently by default for quickest results possible.
+- Expectations (ie assertions) are composable values.
+- Failures are aggregated and reported at the end of the run
+- Logs are only displayed when a test fails. This works perfectly well with concurrent runs.
+- “beforeAll” and “afterAll” logic is represented using a `cats.effect.Resource`. This ensures that resources such as HTTP clients, connection pools and file handles are cleaned up correctly and predictably.
 
 ## History
 

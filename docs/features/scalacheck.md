@@ -33,6 +33,10 @@ import weaver.scalacheck._
 
 object ForallExamples extends SimpleIOSuite with Checkers {
 
+  // CheckConfig can be overridden at the suite level
+  override def checkConfig: CheckConfig =
+    super.checkConfig.copy(perPropertyParallelism = 100)
+
   // Using a single `Gen` instance
   test("Single Gen form") {
     // Takes a single, explicit `Gen` instance
@@ -68,6 +72,13 @@ object ForallExamples extends SimpleIOSuite with Checkers {
     // There are 6 overloads, to pass 1-6 parameters
     forall { (a1: Int, a2: Int) =>
       expect(a1 + a2 % 2 == 0)
+    }
+  }
+
+  test("CheckConfig at test level") {
+    // CheckConfig can be overridden locally at the test level
+    forall.withConfig(CheckConfig.default.copy(perPropertyParallelism = 1)) {
+      (x: Int) => expect(x > 0)
     }
   }
 
