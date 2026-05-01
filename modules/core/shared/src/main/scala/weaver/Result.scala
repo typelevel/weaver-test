@@ -166,17 +166,10 @@ private[weaver] object Result {
 
     val prefixIsWhitespace = prefix.trim.isEmpty
     val footer             = locationFooter(location)
-    val lines = (message.split("\\r?\\n") ++ footer).zipWithIndex.map {
-      case (line, index) =>
-        val linePrefix =
-          if (prefixIsWhitespace && line.trim.isEmpty) "" else prefix
-        if (index == 0)
-          color + linePrefix + line +
-            location
-              .map(l => s" (${formatLocationPath(l)})")
-              .mkString("\n")
-        else
-          color + linePrefix + line
+    val lines              = (message.split("\\r?\\n") ++ footer).map { line =>
+      val linePrefix =
+        if (prefixIsWhitespace && line.trim.isEmpty) "" else prefix
+      color + linePrefix + line
     }
 
     lines.mkString(EOL) + Console.RESET
