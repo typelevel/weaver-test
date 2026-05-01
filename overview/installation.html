@@ -131,7 +131,8 @@
     <li class="level1 nav-leaf"><a href="#mill">Mill</a></li>
     <li class="level1 nav-leaf"><a href="#scala-cli">scala-cli</a></li>
     <li class="level1 nav-leaf"><a href="#gradle">Gradle</a></li>
-    <li class="level1 nav-leaf"><a href="#usage">Usage</a></li>
+    <li class="level1 nav-node"><a href="#getting-started">Getting started</a></li>
+    <li class="level2 nav-leaf"><a href="#other-suites">Other suites</a></li>
   </ul>
 
   <p class="footer"></p>
@@ -178,10 +179,10 @@ dependencies {
   testImplementation scalaBackend.testFramework(org.podval.tools.test.framework.WeaverTest)
 }</code></pre>
         
-        <h2 id="usage" class="section"><a class="anchor-link left" href="#usage"><i class="icofont-laika link">&#xef71;</i></a>Usage</h2>
+        <h2 id="getting-started" class="section"><a class="anchor-link left" href="#getting-started"><i class="icofont-laika link">&#xef71;</i></a>Getting started</h2>
         <p>Start with importing the following :</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">weaver</span><span>.</span><span class="identifier">_</span></code></pre>
-        <p>The most basic usage is to extend <code>SimpleIOSuite</code>. Tests are registered imperatively, very much like in scalatest&#39;s <code>FunSuite</code> or in <code>utest</code>, but their bodies are &quot;weaved&quot; together in a single <code>IO</code> that the framework executes when the build tool asks for it.</p>
+        <p>The most basic usage is to extend <code>SimpleIOSuite</code>.</p>
         <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="identifier">_</span><span>
 
 </span><span class="comment">// Suites must be &quot;objects&quot; for them to be picked by the framework
@@ -189,15 +190,66 @@ dependencies {
 
   </span><span class="keyword">val</span><span> </span><span class="identifier">randomUUID</span><span> = </span><span class="type-name">IO</span><span>(</span><span class="identifier">java</span><span>.</span><span class="identifier">util</span><span>.</span><span class="type-name">UUID</span><span>.</span><span class="identifier">randomUUID</span><span>())
 
-  </span><span class="comment">// A test for side-effecting functions
-</span><span>  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;hello side-effects&quot;</span><span>) {
+  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;failing test with side-effects&quot;</span><span>) {
     </span><span class="keyword">for</span><span> {
       </span><span class="identifier">x</span><span> &lt;- </span><span class="identifier">randomUUID</span><span>
       </span><span class="identifier">y</span><span> &lt;- </span><span class="identifier">randomUUID</span><span>
-    } </span><span class="keyword">yield</span><span> </span><span class="identifier">expect</span><span>(</span><span class="identifier">x</span><span> != </span><span class="identifier">y</span><span>)
+    } </span><span class="keyword">yield</span><span> </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="identifier">x</span><span>, </span><span class="identifier">y</span><span>)
   }
 
+  </span><span class="identifier">pureTest</span><span>(</span><span class="string-literal">&quot;pure failing test&quot;</span><span>){
+    </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="string-literal">&quot;hello&quot;</span><span>.</span><span class="identifier">size</span><span>, </span><span class="number-literal">6</span><span>)
+  }
+
+  </span><span class="identifier">loggedTest</span><span>(</span><span class="string-literal">&quot;failing test with logs&quot;</span><span>){ </span><span class="identifier">log</span><span> =&gt;
+    </span><span class="keyword">for</span><span> {
+      </span><span class="identifier">x</span><span> &lt;- </span><span class="identifier">randomUUID</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">log</span><span>.</span><span class="identifier">info</span><span>(</span><span class="string-literal">s&quot;x : </span><span class="substitution">$x</span><span class="string-literal">&quot;</span><span>)
+      </span><span class="identifier">y</span><span> &lt;- </span><span class="identifier">randomUUID</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">log</span><span>.</span><span class="identifier">info</span><span>(</span><span class="string-literal">s&quot;y : </span><span class="substitution">$y</span><span class="string-literal">&quot;</span><span>)
+    } </span><span class="keyword">yield</span><span> </span><span class="identifier">expect</span><span>.</span><span class="identifier">eql</span><span>(</span><span class="identifier">x</span><span>, </span><span class="identifier">y</span><span>)
+  }
 }</span></code></pre>
+        <p>Run your tests with your build tool, e.g. <code>sbt test</code>.</p>
+        <div class='terminal'><pre>
+<span style='color: cyan'>MySuite</span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;with&nbsp;side-effects&nbsp;<span style='color: lightgray'><b>2ms</b></span>
+<span style='color: red'>-&nbsp;</span>pure&nbsp;failing&nbsp;test&nbsp;<span style='color: lightgray'><b>0ms</b></span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;with&nbsp;logs&nbsp;<span style='color: lightgray'><b>6ms</b></span>
+
+<span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
+<span style='color: cyan'>MySuite</span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;with&nbsp;side-effects&nbsp;<span style='color: lightgray'><b>2ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(installation.md#L25)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.eql(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightred'>-77ff1f5d-a841-4ed3-8ecc-7f80346da932</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+8f8f3e26-233d-4da2-8d26-655dc460943a</span><br/><span style='color: red'><br/>&nbsp;&nbsp;installation.md#L25<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;expect.eql(x,&nbsp;y)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>pure&nbsp;failing&nbsp;test&nbsp;<span style='color: lightgray'><b>0ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(installation.md#L29)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.eql(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightred'>-5</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+6</span><br/><span style='color: red'><br/>&nbsp;&nbsp;installation.md#L29<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect.eql(&quot;hello&quot;.size,&nbsp;6)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>failing&nbsp;test&nbsp;with&nbsp;logs&nbsp;<span style='color: lightgray'><b>6ms</b></span><br/><span style='color: red'>&nbsp;&nbsp;Values&nbsp;not&nbsp;equal:&nbsp;(installation.md#L38)<br/><br/>&nbsp;&nbsp;in&nbsp;expect.eql(</span><span style='color: lightred'>-&nbsp;expected</span>,&nbsp;<span style='color: lightgreen'>+&nbsp;found</span>)<br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightred'>-0dc7677a-90a0-4aa5-8569-ac0fe5682ec2</span><br/><span style='color: red'>&nbsp;&nbsp;</span><span style='color: lightgreen'>+9134fbfe-7ed0-44af-8cc8-009c05512499</span><br/><span style='color: red'><br/>&nbsp;&nbsp;installation.md#L38<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;yield&nbsp;expect.eql(x,&nbsp;y)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;[INFO]&nbsp;16:14:28&nbsp;[installation.md:35]&nbsp;x&nbsp;:&nbsp;0dc7677a-90a0-4aa5-8569-ac0fe5682ec2<br/>&nbsp;&nbsp;&nbsp;&nbsp;[INFO]&nbsp;16:14:28&nbsp;[installation.md:37]&nbsp;y&nbsp;:&nbsp;9134fbfe-7ed0-44af-8cc8-009c05512499
+
+Total&nbsp;3,&nbsp;Failed&nbsp;3,&nbsp;Passed&nbsp;0,&nbsp;Ignored&nbsp;0
+</pre></div>
+        
+        <h4 id="other-suites" class="section"><a class="anchor-link left" href="#other-suites"><i class="icofont-laika link">&#xef71;</i></a>Other suites</h4>
+        <p>Weaver also includes support for</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Suite</th>
+              <th>Use case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="../features/expectations.html#example-suite">SimpleIOSuite</a></td>
+              <td>Each test is a standalone <code>IO</code> action</td>
+            </tr>
+            <tr>
+              <td><a href="../features/resources.html">IOSuite</a></td>
+              <td>Each test needs access to a shared <code>Resource</code></td>
+            </tr>
+            <tr>
+              <td><a href="../features/funsuite.html">FunSuite</a></td>
+              <td>Each test is a pure function</td>
+            </tr>
+          </tbody>
+        </table>
 
         
 <hr class="footer-rule"/>

@@ -163,6 +163,10 @@
 
 </span><span class="keyword">object</span><span> </span><span class="type-name">ForallExamples</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">SimpleIOSuite</span><span> </span><span class="keyword">with</span><span> </span><span class="type-name">Checkers</span><span> {
 
+  </span><span class="comment">// CheckConfig can be overridden at the suite level
+</span><span>  </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">checkConfig</span><span>: </span><span class="type-name">CheckConfig</span><span> =
+    </span><span class="keyword">super</span><span>.</span><span class="identifier">checkConfig</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">perPropertyParallelism</span><span> = </span><span class="number-literal">100</span><span>)
+
   </span><span class="comment">// Using a single `Gen` instance
 </span><span>  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;Single Gen form&quot;</span><span>) {
     </span><span class="comment">// Takes a single, explicit `Gen` instance
@@ -201,19 +205,28 @@
     }
   }
 
+  </span><span class="identifier">test</span><span>(</span><span class="string-literal">&quot;CheckConfig at test level&quot;</span><span>) {
+    </span><span class="comment">// CheckConfig can be overridden locally at the test level
+</span><span>    </span><span class="identifier">forall</span><span>.</span><span class="identifier">withConfig</span><span>(</span><span class="type-name">CheckConfig</span><span>.</span><span class="keyword">default</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">perPropertyParallelism</span><span> = </span><span class="number-literal">1</span><span>)) {
+      (</span><span class="identifier">x</span><span>: </span><span class="type-name">Int</span><span>) =&gt; </span><span class="identifier">expect</span><span>(</span><span class="identifier">x</span><span> &gt; </span><span class="number-literal">0</span><span>)
+    }
+  }
+
 }</span></code></pre>
         <div class='terminal'><pre>
 <span style='color: cyan'>ForallExamples</span>
-<span style='color: green'>+&nbsp;</span>Single&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>60ms</b></span>
-<span style='color: green'>+&nbsp;</span>Multiple&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>97ms</b></span>
-<span style='color: green'>+&nbsp;</span>Arbitrary&nbsp;form&nbsp;<span style='color: lightgray'><b>95ms</b></span>
-<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>29ms</b></span>
+<span style='color: green'>+&nbsp;</span>Single&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>63ms</b></span>
+<span style='color: green'>+&nbsp;</span>Multiple&nbsp;Gen&nbsp;form&nbsp;<span style='color: lightgray'><b>53ms</b></span>
+<span style='color: green'>+&nbsp;</span>Arbitrary&nbsp;form&nbsp;<span style='color: lightgray'><b>71ms</b></span>
+<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>28ms</b></span>
+<span style='color: red'>-&nbsp;</span>CheckConfig&nbsp;at&nbsp;test&nbsp;level&nbsp;<span style='color: lightgray'><b>14ms</b></span>
 
 <span style='color: red'>*************</span>FAILURES<span style='color: red'>*************</span>
 <span style='color: cyan'>ForallExamples</span>
-<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>29ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;1&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;YzMz_gCufvBgTmWeSoYQcdm0Ohm_YXkqLA7hnLPUOsL=&quot;)&nbsp;and&nbsp;input&nbsp;(1,-2147483648).&nbsp;(scalacheck.md#L52)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;configuration&nbsp;to&nbsp;your&nbsp;test:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64(&quot;YzMz_gCufvBgTmWeSoYQcdm0Ohm_YXkqLA7hnLPUOsL=&quot;).toOption))<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;scalacheck.md#L52<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;forall&nbsp;{&nbsp;(a1:&nbsp;Int,&nbsp;a2:&nbsp;Int)&nbsp;=&gt;<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md#L53)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;expect(a1&nbsp;+&nbsp;a2&nbsp;%&nbsp;2&nbsp;==&nbsp;0)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;scalacheck.md#L53<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect(a1&nbsp;+&nbsp;a2&nbsp;%&nbsp;2&nbsp;==&nbsp;0)<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>Failure&nbsp;example&nbsp;<span style='color: lightgray'><b>28ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;1&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;7L8s7hI4TttEEeL9mZNJWi0lVz025ZDdssGCODygUNG=&quot;)&nbsp;and&nbsp;input&nbsp;(-1683653461,0).&nbsp;(scalacheck.md#L56)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;configuration&nbsp;to&nbsp;your&nbsp;test:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64(&quot;7L8s7hI4TttEEeL9mZNJWi0lVz025ZDdssGCODygUNG=&quot;).toOption))<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;scalacheck.md#L56<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;forall&nbsp;{&nbsp;(a1:&nbsp;Int,&nbsp;a2:&nbsp;Int)&nbsp;=&gt;<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md#L57)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;expect(a1&nbsp;+&nbsp;a2&nbsp;%&nbsp;2&nbsp;==&nbsp;0)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;scalacheck.md#L57<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect(a1&nbsp;+&nbsp;a2&nbsp;%&nbsp;2&nbsp;==&nbsp;0)<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
+<span style='color: red'>-&nbsp;</span>CheckConfig&nbsp;at&nbsp;test&nbsp;level&nbsp;<span style='color: lightgray'><b>14ms</b></span><br/><span style='color: red'>&nbsp;[0]&nbsp;Property&nbsp;test&nbsp;failed&nbsp;on&nbsp;try&nbsp;1&nbsp;with&nbsp;seed&nbsp;Seed.fromBase64(&quot;WNl78uaFFFLH4gSFHF8El7g62FnRMyKaI0IkevAXwaD=&quot;)&nbsp;and&nbsp;input&nbsp;-440362950.&nbsp;(scalacheck.md#L63)<br/>&nbsp;[0]&nbsp;You&nbsp;can&nbsp;reproduce&nbsp;this&nbsp;by&nbsp;adding&nbsp;the&nbsp;following&nbsp;configuration&nbsp;to&nbsp;your&nbsp;test:<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64(&quot;WNl78uaFFFLH4gSFHF8El7g62FnRMyKaI0IkevAXwaD=&quot;).toOption))<br/>&nbsp;[0]&nbsp;<br/>&nbsp;[0]&nbsp;scalacheck.md#L63<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;forall.withConfig(CheckConfig.default.copy(perPropertyParallelism&nbsp;=&nbsp;1))&nbsp;{<br/>&nbsp;[0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span><br/><br/><span style='color: red'>&nbsp;[1]&nbsp;assertion&nbsp;failed&nbsp;(scalacheck.md#L64)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;expect(x&nbsp;&gt;&nbsp;0)<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;Use&nbsp;the&nbsp;`clue`&nbsp;function&nbsp;to&nbsp;troubleshoot<br/>&nbsp;[1]&nbsp;<br/>&nbsp;[1]&nbsp;scalacheck.md#L64<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(x:&nbsp;Int)&nbsp;=&gt;&nbsp;expect(x&nbsp;&gt;&nbsp;0)<br/>&nbsp;[1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</span>
 
-Total&nbsp;4,&nbsp;Failed&nbsp;1,&nbsp;Passed&nbsp;3,&nbsp;Ignored&nbsp;0
+Total&nbsp;5,&nbsp;Failed&nbsp;2,&nbsp;Passed&nbsp;3,&nbsp;Ignored&nbsp;0
 </pre></div>
 
         

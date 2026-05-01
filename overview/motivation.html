@@ -138,9 +138,17 @@
       <main class="content">
 
         <h1 id="motivation" class="title">Motivation</h1>
+        <p><img src="../assets/time.png" alt="time"></p>
         
         <h2 id="a-test-framework-for-integration-tests" class="section"><a class="anchor-link left" href="#a-test-framework-for-integration-tests"><i class="icofont-laika link">&#xef71;</i></a>A test framework for integration tests</h2>
         <p>Weaver was built for integration/end-to-end tests. It makes tests faster and easier to debug by using cats-effect <code>IO</code>.</p>
+        <ul>
+          <li>Tests are run concurrently by default for quickest results possible.</li>
+          <li>Expectations (ie assertions) are composable values.</li>
+          <li>Failures are aggregated and reported at the end of the run</li>
+          <li>Logs are only displayed when a test fails. This works perfectly well with concurrent runs.</li>
+          <li>“beforeAll” and “afterAll” logic is represented using a <code>cats.effect.Resource</code>. This ensures that resources such as HTTP clients, connection pools and file handles are cleaned up correctly and predictably.</li>
+        </ul>
         
         <h2 id="history" class="section"><a class="anchor-link left" href="#history"><i class="icofont-laika link">&#xef71;</i></a>History</h2>
         <p>Weaver-test was born in 2018 as an experiment, trying to speedup an extremely slow, incredibly I/O heavy test suite that was implemented with scalatest, and was making numerous http calls to real services, verifying their deployments and orchestration.</p>
