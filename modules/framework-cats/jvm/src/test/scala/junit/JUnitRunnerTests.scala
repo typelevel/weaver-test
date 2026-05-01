@@ -60,7 +60,7 @@ object JUnitRunnerTests extends SimpleIOSuite {
           "modules/framework-cats/jvm/src/test/scala/junit/Meta.scala"
         val message =
           s"""- $name 0ms
-             |  'Only' tag is not allowed when `isCI=true` ($srcPath#L$lineNumber)
+             |  'Only' tag is not allowed when `isCI=true`
              |
              |  $srcPath#L$lineNumber
              |${sourceCode.trim.stripMargin}
@@ -169,7 +169,7 @@ object JUnitRunnerTests extends SimpleIOSuite {
                """
         val message =
           s"""- $name 0ms
-             |  'Only' tag is not allowed when `isCI=true` ($srcPath#L$lineNumber)
+             |  'Only' tag is not allowed when `isCI=true`
              |
              |  $srcPath#L$lineNumber
              |${sourceCode.trim.stripMargin}
