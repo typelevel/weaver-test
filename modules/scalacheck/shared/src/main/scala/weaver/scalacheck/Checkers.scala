@@ -32,8 +32,12 @@ trait Checkers {
     def apply[A1: Arbitrary: Show, A2: Arbitrary: Show, B: PropF](f: (
         A1,
         A2) => B)(
-        implicit loc: SourceLocation): F[Expectations] =
+        implicit loc: SourceLocation): F[Expectations] = {
+      implicit val tuple2Show: Show[(A1, A2)] = {
+        case (a1, a2) => s"${a1.show}\n${a2.show}"
+      }
       forall_(implicitly[Arbitrary[(A1, A2)]].arbitrary, liftProp(f.tupled))
+    }
 
     def apply[
         A1: Arbitrary: Show,
@@ -43,7 +47,7 @@ trait Checkers {
         f: (A1, A2, A3) => B)(
         implicit loc: SourceLocation): F[Expectations] = {
       implicit val tuple3Show: Show[(A1, A2, A3)] = {
-        case (a1, a2, a3) => s"(${a1.show},${a2.show},${a3.show})"
+        case (a1, a2, a3) => s"${a1.show}\n${a2.show}\n${a3.show}"
       }
       forall_(implicitly[Arbitrary[(A1, A2, A3)]].arbitrary, liftProp(f.tupled))
     }
@@ -58,7 +62,7 @@ trait Checkers {
         implicit loc: SourceLocation): F[Expectations] = {
       implicit val tuple3Show: Show[(A1, A2, A3, A4)] = {
         case (a1, a2, a3, a4) =>
-          s"(${a1.show},${a2.show},${a3.show},${a4.show})"
+          s"${a1.show}\n${a2.show}\n${a3.show}\n${a4.show}"
       }
       forall_(implicitly[Arbitrary[(A1, A2, A3, A4)]].arbitrary,
               liftProp(f.tupled))
@@ -75,7 +79,7 @@ trait Checkers {
         implicit loc: SourceLocation): F[Expectations] = {
       implicit val tuple3Show: Show[(A1, A2, A3, A4, A5)] = {
         case (a1, a2, a3, a4, a5) =>
-          s"(${a1.show},${a2.show},${a3.show},${a4.show},${a5.show})"
+          s"${a1.show}\n${a2.show}\n${a3.show}\n${a4.show}\n${a5.show}"
       }
       forall_(implicitly[Arbitrary[(A1, A2, A3, A4, A5)]].arbitrary,
               liftProp(f.tupled))
@@ -93,7 +97,7 @@ trait Checkers {
         implicit loc: SourceLocation): F[Expectations] = {
       implicit val tuple3Show: Show[(A1, A2, A3, A4, A5, A6)] = {
         case (a1, a2, a3, a4, a5, a6) =>
-          s"(${a1.show},${a2.show},${a3.show},${a4.show},${a5.show},${a6.show})"
+          s"${a1.show}\n${a2.show}\n${a3.show}\n${a4.show}\n${a5.show}\n${a6.show}"
       }
       forall_(implicitly[Arbitrary[(A1, A2, A3, A4, A5, A6)]].arbitrary,
               liftProp(f.tupled))
@@ -232,7 +236,8 @@ object Checkers {
   }
 
   private def failureMessage(ith: Int, seed: Seed, input: String): String =
-    s"""Property test failed on try $ith with seed ${seed} and input $input.
+    s"""Property test failed on try $ith with input:
+       |$input
        |You can reproduce this by adding the following configuration to your test:
        |
        |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.$seed.toOption))""".stripMargin
