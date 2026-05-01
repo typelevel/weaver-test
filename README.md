@@ -23,186 +23,31 @@ libraryDependencies +=  "org.typelevel" %% "weaver-cats" % "@VERSION@" % Test
 
 For other build tools and older SBT versions, read the [installation guide](https://typelevel.org/weaver-test/overview/installation.html).
 
+## Documentation
+
+Full documentation is available on the [Weaver microsite](https://typelevel.org/weaver-test/).
+
+### Quick links
+
+- [Installation](https://typelevel.org/weaver-test/overview/installation.html)
+- [Getting started](https://typelevel.org/weaver-test/overview/installation.html#getting-started)
+- [Writing expectations (assertions)](https://typelevel.org/weaver-test/features/expectations.html)
+- [Filtering tests](https://typelevel.org/weaver-test/features/filtering.html)
+- [ScalaCheck integration](https://typelevel.org/weaver-test/features/scalacheck.html)
+
 ## Motivation
+
+Weaver was built for integration/end-to-end tests. It makes tests faster and easier to debug by using cats-effect `IO`.
 
 ![time](docs/assets/time.png)
 
-Weaver provides a nice experience when writing and running tests :
-
-- tests within a suite are run in parallel by default for quickest results possible
-- expectations (ie assertions) are composable values. This forces
-  developers to separate the scenario of the test from the checks they perform,
-  which generally keeps tests cleaner / clearer.
-- failures are aggregated and reported at the end of the run. This prevents the developer from having to "scroll up" forever when trying to understand what failed.
-- a lazy logger is provided for each test, and log statements are only displayed in case of a test failure. This lets the developer enrich their tests with clues and works perfectly well with parallel runs
+- Tests are run concurrently by default for quickest results possible.
+- Expectations (ie assertions) are composable values.
+- Failures are aggregated and reported at the end of the run
+- Logs are only displayed when a test fails. This works perfectly well with concurrent runs.
 - “beforeAll” and “afterAll” logic is represented using a `cats.effect.Resource`. This ensures that resources such as HTTP clients, connection pools and file handles are cleaned up correctly and predictably.
 
-## API
-
-### Example suites (cats-effect)
-
-#### SimpleIOSuite
-
-The suite that is most familiar to developers :
-
-```scala mdoc
-import weaver.SimpleIOSuite
-import cats.effect._
-
-// Suites must be "objects" for them to be picked by the framework
-object MySuite extends SimpleIOSuite {
-
-  pureTest("non-effectful (pure) test"){
-    expect("hello".size == 6)
-  }
-
-  private val random = IO(java.util.UUID.randomUUID())
-
-  test("test with side-effects") {
-    for {
-      x <- random
-      y <- random
-    } yield expect(x != y)
-  }
-
-  loggedTest("test with side-effects and a logger"){ log =>
-    for {
-      x <- random
-      _ <- log.info(s"x : $x")
-      y <- random
-      _ <- log.info(s"y : $y")
-    } yield expect(x != y)
-  }
-}
-```
-
-#### IOSuite
-
-The `IOSuite` constructs the given resource once for all tests in the suite.
-
-```scala mdoc:reset
-import weaver.IOSuite
-import cats.effect._
-
-object MySuite extends IOSuite {
-
-  type Res = Int
-
-  def sharedResource : Resource[IO, Int] = Resource
-    .make(
-      IO(println("Making resource"))
-        .as(123)
-    )(n => IO(println(s"Closing resource $n")))
-
-  test("test, but resource not visible"){
-    IO(expect(123 == 123))
-  }
-
-  test("test with resource"){ n =>
-    IO(expect(n == 123))
-  }
-
-  test("test with resource and a logger"){ (n, log) =>
-    log.info("log was available") *>
-    IO(expect(n == 123))
-  }
-}
-```
-
-#### Other suites
-
-Weaver also includes support for
-
-
-| Alias             | Suite name               | Provided by        | Use case                                      |
-| ----------------- | ------------------------ | ------------------ | --------------------------------------------- |
-| `SimpleIOSuite`   | `SimpleMutableIOSuite`   | `weaver-cats`      | Each test is a standalone `IO` action         |
-| `IOSuite`         | `MutableIOSuite`         | `weaver-cats`      | Each test needs access to a shared `Resource` |
-
-### Expectations (assertions)
-
-#### Building expectations
-
-The various `test` functions have in common that they expect the developer to return a value of type `Expectations`, which is just a basic case class wrapping a `cats.data.Validated` value.
-
-The most convenient way to build `Expectations` is to use the `expect` and `clue` functions. `clue` captures the boolean expression at compile time and provides useful feedback on what goes wrong:
-
-```scala
-expect(clue(List(1, 2, 3).size) == 4)
-```
-
-![Oops](docs/assets/oops.png)
-
-Nothing prevents the user from building their own expectations functions to resemble what they're used to.
-
-#### Composing expectations
-
-Something worth noting is that expectations are not throwing, and that if the user wants to perform several checks in the same test, he needs to compose the expectations via the `and` or the `or` methods they carry.
-
-### Filtering tests
-
-When using the IOSuite variants, the user can call `sbt`'s test command as such:
-
-``` 
-> testOnly -- -o *foo*
-```
-
-This filter will prevent the execution of any test that doesn't contain the string "foo" in its qualified name. For a test labeled "foo" in a "FooSuite" object, in the package "fooPackage", the qualified name of a test is:
-
-```
-fooPackage.FooSuite.foo
-```
-
-### Running suites in standalone
-
-It is possible to run suites outside of your build tool, via a good old `main` function. To do so, you can instantiate the `weaver.Runner`, create a `fs2.Stream` of the suites you want to run, and call `runner.run(stream)`.
-
-This is useful when you consider your tests (typically `end-to-end` ones) as a program of its own and want to avoid paying the cost of compiling them every time you run them.
-
-### Scalacheck (property-based testing)
-
-Weaver comes with basic scalacheck integration.
-
-```scala mdoc
-import weaver._
-import weaver.scalacheck._
-import org.scalacheck.Gen
-
-// Notice the Checkers mix-in
-object ForallExamples extends SimpleIOSuite with Checkers {
-
-  // CheckConfig can be overridden at the test suite level
-  override def checkConfig: CheckConfig =
-    super.checkConfig.copy(perPropertyParallelism = 100)
-
-  test("Gen form") {
-    // Takes an explicit "Gen" instance. There is only a single
-    // version of this overload. If you want to pass several Gen instances
-    // at once, just compose them monadically.
-    forall(Gen.posNum[Int]) { a =>
-      expect(a > 0)
-    }
-  }
-
-  test("Arbitrary form") {
-    // Takes a number of implicit "Arbitrary" instances. There are 6 overloads
-    // to pass 1 to 6 parameters.
-    forall { (a1: Int, a2: Int, a3: Int) =>
-      expect(a1 * a2 * a3 == a3 * a2 * a1)
-    }
-  }
-
-  test("foobar") {
-    // CheckConfig can be overridden locally
-    forall.withConfig(super.checkConfig.copy(perPropertyParallelism = 1,
-                                             initialSeed = Some(7L))) {
-      (x: Int) =>
-        expect(x > 0)
-    }
-  }
-
-}
-```
+For more details, see [why Weaver?](https://typelevel.org/weaver-test/overview/motivation.html)
 
 ## Contributing
 

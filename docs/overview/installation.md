@@ -53,7 +53,7 @@ dependencies {
 }
 ```
 
-## Usage
+## Getting started
 
 
 Start with importing the following :
@@ -62,8 +62,7 @@ Start with importing the following :
 import weaver._
 ```
 
-The most basic usage is to extend `SimpleIOSuite`. Tests are registered imperatively, very much like in scalatest's `FunSuite` or in `utest`, but their bodies are "weaved" together in a single `IO` that the framework executes when the build tool asks for it.
-
+The most basic usage is to extend `SimpleIOSuite`.
 
 ```scala mdoc
 import cats.effect._
@@ -73,13 +72,40 @@ object MySuite extends SimpleIOSuite {
 
   val randomUUID = IO(java.util.UUID.randomUUID())
 
-  // A test for side-effecting functions
-  test("hello side-effects") {
+  test("failing test with side-effects") {
     for {
       x <- randomUUID
       y <- randomUUID
-    } yield expect(x != y)
+    } yield expect.eql(x, y)
   }
 
+  pureTest("pure failing test"){
+    expect.eql("hello".size, 6)
+  }
+
+  loggedTest("failing test with logs"){ log =>
+    for {
+      x <- randomUUID
+      _ <- log.info(s"x : $x")
+      y <- randomUUID
+      _ <- log.info(s"y : $y")
+    } yield expect.eql(x, y)
+  }
 }
 ```
+
+Run your tests with your build tool, e.g. `sbt test`.
+
+```scala mdoc:passthrough
+println(weaver.docs.Output.runSuites(MySuite))
+```
+
+#### Other suites
+
+Weaver also includes support for
+
+| Suite                                                      | Use case                                      |
+|------------------------------------------------------------|-----------------------------------------------|
+| [SimpleIOSuite](../features/expectations.md#example-suite) | Each test is a standalone `IO` action         |
+| [IOSuite](../features/resources.md)                        | Each test needs access to a shared `Resource` |
+| [FunSuite](../features/funsuite.md)                        | Each test is a pure function                  |

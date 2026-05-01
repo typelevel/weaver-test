@@ -5,6 +5,13 @@ Expectations are pure, composable values. This forces developers to separate the
 
 The easiest way to construct expectactions is to call the `expect` macro. The `clue` function can be used to investigate failures.
 
+```scala
+expect(clue(List(1, 2, 3).size) == 4)
+```
+
+![Oops](../assets/oops.png)
+
+
 ## TL;DR
 
 ```scala mdoc:invisible
