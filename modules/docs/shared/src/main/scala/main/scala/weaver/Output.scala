@@ -9,7 +9,8 @@ object Output {
   def format(s: String) = {
     Ansi2Html(removeTrailingNewLine(
       removeTrailingNewLine(
-        s.replace("repl.MdocSessionMdocApp", "").replace("(none:", "(MyTests.scala:"))))
+        s.replace("repl.MdocSessionMdocApp", "").replace("(none:",
+                                                         "(MyTests.scala:"))))
   }
 
   def removeTrailingNewLine(s: String) = {
