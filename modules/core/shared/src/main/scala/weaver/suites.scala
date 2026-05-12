@@ -155,7 +155,7 @@ private[weaver] object TagAnalysisResult {
       extends TagAnalysisResult[A]
 }
 
-abstract class MutableFSuite[F[_]] extends SharedResourceSuite[F] {
+abstract class FSuite[F[_]] extends SharedResourceSuite[F] {
   def pureTest(name: TestName)(run: => Expectations): Unit =
     registerTest(name)(_ =>
       Test(name.name, effect.delay(run))(effect))
