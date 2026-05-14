@@ -28,9 +28,9 @@ object TagDogFoodTests extends IOSuite {
           failureMessages,
           List(
             s"""- (should-fail) 0ms
-               |  'Only' tag is not allowed when `isCI=true` (src/main/MaoTests.scala#L1)""".stripMargin,
+               |  'Only' tag is not allowed when `isCI=true`""".stripMargin,
             s"""- (should-also-fail) 0ms
-               |  'Only' tag is not allowed when `isCI=true` (src/main/MaoTests.scala#L1)""".stripMargin
+               |  'Only' tag is not allowed when `isCI=true`""".stripMargin
           )
         )
     }

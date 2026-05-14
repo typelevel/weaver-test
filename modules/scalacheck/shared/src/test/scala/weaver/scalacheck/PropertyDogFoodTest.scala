@@ -28,7 +28,8 @@ object PropertyDogFoodTest extends IOSuite {
 
       val expected =
         s"""(pure)
-           |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+           |Property test failed on try $attempt with input:
+           |$value
            |You can reproduce this by adding the following configuration to your test:
            |
            |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))"""
@@ -48,7 +49,8 @@ object PropertyDogFoodTest extends IOSuite {
 
         val expected =
           s"""(failFast)
-             |Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+             |Property test failed on try $attempt with input:
+             |$value
              |You can reproduce this by adding the following configuration to your test:
              |
              |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))"""
@@ -69,7 +71,8 @@ object PropertyDogFoodTest extends IOSuite {
 
       val expected =
         s"""(error)
-           |PropertyTestError: Property test failed on try $attempt with seed Seed.fromBase64("$seed") and input $value.
+           |PropertyTestError: Property test failed on try $attempt with input:
+           |$value
            |You can reproduce this by adding the following configuration to your test:
            |
            |forall.withConfig(checkConfig.withInitialSeed(org.scalacheck.rng.Seed.fromBase64("$seed").toOption))
