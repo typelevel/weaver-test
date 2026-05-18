@@ -79,12 +79,10 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
         CrossVersion.for3Use2_13,
       "org.typelevel" %% "scalac-compat-annotation" %
         Version.scalacCompatAnnotation,
-      "org.scalameta" %%% "munit-diff" % Version.munitDiff,
-      if (scalaVersion.value.startsWith("3."))
-        "org.scala-lang" % "scala-reflect" % scala213
-      else
-        "org.scala-lang" % "scala-reflect" % scalaVersion.value
-    )
+      "org.scalameta" %%% "munit-diff" % Version.munitDiff
+    ) ++
+      (if (scalaVersion.value.startsWith("3.")) Nil
+       else Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value))
   )
 
 // Shades the munit-diff dependency.
