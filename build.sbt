@@ -55,10 +55,6 @@ val Version = new {
   val snapshot4s             = _root_.snapshot4s.BuildInfo.snapshot4sVersion
 }
 
-// Scala native test-interface version scheme is set to strict, so we have to explicitly overrule it
-ThisBuild / libraryDependencySchemes +=
-  "org.scala-native" %% "test-interface_native0.5" % "early-semver"
-
 lazy val root = tlCrossRootProject.aggregate(core,
                                              framework,
                                              coreCats,
@@ -142,7 +138,7 @@ lazy val frameworkJS = framework.js
 lazy val frameworkNative = framework.native
   .settings(
     libraryDependencies ++= Seq(
-      "org.scala-native" %%% "test-interface" % nativeVersion
+      "org.scala-native" %%% "test-interface-sbt-defs" % nativeVersion
     )
   )
 
