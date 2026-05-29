@@ -44,7 +44,7 @@ object DogFoodTestsJVM extends IOSuite {
   // mechanism, which we test for.
   test("global sharing suites") { (dogfood, log) =>
     import dogfood._
-    runSuites(moduleSuite(Meta.MutableSuiteTest),
+    runSuites(moduleSuite(Meta.FSuiteTest),
               sharingSuite[MetaJVM.TmpFileSuite],
               globalInit(MetaJVM.GlobalStub)).flatTap(logState(log)).flatMap {
       case (logs, events) =>

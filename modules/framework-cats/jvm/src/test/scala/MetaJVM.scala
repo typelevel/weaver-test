@@ -13,7 +13,7 @@ import cats.syntax.all._
 // because the framework will have ran the tests on its own.
 object MetaJVM {
 
-  object MutableSuiteTest extends MutableSuiteTest
+  object FSuiteTest extends FSuiteTest
 
   object GlobalStub extends GlobalResource {
     def sharedResources(store: GlobalWrite): Resource[IO, Unit] =
