@@ -33,7 +33,7 @@ class Runner[F[_]: Async](
                 .spec(args)
                 .compile
                 .toList
-                .map(SpecEvent(suite.name, _))
+                .map(SpecEvent(suite.suiteName, _))
                 .flatMap(produce(channel))
             }
             .compile

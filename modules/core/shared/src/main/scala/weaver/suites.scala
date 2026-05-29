@@ -25,7 +25,7 @@ trait EffectSuite[F[_]] extends BaseSuiteClass with EffectSuiteAux
   protected def effectCompat: EffectCompat[F]
   implicit final protected def effect: Async[F] = effectCompat.effect
 
-  def name: String = self.getClass.getName.replace("$", "")
+  def suiteName: String = self.getClass.getName.replace("$", "")
 
   final def run(args: List[String])(report: TestOutcome => F[Unit]): F[Unit] =
     spec(args).evalMap(report).compile.drain
@@ -111,7 +111,7 @@ abstract class SharedResourceSuite[F[_]] extends SharedResourceRunnableSuite[F]
       // "foo".only.ignore. Use the argument filters to determine the
       // tests to be run.
 
-      val argsFilter = Filters.filterTests(this.name)(args)
+      val argsFilter = Filters.filterTests(this.suiteName)(args)
 
       val testsIgnored =
         testsTaggedOnlyAndIgnored ++
