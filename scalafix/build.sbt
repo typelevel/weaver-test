@@ -28,7 +28,13 @@ lazy val `weaver-test` = (project in file("."))
       v0_8_3_tests.projectRefs ++
       v0_9_0_input.projectRefs ++
       v0_9_0_output.projectRefs ++
-      v0_9_0_tests.projectRefs: _*
+      v0_9_0_tests.projectRefs ++
+      v0_11_0_input.projectRefs ++
+      v0_11_0_output.projectRefs ++
+      v0_11_0_tests.projectRefs ++
+      v0_13_0_input.projectRefs ++
+      v0_13_0_output.projectRefs ++
+      v0_13_0_tests.projectRefs: _*
   )
   .settings(
     publish / skip := true
@@ -59,12 +65,21 @@ lazy val v0_11_0_input =
   makeInput("v0_11_0", "org.typelevel" %% "weaver-cats" % "0.10.1")
 lazy val v0_11_0_output =
   makeOutput("v0_11_0",
-             "org.typelevel" %% "weaver-cats" % "0.11-799b8e6-SNAPSHOT")
+             "org.typelevel" %% "weaver-cats" % "0.11.0")
 lazy val v0_11_0_tests = makeTests("v0_11_0", v0_11_0_input, v0_11_0_output)
+
+lazy val v0_13_0_input =
+  makeInput("v0_13_0", "org.typelevel" %% "weaver-cats" % "0.12.0")
+lazy val v0_13_0_output =
+  makeOutput("v0_13_0",
+             "org.typelevel" %% "weaver-cats" % "0.13-ff3228c-SNAPSHOT")
+
+lazy val v0_13_0_tests = makeTests("v0_13_0", v0_13_0_input, v0_13_0_output)
 
 lazy val testsAggregate = Project("tests", file("target/testsAggregate"))
   .aggregate(v0_8_3_tests.projectRefs ++ v0_9_0_tests.projectRefs ++
-    v0_11_0_tests.projectRefs: _*)
+    v0_11_0_tests.projectRefs ++
+    v0_13_0_tests.projectRefs: _*)
   .settings(
     publish / skip := true
   )
