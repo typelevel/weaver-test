@@ -4,7 +4,7 @@ package test
 
 import cats.effect.{ IO, Resource }
 
-object SharedResourceTests extends MutableIOSuite {
+object SharedResourceTests extends IOSuite {
   override type Res = (String, Int)
   override def sharedResource: Resource[IO, (String, Int)] =
     Resource.pure[IO, (String, Int)](("foo", 5))

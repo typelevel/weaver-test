@@ -18,7 +18,7 @@ object DogFoodTests extends IOSuite {
 
   test("test suite reports successes events") { dogfood =>
     import dogfood._
-    runSuite(Meta.MutableSuiteTest).map {
+    runSuite(Meta.FSuiteTest).map {
       case (_, events) => forEach(events)(isSuccess)
     }
   }

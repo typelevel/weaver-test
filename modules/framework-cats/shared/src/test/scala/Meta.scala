@@ -42,7 +42,7 @@ object Meta {
     }
   }
 
-  object MutableSuiteTest extends MutableSuiteTest
+  object FSuiteTest extends FSuiteTest
 
   object Boom extends Error("Boom") with scala.util.control.NoStackTrace
 

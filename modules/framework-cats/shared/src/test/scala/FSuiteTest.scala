@@ -4,7 +4,7 @@ package test
 
 import scala.concurrent.duration._
 
-abstract class MutableSuiteTest extends SimpleIOSuite {
+abstract class FSuiteTest extends SimpleIOSuite {
 
   pureTest("23 is odd") {
     expect(23 % 2 == 1)
@@ -27,4 +27,4 @@ abstract class MutableSuiteTest extends SimpleIOSuite {
   }
 }
 
-object MutableSuiteTest extends MutableSuiteTest
+object FSuiteTest extends FSuiteTest
