@@ -217,6 +217,14 @@ You can display urls in other CI providers using the `WEAVER_SOURCE_URL` environ
 export WEAVER_SOURCE_URL=https://gitlab.com/my-org/my-repo/-/tree/my-branch/
 ```
 
+Here are some common provider formats:
+
+| Provider | `WEAVER_SOURCE_URL` value                                                        |
+|----------|----------------------------------------------------------------------------------|
+| GitHub   | `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${GITHUB_SHA}/` (set by default) |
+| GitLab   | `${CI_PROJECT_URL}/-/tree/${CI_COMMIT_SHA}/`                                     |
+
+
 ## Displaying a trace
 
 If you have a test codebase with many nested helper functions, you may want to display a trace of source locations. You can do this with the `traced(here)` function.
