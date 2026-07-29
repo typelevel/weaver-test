@@ -60,7 +60,8 @@ lazy val root = tlCrossRootProject.aggregate(core,
                                              coreCats,
                                              cats,
                                              scalacheck,
-                                             discipline)
+                                             discipline,
+                                             unidocs)
 
 lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("modules/core"))
@@ -279,4 +280,18 @@ lazy val docs = project
           )
         )),
     laikaConfig ~= (_.withRawContent)
+  )
+
+lazy val unidocs = project
+  .enablePlugins(TypelevelUnidocPlugin)
+  .settings(
+    name                                       := "weaver-docs",
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
+      core.jvm,
+      framework.jvm,
+      coreCats.jvm,
+      cats.jvm,
+      scalacheck.jvm,
+      discipline.jvm
+    )
   )
