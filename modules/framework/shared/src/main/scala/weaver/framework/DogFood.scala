@@ -9,7 +9,7 @@ import cats.effect.{ Resource, Sync }
 import cats.kernel.Eq
 import cats.syntax.all._
 
-import sbt.testing.{ Event => _, Status => _, Task => _, _ }
+import sbt.testing.{ Event => _, _ }
 
 import Platform._
 
