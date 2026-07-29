@@ -13,4 +13,4 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.9.1")
 
 addSbtPlugin("io.get-coursier" % "sbt-shading"    % "2.1.5")
-addSbtPlugin("com.siriusxm"    % "sbt-snapshot4s" % "0.2.10")
+addSbtPlugin("com.siriusxm"    % "sbt-snapshot4s" % "0.2.11")
