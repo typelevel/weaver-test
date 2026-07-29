@@ -9,7 +9,7 @@ The easiest way to construct expectactions is to call the `expect` macro. The `c
 expect(clue(List(1, 2, 3).size) == 4)
 ```
 
-![Oops](../assets/oops.png)
+<img src="../assets/oops.png" alt="Error message produced by the expect macro" style="max-width: 100%; height: auto;" />
 
 
 ## TL;DR
