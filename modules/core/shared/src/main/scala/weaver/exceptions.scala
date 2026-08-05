@@ -22,4 +22,4 @@ final class IgnoredException private[weaver] (
 final class ExpectationsFailed(
     private[weaver] val failures: NonEmptyList[ExpectationFailed])
     extends WeaverTestException(
-      s"One or more expecations failed:\n${failures.map(_.message).toList.mkString(System.lineSeparator)}")
+      s"One or more expectations failed:\n${failures.map(_.message).toList.mkString(System.lineSeparator)}")
