@@ -206,6 +206,21 @@ object JUnitRunnerTests extends SimpleIOSuite {
     }
   }
 
+  test("Tests that throw are reported as finished") {
+    run(Meta.Throwing).map { notifications =>
+      val expected = List(
+        TestSuiteStarted("weaver.junit.Meta$Throwing$"),
+        TestStarted("success(weaver.junit.Meta$Throwing$)"),
+        TestFinished("success(weaver.junit.Meta$Throwing$)"),
+        TestStarted("exception(weaver.junit.Meta$Throwing$)"),
+        TestFailure("exception(weaver.junit.Meta$Throwing$)", "boom"),
+        TestFinished("exception(weaver.junit.Meta$Throwing$)"),
+        TestSuiteFinished("weaver.junit.Meta$Throwing$")
+      )
+      expect.same(expected, notifications)
+    }
+  }
+
   def run(suite: Class[_]): IO[List[Notification]] = for {
     runner   <- IO(new WeaverRunner(suite))
     queue    <- IO(scala.collection.mutable.Queue.empty[Notification])

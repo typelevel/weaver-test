@@ -141,4 +141,18 @@ object Meta {
 
   }
 
+  object Throwing extends SimpleIOSuite {
+
+    override def maxParallelism: Int = 1
+
+    pureTest("success") {
+      success
+    }
+
+    test("exception") {
+      IO.raiseError(new RuntimeException("boom"))
+    }
+
+  }
+
 }
