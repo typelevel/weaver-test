@@ -88,3 +88,33 @@ object ForallExamples extends SimpleIOSuite with Checkers {
 ```scala mdoc:passthrough
 println(weaver.docs.Output.runSuites(ForallExamples))
 ```
+
+## Effectful properties
+
+The body of a `forall` can also return an effect, such as `IO[Expectations]`, instead of a plain `Expectations`.
+This is useful when the property needs to run a program, for example one that uses a `Ref` or other effectful resources.
+
+Each generated input is evaluated as a separate effect.
+The number of inputs evaluated concurrently is controlled by `perPropertyParallelism`, which uses the effect system's own concurrency rather than ScalaCheck's.
+Set it to `1` if the property must evaluate its inputs sequentially.
+
+```scala mdoc:silent
+import cats.effect.{IO, Ref}
+
+object EffectfulForallExamples extends SimpleIOSuite with Checkers {
+
+  test("Effectful property") {
+    forall(Gen.posNum[Int]) { n =>
+      for {
+        ref    <- Ref.of[IO, Int](0)
+        _      <- ref.update(_ + n)
+        result <- ref.get
+      } yield expect.same(n, result)
+    }
+  }
+}
+```
+
+```scala mdoc:passthrough
+println(weaver.docs.Output.runSuites(EffectfulForallExamples))
+```
